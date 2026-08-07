@@ -33,7 +33,7 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 
 ### Epic B: Testimonials & Blog (Assigned strictly to Naira)
 *Naira takes full ownership of these features.*
-- [ ] **Task 2.B.1 (Naira - DB):** Create the Mongoose `Testimonial` and `Blog` Schemas.
+- [x] **Task 2.B.1 (Naira - DB):** Create the Mongoose `Testimonial` and `Blog` Schemas.
 - [ ] **Task 2.B.2 (Naira - API):** Build CRUD API routes for Testimonials and Blogs.
 - [ ] **Task 2.B.3 (Naira - Infra):** Implement Cloudinary upload logic specifically for Audio files (Voice Testimonials).
 - [ ] **Task 2.B.4 (Naira - Dashboard UI):** Build the Admin panels for creating Blog posts (Rich Text Editor) and adding Testimonials.
