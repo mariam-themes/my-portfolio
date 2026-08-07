@@ -16,7 +16,7 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 - [ ] **Task 1.2 (Shared):** Configure MongoDB Atlas and set up Mongoose connection utility.
 - [ ] **Task 1.3 (Shared):** Implement NextAuth.js for the Admin Dashboard (Email/Password).
 - [ ] **Task 1.4 (Shared):** Build the Base Dashboard Layout (Sidebar, Header, Auth protection).
-- [ ] **Task 1.5 (Shared):** Build Shared Public UI Components (Buttons, Inputs, Base Typography).
+- [x] **Task 1.5 (Shared):** Build Shared Public UI Components (Buttons, Inputs, Base Typography).
 
 ---
 
