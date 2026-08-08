@@ -36,7 +36,7 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 - [x] **Task 2.B.1 (Naira - DB):** Create the Mongoose `Testimonial` and `Blog` Schemas.
 - [x] **Task 2.B.2 (Naira - API):** Build CRUD API routes for Testimonials and Blogs.
 - [x] **Task 2.B.3 (Naira - Infra):** Implement Cloudinary upload logic specifically for Audio files (Voice Testimonials).
-- [ ] **Task 2.B.4 (Naira - Dashboard UI):** Build the Admin panels for creating Blog posts (Rich Text Editor) and adding Testimonials.
+- [x] **Task 2.B.4 (Naira - Dashboard UI):** Build the Admin panels for creating Blog posts (Rich Text Editor) and adding Testimonials.
 - [ ] **Task 2.B.5 (Naira - Public UI):** Build the Testimonials section with the custom **Audio Player UI**.
 - [ ] **Task 2.B.6 (Naira - Public UI):** Build the public Blog index and dynamic Post pages.
 

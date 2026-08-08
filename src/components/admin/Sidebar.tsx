@@ -7,7 +7,9 @@ export default function Sidebar() {
     { name: 'Dashboard', href: '/admin', icon: Home },
     { name: 'Projects', href: '/admin/projects', icon: Folder },
     { name: 'Blog', href: '/admin/blog', icon: FileText },
+    { name: 'Add Blog', href: '/admin/blogs/new', icon: FileText },
     { name: 'Testimonials', href: '/admin/testimonials', icon: Star },
+    { name: 'Add Testimonial', href: '/admin/testimonials/new', icon: Star },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
