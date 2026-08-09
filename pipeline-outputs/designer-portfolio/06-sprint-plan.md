@@ -53,7 +53,7 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 - [ ] **Task 3.C.4 (Naira - Public UI):** Build the 3D Interactive Hero section (using Three.js / React Three Fiber).
 
 ### Epic D: Lead Generation & SEO (Assigned to Menna)
-- [ ] **Task 3.D.1 (Menna - DB/API):** Create Schema and API for `Inquiries` (Contact Form submissions).
+- [x] **Task 3.D.1 (Menna - DB/API):** Create Schema and API for `Inquiries` (Contact Form submissions).
 - [ ] **Task 3.D.2 (Menna - API):** Implement email notification trigger when a new inquiry is submitted (e.g., using Resend or NodeMailer).
 - [ ] **Task 3.D.3 (Menna - Public UI):** Build the complex Contact Request Form with validation (Budget, Timeline, Service selection).
 - [ ] **Task 3.D.4 (Menna - Dashboard UI):** Build a "Leads/Inquiries" viewer in the Admin Dashboard.
@@ -61,7 +61,7 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 
 ### Epic E: i18n & Theme Manager (Assigned to Shared / Menna)
 *Core infrastructure upgrades for dual-language and dynamic coloring.*
-- [ ] **Task 3.E.1 (Shared - Infra):** Setup Next.js `[locale]` routing, `next-intl` configuration, and Middleware for language detection.
+- [x] **Task 3.E.1 (Shared - Infra):** Setup Next.js `[locale]` routing, `next-intl` configuration, and Middleware for language detection.
 - [ ] **Task 3.E.2 (Shared - DB/API):** Create `Theme` schema and API to store global colors (primary, background, specific text highlights).
 - [ ] **Task 3.E.3 (Shared - Dashboard UI):** Build "Theme & Colors" Manager interface in the Admin Dashboard.
 - [ ] **Task 3.E.4 (Shared - Public UI):** Inject dynamic CSS variables into the public site based on DB theme.
