@@ -1,12 +1,16 @@
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
-import ProjectsClientWrapper from '@/app/projects/ProjectsClientWrapper';
+import ProjectsClientWrapper from '@/app/[locale]/projects/ProjectsClientWrapper';
+import type { ProjectRecord } from '@/app/[locale]/projects/ProjectListClient';
 
 type LocalizedText = string | { en?: string };
 type ProjectListRecord = {
+  _id: { toString(): string } | string;
+  slug: string;
+  heroMediaUrl: string;
+  year: number;
   title?: LocalizedText;
   sector?: LocalizedText;
-  [key: string]: unknown;
 };
 
 export const metadata = {
@@ -25,10 +29,16 @@ export default async function WorkPage() {
     .select('title slug sector heroMediaUrl year')
     .lean();
 
-  const serializedProjects = (JSON.parse(JSON.stringify(projects)) as ProjectListRecord[]).map((project) => ({
-    ...project,
-    title: typeof project.title === 'object' ? project.title?.en || '' : project.title,
-    sector: typeof project.sector === 'object' ? project.sector?.en || '' : project.sector,
+  const serializedProjects: ProjectRecord[] = (
+    JSON.parse(JSON.stringify(projects)) as ProjectListRecord[]
+  ).map((project) => ({
+    _id: String(project._id),
+    slug: project.slug,
+    heroMediaUrl: project.heroMediaUrl,
+    year: project.year,
+    title: typeof project.title === 'object' ? project.title?.en || '' : project.title || '',
+    sector:
+      typeof project.sector === 'object' ? project.sector?.en || '' : project.sector || '',
   }));
 
   return (

@@ -19,7 +19,7 @@ export default function NewTestimonialPage() {
     audioUrl: '',
   });
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'avatarUrl' | 'audioUrl', resourceType: 'image' | 'video' = 'auto') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'avatarUrl' | 'audioUrl', resourceType: 'image' | 'video' = 'video') => {
     const file = e.target.files?.[0];
     if (!file) return;
 

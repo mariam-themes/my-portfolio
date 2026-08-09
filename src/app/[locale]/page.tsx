@@ -1,13 +1,21 @@
+import { getTranslations } from 'next-intl/server';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { H1, H2, H3, P, Large, Small, Muted } from "@/components/ui/typography";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 
-export default function Home() {
+export default async function Home() {
+  const t = await getTranslations('HomePage');
+
   return (
-    <main className="container mx-auto p-8 space-y-12">
+    <main className="container mx-auto p-8 space-y-12" dir="auto">
+      <div className="flex items-center justify-between">
+        <LocaleSwitcher />
+        <P>/{t('title')}</P>
+      </div>
       <div className="space-y-4">
-        <H1>UI Components Showcase</H1>
-        <P>This is a temporary page to showcase the shared UI components we built for Task 1.5.</P>
+        <H1>{t('title')}</H1>
+        <P>{t('tagline')}</P>
       </div>
 
       <section className="space-y-6">
@@ -16,7 +24,7 @@ export default function Home() {
           <H1>Heading 1 (H1)</H1>
           <H2>Heading 2 (H2)</H2>
           <H3>Heading 3 (H3)</H3>
-          <P>This is a standard paragraph component (P). It's great for long-form text and general descriptions.</P>
+          <P>This is a standard paragraph component (P). It&apos;s great for long-form text and general descriptions.</P>
           <Large>This is the Large component, good for subtitles.</Large>
           <Small>This is the Small component, great for legal text or fine print.</Small>
           <Muted>This is the Muted component, perfect for subtle hints.</Muted>

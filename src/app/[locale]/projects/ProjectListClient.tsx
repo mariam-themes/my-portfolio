@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 
 interface Project {
@@ -13,6 +13,8 @@ interface Project {
   heroMediaUrl: string;
   year: number;
 }
+
+export type ProjectRecord = Project;
 
 export default function ProjectListClient({ projects }: { projects: Project[] }) {
   const [activeFilter, setActiveFilter] = useState<string>('All');

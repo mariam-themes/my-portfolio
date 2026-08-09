@@ -52,7 +52,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<ProjectFormValues>({
+  const form = useForm<z.input<typeof projectSchema>, any, z.output<typeof projectSchema>>({
     resolver: zodResolver(projectSchema),
     defaultValues: initialData || {
       title: '',

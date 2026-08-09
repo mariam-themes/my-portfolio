@@ -1,7 +1,7 @@
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
 import { notFound } from 'next/navigation';
-import CaseStudyClientWrapper from '@/app/projects/[slug]/CaseStudyClientWrapper';
+import CaseStudyClientWrapper from '@/app/[locale]/projects/[slug]/CaseStudyClientWrapper';
 
 type PageProps = { params: Promise<{ slug: string }> };
 type LocalizedText = string | { en?: string };

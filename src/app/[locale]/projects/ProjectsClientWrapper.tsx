@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import type { ProjectRecord } from './ProjectListClient';
 
 const ProjectListClient = dynamic(() => import('./ProjectListClient'), {
   ssr: false,
@@ -14,6 +15,6 @@ const ProjectListClient = dynamic(() => import('./ProjectListClient'), {
   ),
 });
 
-export default function ProjectsClientWrapper({ projects }: { projects: any[] }) {
+export default function ProjectsClientWrapper({ projects }: { projects: ProjectRecord[] }) {
   return <ProjectListClient projects={projects} />;
 }

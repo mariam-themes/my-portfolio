@@ -1,0 +1,13 @@
+{
+  "HomePage": {
+    "title": "UI Components Showcase",
+    "tagline": "Luxury designer portfolio — bilingual (English / Arabic) infrastructure"
+  },
+  "Work": {
+    "metaTitle": "Selected Works | Portfolio",
+    "metaDescription": "Explore my latest design projects and case studies."
+  },
+  "LocaleSwitcher": {
+    "label": "AR"
+  }
+}
