@@ -17,6 +17,8 @@ const SERVICE_OPTIONS = [
   { value: 'Other', labelKey: 'serviceOther' },
 ];
 
+const OTHER_SERVICE = SERVICE_OPTIONS[SERVICE_OPTIONS.length - 1].value;
+
 const BUDGET_OPTIONS = [
   { value: 'Under $1,000', labelKey: 'budgetOption1' },
   { value: '$1,000 – $3,000', labelKey: 'budgetOption2' },
@@ -45,43 +47,69 @@ export default function ContactForm() {
   const t = useTranslations('Contact');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
-  const contactSchema = z.object({
-    name: z.string().trim().min(1, t('nameError')),
-    email: z.string().trim().regex(EMAIL_REGEX, t('emailInvalid')),
-    service: z.string().trim().min(1, t('serviceError')),
-    budget: z.string().trim().optional(),
-    timeline: z.string().trim().optional(),
-    message: z.string().trim().min(10, t('messageShort')),
-  });
+  const contactSchema = z
+    .object({
+      name: z.string().trim().min(1, t('nameError')),
+      email: z.string().trim().regex(EMAIL_REGEX, t('emailInvalid')),
+      phone: z.string().trim().optional(),
+      service: z.string().trim().min(1, t('serviceError')),
+      serviceOther: z.string().trim().optional(),
+      budget: z.string().trim().optional(),
+      timeline: z.string().trim().optional(),
+      message: z.string().trim().min(10, t('messageShort')),
+    })
+    .superRefine((values, ctx) => {
+      if (values.service === OTHER_SERVICE && !values.serviceOther) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['serviceOther'],
+          message: t('serviceOtherShort'),
+        });
+      }
+    });
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       name: '',
       email: '',
+      phone: '',
       service: '',
+      serviceOther: '',
       budget: '',
       timeline: '',
       message: '',
     },
   });
 
+  const watchedService = watch('service');
+
   const onSubmit = async () => {
     void handleSubmit(async (values) => {
       setStatus('submitting');
       try {
+        const service =
+          values.service === OTHER_SERVICE
+            ? (values.serviceOther || '').trim() || OTHER_SERVICE
+            : values.service;
+
         const response = await fetch('/api/inquiries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            ...values,
+            name: values.name,
+            email: values.email,
+            phone: values.phone || undefined,
+            service,
             budget: values.budget || undefined,
             timeline: values.timeline || undefined,
+            message: values.message,
           }),
         });
 
@@ -124,7 +152,7 @@ export default function ContactForm() {
       }}
       className="space-y-6 rounded-2xl border border-rose-200/15 bg-[#160308]/80 p-6 sm:p-10 backdrop-blur"
     >
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-3">
         <div className="space-y-2">
           <label htmlFor="name" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
             {t('nameLabel')}
@@ -156,6 +184,19 @@ export default function ContactForm() {
             <p className="text-xs text-red-400">{errors.email.message}</p>
           )}
         </div>
+
+        <div className="space-y-2">
+          <label htmlFor="phone" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
+            {t('phoneLabel')}
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            placeholder={t('phonePlaceholder')}
+            className={cn(fieldClasses)}
+            {...register('phone')}
+          />
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -167,7 +208,7 @@ export default function ContactForm() {
             id="service"
             className={cn(
               fieldClasses,
-              'appearance-none pr-10',
+              'appearance-none pr-10 rtl:pl-10 rtl:pr-4',
               errors.service && errorClasses
             )}
             defaultValue=""
@@ -182,10 +223,28 @@ export default function ContactForm() {
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50" />
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50 rtl:left-3 rtl:right-auto" />
         </div>
         {errors.service && (
           <p className="text-xs text-red-400">{errors.service.message}</p>
+        )}
+
+        {watchedService === OTHER_SERVICE && (
+          <div className="space-y-2 pt-2">
+            <label htmlFor="serviceOther" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
+              {t('serviceOtherLabel')}
+            </label>
+            <input
+              id="serviceOther"
+              type="text"
+              placeholder={t('serviceOtherPlaceholder')}
+              className={cn(fieldClasses, errors.serviceOther && errorClasses)}
+              {...register('serviceOther')}
+            />
+            {errors.serviceOther && (
+              <p className="text-xs text-red-400">{errors.serviceOther.message}</p>
+            )}
+          </div>
         )}
       </div>
 
@@ -197,7 +256,7 @@ export default function ContactForm() {
           <div className="relative">
             <select
               id="budget"
-              className={cn(fieldClasses, 'appearance-none pr-10')}
+              className={cn(fieldClasses, 'appearance-none pr-10 rtl:pl-10 rtl:pr-4')}
               defaultValue=""
               {...register('budget')}
             >
@@ -210,7 +269,7 @@ export default function ContactForm() {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50 rtl:left-3 rtl:right-auto" />
           </div>
         </div>
 
@@ -221,7 +280,7 @@ export default function ContactForm() {
           <div className="relative">
             <select
               id="timeline"
-              className={cn(fieldClasses, 'appearance-none pr-10')}
+              className={cn(fieldClasses, 'appearance-none pr-10 rtl:pl-10 rtl:pr-4')}
               defaultValue=""
               {...register('timeline')}
             >
@@ -234,7 +293,7 @@ export default function ContactForm() {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50 rtl:left-3 rtl:right-auto" />
           </div>
         </div>
       </div>

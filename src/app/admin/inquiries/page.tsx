@@ -28,6 +28,7 @@ export default async function AdminInquiriesPage({
   const inquiries = (JSON.parse(JSON.stringify(rawInquiries)) as InquiryRecord[]).map((inquiry) => ({
     ...inquiry,
     _id: String(inquiry._id),
+    phone: inquiry.phone || '',
   }));
 
   const [total, newCount, contactedCount, closedCount] = await Promise.all([

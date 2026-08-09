@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, Trash2, Mail, Briefcase, Wallet, Clock, CheckCircle2, Inbox } from 'lucide-react';
+import { Loader2, Trash2, Mail, Phone, Briefcase, Wallet, Clock, CheckCircle2, Inbox } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export type InquiryStatus = 'new' | 'contacted' | 'closed';
@@ -12,6 +12,7 @@ export type InquiryRecord = {
   _id: string;
   name: string;
   email: string;
+  phone?: string;
   service: string;
   budget?: string;
   timeline?: string;
@@ -169,6 +170,16 @@ export default function InquiriesClient({
                     {STATUS_META[inquiry.status].label}
                   </span>
                 </div>
+
+                {inquiry.phone && (
+                  <a
+                    href={`tel:${inquiry.phone}`}
+                    className="inline-flex items-center gap-1.5 text-sm text-rose-200/70 hover:text-rose-200 transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    {inquiry.phone}
+                  </a>
+                )}
 
                 <div className="flex flex-wrap gap-2 text-xs">
                   <span className="inline-flex items-center gap-1.5 bg-rose-950/50 text-rose-300 px-2 py-1 rounded border border-rose-900/50">
