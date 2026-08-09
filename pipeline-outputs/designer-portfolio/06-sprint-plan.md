@@ -24,12 +24,14 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 
 ### Epic A: Projects & Case Studies (Assigned strictly to Menna)
 *Menna takes full ownership of this feature.*
-- [ ] **Task 2.A.1 (Menna - DB):** Create the Mongoose `Project` Schema.
-- [ ] **Task 2.A.2 (Menna - API):** Build GET, POST, PUT, DELETE routes for `/api/projects` and `/api/admin/projects`.
+- [✓] **Task 2.A.1 (Menna - DB):** Create the Mongoose `Project` Schema.
+- [ ] **Task 2.A.1.b (Menna - DB):** Refactor `Project` Schema to support Arabic/English (i18n) objects for title, description, platform, etc.
+- [✓] **Task 2.A.2 (Menna - API):** Build GET, POST, PUT, DELETE routes for `/api/projects` and `/api/admin/projects`.
 - [ ] **Task 2.A.3 (Menna - Infra):** Implement Cloudinary upload logic specifically for massive Full-Page Screenshots and videos.
-- [ ] **Task 2.A.4 (Menna - Dashboard UI):** Build the Admin "Add/Edit Project" form with image uploaders and dynamic fields.
-- [ ] **Task 2.A.5 (Menna - Public UI):** Build the public "Portfolio List" page (filtering, GSAP animations for cards).
-- [ ] **Task 2.A.6 (Menna - Public UI):** Build the dynamic "Project Case Study" page (`app/work/[slug]`), including the **Browser Mockup Component** with internal scroll behavior.
+- [✓] **Task 2.A.4 (Menna - Dashboard UI):** Build the Admin "Add/Edit Project" form with image uploaders and dynamic fields.
+- [ ] **Task 2.A.4.b (Menna - Dashboard UI):** Refactor `ProjectForm` UI to include Arabic fields (side-by-side or Tabs).
+- `[✓]` **Task 2.A.5 (Menna - Public UI):** Build the public "Portfolio List" page (filtering, GSAP animations for cards).
+- `[✓]` **Task 2.A.6 (Menna - Public UI):** Build the dynamic "Project Case Study" page (`app/work/[slug]`), including the **Browser Mockup Component** with internal scroll behavior.
 
 ### Epic B: Testimonials & Blog (Assigned strictly to Naira)
 *Naira takes full ownership of these features.*
@@ -56,6 +58,13 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 - [ ] **Task 3.D.3 (Menna - Public UI):** Build the complex Contact Request Form with validation (Budget, Timeline, Service selection).
 - [ ] **Task 3.D.4 (Menna - Dashboard UI):** Build a "Leads/Inquiries" viewer in the Admin Dashboard.
 - [ ] **Task 3.D.5 (Menna - Global):** Implement Next.js SEO Metadata API for dynamic pages (Projects) so the client can edit Meta Titles/Descriptions.
+
+### Epic E: i18n & Theme Manager (Assigned to Shared / Menna)
+*Core infrastructure upgrades for dual-language and dynamic coloring.*
+- [ ] **Task 3.E.1 (Shared - Infra):** Setup Next.js `[locale]` routing, `next-intl` configuration, and Middleware for language detection.
+- [ ] **Task 3.E.2 (Shared - DB/API):** Create `Theme` schema and API to store global colors (primary, background, specific text highlights).
+- [ ] **Task 3.E.3 (Shared - Dashboard UI):** Build "Theme & Colors" Manager interface in the Admin Dashboard.
+- [ ] **Task 3.E.4 (Shared - Public UI):** Inject dynamic CSS variables into the public site based on DB theme.
 
 ---
 

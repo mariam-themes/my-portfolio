@@ -1,26 +1,194 @@
 @import "tailwindcss";
 
+/* ── GPT-Inspired Design Tokens ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #171717;
+  --bg-card: #1e1e1e;
+  --bg-elevated: #2a2a2a;
+  --accent: #951c30;
+  --accent-hover: #7a1525;
+  --accent-glow: rgba(149, 28, 48, 0.25);
+  --text-primary: #ececec;
+  --text-secondary: #8e8ea0;
+  --text-muted: #4d4d5a;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(149, 28, 48, 0.4);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Use data-scroll-behavior attribute per Next.js docs */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
+
+/* ── Hide scrollbar utility (for horizontal scroll) ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Snap scrolling for Case Study ── */
+.snap-container {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
+}
+.snap-section {
+  scroll-snap-align: start;
+  min-height: 100vh;
+}
+
+/* ── 3D perspective for card animations ── */
+.perspective-1000 {
+  perspective: 1000px;
+  perspective-origin: center center;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* ── Accent glow utility ── */
+.glow-accent {
+  box-shadow: 0 0 40px var(--accent-glow), 0 0 80px rgba(149, 28, 48, 0.1);
+}
+.text-accent { color: var(--accent); }
+.border-accent { border-color: var(--border-accent); }
+
+/* ── Gradient text ── */
+.gradient-text {
+  background: linear-gradient(135deg, #ececec 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Frosted glass ── */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+}
+
+/* Work and case-study styling is scoped to the Project feature only. */
+.work-experience,
+.case-study-narrative {
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #161618;
+  --bg-card: #310a17;
+  --bg-elevated: #481022;
+  --project-surface: #21060e;
+  --accent: #951c30;
+  --accent-hover: #b8223b;
+  --accent-glow: rgba(149, 28, 48, 0.32);
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #98616f;
+  --border: rgba(255, 216, 226, 0.13);
+  --border-accent: rgba(149, 28, 48, 0.58);
+  background:
+    radial-gradient(circle at 88% 4%, rgba(125, 15, 46, 0.32), transparent 26rem),
+    radial-gradient(circle at 8% 38%, rgba(81, 8, 29, 0.24), transparent 32rem),
+    var(--bg-primary);
+  perspective: 1400px;
+  perspective-origin: center center;
+}
+
+.work-masthead::before {
+  position: absolute;
+  top: 4.5rem;
+  right: -0.08em;
+  color: rgba(214, 87, 119, 0.08);
+  content: '01';
+  font-size: clamp(10rem, 27vw, 28rem);
+  font-weight: 700;
+  letter-spacing: -0.12em;
+  line-height: 0.8;
+  pointer-events: none;
+}
+
+.work-title {
+  text-shadow: 0 0 70px rgba(172, 22, 62, 0.24);
+}
+
+.work-project-visual,
+.work-project-copy,
+.case-study-plane {
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.work-project-scene {
+  transform-style: preserve-3d;
+}
+
+.work-project-visual {
+  transform-origin: center center;
+}
+
+.work-project-grain {
+  background:
+    linear-gradient(115deg, transparent 38%, rgba(190, 28, 72, 0.19) 38.1%, transparent 38.4%),
+    radial-gradient(circle at 78% 13%, rgba(193, 39, 79, 0.33), transparent 21rem);
+  mix-blend-mode: screen;
+}
+
+.case-study-nav {
+  background: linear-gradient(180deg, rgba(23, 3, 10, 0.84), transparent);
+}
+
+.case-study-hero-copy {
+  transform-style: preserve-3d;
+}
+
+.browser-mockup-viewport {
+  scrollbar-gutter: stable;
+}
+
+.browser-mockup-viewport:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+body:has(.work-experience)::-webkit-scrollbar-track,
+body:has(.case-study-narrative)::-webkit-scrollbar-track {
+  background: #21060e;
+}
+
+body:has(.work-experience)::-webkit-scrollbar-thumb,
+body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
+  background: #a11c40;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-project-visual,
+  .work-project-copy,
+  .case-study-plane {
+    transform: none !important;
+    transition: none !important;
+  }
 }

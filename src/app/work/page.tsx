@@ -1,0 +1,39 @@
+import connectToDatabase from '@/lib/mongodb';
+import Project from '@/models/Project';
+import ProjectsClientWrapper from '@/app/projects/ProjectsClientWrapper';
+
+type LocalizedText = string | { en?: string };
+type ProjectListRecord = {
+  title?: LocalizedText;
+  sector?: LocalizedText;
+  [key: string]: unknown;
+};
+
+export const metadata = {
+  title: 'Selected Works | Portfolio',
+  description: 'Explore my latest design projects and case studies.',
+};
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
+export default async function WorkPage() {
+  await connectToDatabase();
+
+  const projects = await Project.find()
+    .sort({ year: -1, createdAt: -1 })
+    .select('title slug sector heroMediaUrl year')
+    .lean();
+
+  const serializedProjects = (JSON.parse(JSON.stringify(projects)) as ProjectListRecord[]).map((project) => ({
+    ...project,
+    title: typeof project.title === 'object' ? project.title?.en || '' : project.title,
+    sector: typeof project.sector === 'object' ? project.sector?.en || '' : project.sector,
+  }));
+
+  return (
+    <main className="bg-black min-h-screen">
+      <ProjectsClientWrapper projects={serializedProjects} />
+    </main>
+  );
+}

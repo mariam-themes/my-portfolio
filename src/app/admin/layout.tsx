@@ -2,6 +2,7 @@ import Sidebar from '@/components/admin/Sidebar';
 import Header from '@/components/admin/Header';
 import ParticlesBackground from '@/components/admin/ParticlesBackground';
 import DashboardEntry from '@/components/admin/DashboardEntry';
+import { Toaster } from 'react-hot-toast';
 
 export default function AdminLayout({
   children,
@@ -10,6 +11,7 @@ export default function AdminLayout({
 }) {
   return (
     <DashboardEntry>
+      <Toaster position="top-right" toastOptions={{ className: 'bg-[#1A050C] text-rose-200 border border-rose-900/50 rounded-xl' }} />
       <div className="flex h-screen bg-[#2A0813] overflow-hidden font-sans selection:bg-rose-500/30 relative">
         <ParticlesBackground />
         

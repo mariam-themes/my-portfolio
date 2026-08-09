@@ -8,14 +8,9 @@ export function middleware(request: NextRequest) {
     // Check for a NextAuth session cookie
     const sessionToken = request.cookies.get('next-auth.session-token') || request.cookies.get('__Secure-next-auth.session-token');
 
-    // For testing purposes right now, if you want to see the UI WITHOUT logging in, 
-    // you can comment out the redirect below.
-    // However, this is the correct implementation to protect the route!
-    /*
     if (!sessionToken) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
-    */
   }
   
   return NextResponse.next();
