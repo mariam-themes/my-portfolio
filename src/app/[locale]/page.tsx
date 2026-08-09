@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { H1, H2, H3, P, Large, Small, Muted } from "@/components/ui/typography";
@@ -6,12 +7,21 @@ import LocaleSwitcher from "@/components/LocaleSwitcher";
 
 export default async function Home() {
   const t = await getTranslations('HomePage');
+  const ct = await getTranslations('Contact');
 
   return (
     <main className="container mx-auto p-8 space-y-12" dir="auto">
       <div className="flex items-center justify-between">
         <LocaleSwitcher />
-        <P>/{t('title')}</P>
+        <div className="flex items-center gap-6">
+          <Link
+            href="/contact"
+            className="text-sm font-medium text-blue-700 underline-offset-4 hover:underline dark:text-blue-400"
+          >
+            {ct('title')}
+          </Link>
+          <P>/{t('title')}</P>
+        </div>
       </div>
       <div className="space-y-4">
         <H1>{t('title')}</H1>

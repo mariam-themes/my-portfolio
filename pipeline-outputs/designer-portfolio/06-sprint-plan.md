@@ -55,7 +55,7 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 ### Epic D: Lead Generation & SEO (Assigned to Menna)
 - [✓] **Task 3.D.1 (Menna - DB/API):** Create Schema and API for `Inquiries` (Contact Form submissions).
 - [x] **Task 3.D.2 (Menna - API):** Implement email notification trigger when a new inquiry is submitted (e.g., using Resend or NodeMailer).
-- [ ] **Task 3.D.3 (Menna - Public UI):** Build the complex Contact Request Form with validation (Budget, Timeline, Service selection).
+- [x] **Task 3.D.3 (Menna - Public UI):** Build the complex Contact Request Form with validation (Budget, Timeline, Service selection).
 - [ ] **Task 3.D.4 (Menna - Dashboard UI):** Build a "Leads/Inquiries" viewer in the Admin Dashboard.
 - [ ] **Task 3.D.5 (Menna - Global):** Implement Next.js SEO Metadata API for dynamic pages (Projects) so the client can edit Meta Titles/Descriptions.
 
