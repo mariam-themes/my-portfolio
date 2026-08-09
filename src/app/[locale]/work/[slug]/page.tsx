@@ -3,8 +3,8 @@ import Project from '@/models/Project';
 import { notFound } from 'next/navigation';
 import CaseStudyClientWrapper from '@/app/[locale]/projects/[slug]/CaseStudyClientWrapper';
 
-type PageProps = { params: Promise<{ slug: string }> };
-type LocalizedText = string | { en?: string };
+type PageProps = { params: Promise<{ slug: string; locale: string }> };
+type LocalizedText = string | { en?: string; ar?: string };
 type LocalizedList = string[] | { en?: string[] };
 type ProjectRecord = {
   _id: { toString(): string };
@@ -19,6 +19,13 @@ type ProjectRecord = {
 
 function textValue(value: LocalizedText | undefined) {
   return typeof value === 'object' ? value.en || '' : value || '';
+}
+
+function localizedValue(value: LocalizedText | undefined, locale: string) {
+  if (typeof value === 'object') {
+    return value[locale as keyof typeof value] || value.en || '';
+  }
+  return value || '';
 }
 
 function listValue(value: LocalizedList | undefined) {
@@ -39,16 +46,29 @@ function serializeProject(rawProject: ProjectRecord) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   await connectToDatabase();
   const rawProject = await Project.findOne({ slug }).lean() as unknown as ProjectRecord | null;
 
   if (!rawProject) return { title: 'Project Not Found' };
 
-  const title = textValue(rawProject.title);
-  const description = textValue(rawProject.description);
+  const fallbackTitle = textValue(rawProject.title);
+  const fallbackDescription = textValue(rawProject.description);
+  const metaTitle = localizedValue(rawProject.metaTitle as LocalizedText | undefined, locale);
+  const metaDescription = localizedValue(rawProject.metaDescription as LocalizedText | undefined, locale);
 
-  return { title: `${title} | Case Study`, description: description || '' };
+  const title = metaTitle || `${fallbackTitle} | Case Study`;
+  const description = metaDescription || fallbackDescription || '';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+  };
 }
 
 export default async function WorkCaseStudyPage({ params }: PageProps) {

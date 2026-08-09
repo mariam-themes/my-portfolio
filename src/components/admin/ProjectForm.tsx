@@ -32,6 +32,20 @@ const projectSchema = z.object({
   closingImageUrl: z.string().optional().default(''),
   liveUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   isFeatured: z.boolean().default(false),
+  metaTitle: z
+    .object({
+      en: z.string().optional().default(''),
+      ar: z.string().optional().default(''),
+    })
+    .optional()
+    .default({ en: '', ar: '' }),
+  metaDescription: z
+    .object({
+      en: z.string().optional().default(''),
+      ar: z.string().optional().default(''),
+    })
+    .optional()
+    .default({ en: '', ar: '' }),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -70,6 +84,8 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       closingImageUrl: '',
       liveUrl: '',
       isFeatured: false,
+      metaTitle: { en: '', ar: '' },
+      metaDescription: { en: '', ar: '' },
     },
   });
 
@@ -87,12 +103,30 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   const onSubmit = async (data: ProjectFormValues) => {
     setIsLoading(true);
     try {
+      const cleanLocalized = (value?: { en?: string; ar?: string }) => {
+        const result: { en?: string; ar?: string } = {};
+        if (value?.en?.trim()) result.en = value.en.trim();
+        if (value?.ar?.trim()) result.ar = value.ar.trim();
+        return Object.keys(result).length > 0 ? result : undefined;
+      };
+      type ProjectSubmitValues = Omit<ProjectFormValues, 'metaTitle' | 'metaDescription'> & {
+        metaTitle?: { en?: string; ar?: string };
+        metaDescription?: { en?: string; ar?: string };
+      };
+      const payload = { ...data } as ProjectSubmitValues;
+      const metaTitle = cleanLocalized(data.metaTitle);
+      const metaDescription = cleanLocalized(data.metaDescription);
+      if (metaTitle) payload.metaTitle = metaTitle;
+      else delete payload.metaTitle;
+      if (metaDescription) payload.metaDescription = metaDescription;
+      else delete payload.metaDescription;
+
       const url = initialData ? `/api/admin/projects/${initialData._id}` : '/api/admin/projects';
       const method = initialData ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Failed to save project');
@@ -316,6 +350,39 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div className="p-6 bg-rose-950/10 rounded-xl border border-rose-900/20">
           <Controller name="closingImageUrl" control={form.control}
             render={({ field }) => <ImageUpload label="Closing Image (Optional)" value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
+        </div>
+      </div>
+
+      {/* ══ SEO Settings ══ */}
+      <div className="space-y-4">
+        <SectionHeader title="SEO Settings" subtitle="Meta title & description per language (optional — falls back to project title/description)" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-rose-200">Meta Title — EN</label>
+            <input {...form.register('metaTitle.en')} maxLength={70}
+              className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
+              placeholder="e.g. Fintech Dashboard Case Study — Mariam" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-rose-200">Meta Title — AR</label>
+            <input {...form.register('metaTitle.ar')} maxLength={70} dir="rtl"
+              className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
+              placeholder="عنوان SEO بالعربية" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-rose-200">Meta Description — EN</label>
+            <textarea {...form.register('metaDescription.en')} rows={2} maxLength={160}
+              className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
+              placeholder="1-2 lines describing the project for search results..." />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-rose-200">Meta Description — AR</label>
+            <textarea {...form.register('metaDescription.ar')} rows={2} maxLength={160} dir="rtl"
+              className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
+              placeholder="وصف مختصر للمشروع في نتائج البحث" />
+          </div>
         </div>
       </div>
 

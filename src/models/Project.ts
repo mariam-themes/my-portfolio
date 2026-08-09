@@ -11,6 +11,11 @@ export interface IBeforeAfter {
   after: string;
 }
 
+export interface ILocalizedText {
+  en?: string;
+  ar?: string;
+}
+
 export interface IProject extends Document {
   title: string;
   slug: string;
@@ -28,6 +33,8 @@ export interface IProject extends Document {
   closingImageUrl?: string;
   liveUrl?: string;
   isFeatured?: boolean;
+  metaTitle?: ILocalizedText;
+  metaDescription?: ILocalizedText;
 }
 
 const GalleryItemSchema = new Schema<IGalleryItem>(
@@ -94,6 +101,26 @@ const ProjectSchema = new Schema<IProject>(
       ],
     },
     isFeatured: { type: Boolean, default: false },
+    metaTitle: {
+      type: new Schema<ILocalizedText>(
+        {
+          en: { type: String, default: undefined, trim: true },
+          ar: { type: String, default: undefined, trim: true },
+        },
+        { _id: false }
+      ),
+      default: undefined,
+    },
+    metaDescription: {
+      type: new Schema<ILocalizedText>(
+        {
+          en: { type: String, default: undefined, trim: true },
+          ar: { type: String, default: undefined, trim: true },
+        },
+        { _id: false }
+      ),
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
