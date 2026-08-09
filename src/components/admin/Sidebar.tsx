@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Home, Folder, FileText, Settings, Star } from 'lucide-react';
+import { Home, Folder, FileText, Settings, Star, Inbox } from 'lucide-react';
 
 export default function Sidebar() {
   const links = [
@@ -10,6 +10,7 @@ export default function Sidebar() {
     { name: 'Add Blog', href: '/admin/blogs/new', icon: FileText },
     { name: 'Testimonials', href: '/admin/testimonials', icon: Star },
     { name: 'Add Testimonial', href: '/admin/testimonials/new', icon: Star },
+    { name: 'Inquiries', href: '/admin/inquiries', icon: Inbox },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
