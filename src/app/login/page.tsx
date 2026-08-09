@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ChevronLeft, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,7 +33,7 @@ export default function LoginPage() {
         router.push('/admin');
         router.refresh();
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during login');
     } finally {
       setIsLoading(false);
@@ -39,14 +41,35 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0D0206] p-4 relative overflow-hidden">
-      {/* Luxury Background Effects */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-rose-600/10 blur-[150px] rounded-full pointer-events-none" />
-      
-      <div className="w-full max-w-md bg-black/40 backdrop-blur-2xl p-8 rounded-3xl border border-rose-900/30 shadow-2xl relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Admin Portal</h1>
-          <p className="text-rose-200/60">Enter your credentials to access the dashboard</p>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#2A0813] via-[#160308] to-[#0D0206] p-4 text-rose-50">
+      {/* Luxury Background Glows */}
+      <div className="pointer-events-none absolute -top-40 -right-24 h-[28rem] w-[28rem] rounded-full bg-[#951C30]/20 blur-[150px]" />
+      <div className="pointer-events-none absolute -bottom-32 -left-24 h-[26rem] w-[26rem] rounded-full bg-[#3F0D1C]/40 blur-[160px]" />
+
+      <Link
+        href="/"
+        className="absolute top-6 left-6 inline-flex items-center gap-1 text-xs font-medium uppercase tracking-widest text-rose-100/60 transition hover:text-rose-50"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to website
+      </Link>
+
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-rose-200/10 bg-white/[0.03] p-8 shadow-2xl shadow-black/50 backdrop-blur-2xl sm:p-10">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="relative mb-4 h-20 w-20 overflow-hidden rounded-full border-2 border-rose-700/60 shadow-lg shadow-rose-900/40">
+            <Image
+              src="/portfolio-logo.jpeg"
+              alt="Mariam Logo"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Admin Portal</h1>
+          <p className="mt-1 text-sm text-rose-200/60">Mariam — Portfolio Dashboard</p>
+          <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-rose-200/10 bg-rose-500/10 px-3 py-1 text-xs font-medium text-rose-200/80">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Private access
+          </span>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -57,28 +80,31 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full bg-rose-950/20 border border-rose-900/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500 transition-colors"
+              autoComplete="username"
+              className="w-full rounded-xl border border-rose-900/50 bg-rose-950/20 px-4 py-3 text-white transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/30"
               placeholder="e.g. Mariam"
             />
           </div>
 
-          <div className="space-y-2 relative">
+          <div className="space-y-2">
             <label className="text-sm font-medium text-rose-200">Password</label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-rose-950/20 border border-rose-900/50 rounded-xl px-4 py-3 pr-12 text-white focus:outline-none focus:border-rose-500 transition-colors"
+                autoComplete="current-password"
+                className="w-full rounded-xl border border-rose-900/50 bg-rose-950/20 px-4 py-3 pr-12 text-white transition-colors focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/30"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-300/60 hover:text-rose-300 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-300/60 transition-colors hover:text-rose-300"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </div>
@@ -86,9 +112,9 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 to-rose-900 hover:from-rose-500 hover:to-rose-800 text-white px-8 py-3.5 rounded-xl font-medium transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-rose-900/20"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#951C30] to-[#6b1220] px-8 py-3.5 font-medium text-white shadow-lg shadow-rose-900/30 transition-all hover:from-rose-500 hover:to-rose-800 hover:shadow-rose-900/40 focus:outline-none focus:ring-2 focus:ring-rose-500/40 disabled:pointer-events-none disabled:opacity-50"
           >
-            {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+            {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
             {isLoading ? 'Authenticating...' : 'Login'}
           </button>
         </form>
