@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { useCloudinaryUpload } from '@/hooks/useCloudinaryUpload';
 import Image from 'next/image';
 import { UploadCloud, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -19,6 +20,7 @@ export default function ImageUpload({
   folder = 'projects',
   accept = "image/*,video/*"
 }: ImageUploadProps) {
+  const t = useTranslations('Admin.upload');
   const { uploadFile, state, error } = useCloudinaryUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,7 +49,7 @@ export default function ImageUpload({
           {value.match(/\.(mp4|webm|mov)$/i) ? (
             <div className="w-full h-48 flex items-center justify-center bg-rose-950/20 text-rose-300">
               <span className="bg-rose-900/40 px-4 py-2 rounded-full border border-rose-500/30">
-                🎥 Video File Ready
+                {t('videoReady')}
               </span>
             </div>
           ) : (
@@ -87,7 +89,7 @@ export default function ImageUpload({
           {state === 'uploading' ? (
             <div className="flex flex-col items-center text-rose-400">
               <Loader2 className="w-8 h-8 animate-spin mb-2" />
-              <span className="text-sm">Uploading massive file directly...</span>
+              <span className="text-sm">{t('uploading')}</span>
             </div>
           ) : state === 'error' ? (
             <div className="flex flex-col items-center text-red-400 text-center px-4">
@@ -97,8 +99,8 @@ export default function ImageUpload({
           ) : (
             <div className="flex flex-col items-center text-rose-500/70">
               <UploadCloud className="w-10 h-10 mb-3 group-hover:text-rose-400 transition-colors" />
-              <span className="text-sm font-medium text-rose-200">Click to upload media</span>
-              <span className="text-xs mt-1 text-rose-500/50">Supports huge Browser Screenshots & Videos</span>
+              <span className="text-sm font-medium text-rose-200">{t('clickToUpload')}</span>
+              <span className="text-xs mt-1 text-rose-500/50">{t('supports')}</span>
             </div>
           )}
         </div>

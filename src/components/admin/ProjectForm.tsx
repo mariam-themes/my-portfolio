@@ -5,6 +5,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 import { Loader2, Plus, X, Trash2, Monitor, Smartphone, Layout, Video } from 'lucide-react';
 import ImageUpload from './ImageUpload';
@@ -56,18 +57,57 @@ interface ProjectFormProps {
 
 // ─── Gallery type icons ─────────────────────────────────────────────────────
 const GALLERY_TYPES = [
-  { value: 'desktop', label: 'Desktop', icon: Monitor },
-  { value: 'mobile', label: 'Mobile', icon: Smartphone },
-  { value: 'mockup', label: 'Mockup', icon: Layout },
-  { value: 'video', label: 'Video', icon: Video },
+  { value: 'desktop', icon: Monitor },
+  { value: 'mobile', icon: Smartphone },
+  { value: 'mockup', icon: Layout },
+  { value: 'video', icon: Video },
 ] as const;
 
 export default function ProjectForm({ initialData }: ProjectFormProps) {
   const router = useRouter();
+  const t = useTranslations('Admin.projectForm');
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.input<typeof projectSchema>, any, z.output<typeof projectSchema>>({
-    resolver: zodResolver(projectSchema),
+  const localizedSchema = z.object({
+    title: z.string().min(3, t('errTitle')),
+    category: z.string().optional().default(''),
+    sector: z.string().optional().default(''),
+    description: z.string().min(10, t('errDesc')),
+    services: z.array(z.string()).min(1, t('errServices')),
+    tools: z.array(z.string()).default([]),
+    platform: z.string().min(1, t('errPlatform')),
+    year: z.number().int().min(1990).max(new Date().getFullYear() + 5),
+    heroMediaUrl: z.string().min(1, t('errHero')),
+    fullPageMockupUrl: z.string().optional().default(''),
+    gallery: z.array(z.object({
+      url: z.string().min(1),
+      type: z.enum(['desktop', 'mobile', 'mockup', 'video']),
+    })).default([]),
+    beforeAfter: z.array(z.object({
+      before: z.string().min(1, t('errBefore')),
+      after: z.string().min(1, t('errAfter')),
+    })).default([]),
+    closingImageUrl: z.string().optional().default(''),
+    liveUrl: z.string().url(t('errUrl')).optional().or(z.literal('')),
+    isFeatured: z.boolean().default(false),
+    metaTitle: z
+      .object({
+        en: z.string().optional().default(''),
+        ar: z.string().optional().default(''),
+      })
+      .optional()
+      .default({ en: '', ar: '' }),
+    metaDescription: z
+      .object({
+        en: z.string().optional().default(''),
+        ar: z.string().optional().default(''),
+      })
+      .optional()
+      .default({ en: '', ar: '' }),
+  });
+
+  const form = useForm<z.input<typeof localizedSchema>, any, z.output<typeof localizedSchema>>({
+    resolver: zodResolver(localizedSchema),
     defaultValues: initialData || {
       title: '',
       category: '',
@@ -129,8 +169,8 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         body: JSON.stringify(payload),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Failed to save project');
-      toast.success(initialData ? 'Project updated!' : 'Project published!');
+      if (!response.ok) throw new Error(result.error || t('errSave'));
+      toast.success(initialData ? t('toastUpdated') : t('toastPublished'));
       router.push('/admin/projects');
       router.refresh();
     } catch (error: any) {
@@ -200,69 +240,69 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
 
       {/* ══ SECTION 1: Basic Info ══ */}
       <div className="space-y-6">
-        <SectionHeader title="Basic Info" subtitle="Project identity" />
+        <SectionHeader title={t('basicInfo')} subtitle={t('basicInfoSub')} />
 
         <div className="space-y-4">
           {/* Title */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Project Title *</label>
+            <label className="text-xs font-medium text-rose-200">{t('projectTitle')}</label>
             <input {...form.register('title')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
-              placeholder="e.g. Fintech Dashboard" />
+              placeholder={t('projectTitlePh')} />
             {form.formState.errors.title && <p className="text-red-400 text-xs">{form.formState.errors.title.message}</p>}
           </div>
 
           {/* Category */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Category</label>
+            <label className="text-xs font-medium text-rose-200">{t('category')}</label>
             <input {...form.register('category')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
-              placeholder="e.g. Branding, Websites, AI" />
+              placeholder={t('categoryPh')} />
           </div>
 
           {/* Sector */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Sector / Domain</label>
+            <label className="text-xs font-medium text-rose-200">{t('sector')}</label>
             <input {...form.register('sector')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
-              placeholder="e.g. Healthcare, Fintech" />
+              placeholder={t('sectorPh')} />
           </div>
 
           {/* Platform */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Platform *</label>
+            <label className="text-xs font-medium text-rose-200">{t('platform')}</label>
             <input {...form.register('platform')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
-              placeholder="e.g. Web, Mobile App" />
+              placeholder={t('platformPh')} />
             {form.formState.errors.platform && <p className="text-red-400 text-xs">{form.formState.errors.platform.message}</p>}
           </div>
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Short Description *</label>
+            <label className="text-xs font-medium text-rose-200">{t('description')}</label>
             <textarea {...form.register('description')} rows={3}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
-              placeholder="1-2 lines describing the project..." />
+              placeholder={t('descriptionPh')} />
             {form.formState.errors.description && <p className="text-red-400 text-xs">{form.formState.errors.description.message}</p>}
           </div>
 
           {/* Services */}
-          <ChipInput fieldName="services" label="Services *" placeholder="e.g. UX Design" />
+          <ChipInput fieldName="services" label={t('services')} placeholder={t('servicesPh')} />
 
           {/* Tools */}
-          <ChipInput fieldName="tools" label="Tools — Optional" placeholder="e.g. Figma" />
+          <ChipInput fieldName="tools" label={t('tools')} placeholder={t('toolsPh')} />
         </div>
 
         {/* Year & Live URL (not bilingual) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Year</label>
+            <label className="text-xs font-medium text-rose-200">{t('year')}</label>
             <input type="number" {...form.register('year', { valueAsNumber: true })}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors" />
             {form.formState.errors.year && <p className="text-red-400 text-xs">{form.formState.errors.year.message}</p>}
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Live URL <span className="text-rose-500/50">(Optional)</span></label>
+            <label className="text-xs font-medium text-rose-200">{t('liveUrl')} <span className="text-rose-500/50">{t('liveUrlOptional')}</span></label>
             <input {...form.register('liveUrl')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder="https://..." />
@@ -273,36 +313,36 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
 
       {/* ══ SECTION 2: Cover & Full-Page Mockup ══ */}
       <div className="space-y-6">
-        <SectionHeader title="Cover Media" subtitle="Hero image/video + full-page scrollable mockup" />
+        <SectionHeader title={t('coverMedia')} subtitle={t('coverMediaSub')} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-rose-950/10 rounded-xl border border-rose-900/20">
           <div className="space-y-2">
             <Controller name="heroMediaUrl" control={form.control}
-              render={({ field }) => <ImageUpload label="Hero Cover (Image / Video) *" value={field.value} onChange={field.onChange} folder="projects" />} />
+              render={({ field }) => <ImageUpload label={t('heroCover')} value={field.value} onChange={field.onChange} folder="projects" />} />
             {form.formState.errors.heroMediaUrl && <p className="text-red-400 text-xs">{form.formState.errors.heroMediaUrl.message}</p>}
           </div>
           <div className="space-y-2">
             <Controller name="fullPageMockupUrl" control={form.control}
-              render={({ field }) => <ImageUpload label="Full-Page Scrollable Mockup (Optional)" value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
-            <p className="text-xs text-rose-500/50">Used for the live scrollable preview when no live URL is available</p>
+              render={({ field }) => <ImageUpload label={t('fullPageMockup')} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
+            <p className="text-xs text-rose-500/50">{t('fullPageHint')}</p>
           </div>
         </div>
       </div>
 
       {/* ══ SECTION 3: Gallery ══ */}
       <div className="space-y-4">
-        <SectionHeader title="Project Gallery" subtitle="Add unlimited images/videos (Desktop, Mobile, Mockup, Video)" />
+        <SectionHeader title={t('gallery')} subtitle={t('gallerySub')} />
         <div className="space-y-4">
           {galleryFields.map((field, index) => (
             <div key={field.id} className="flex items-start gap-3 p-4 bg-rose-950/10 rounded-xl border border-rose-900/20">
               <div className="flex-1 space-y-3">
                 <Controller name={`gallery.${index}.url`} control={form.control}
-                  render={({ field }) => <ImageUpload label={`Gallery Image ${index + 1}`} value={form.watch(`gallery.${index}.url`) || ''} onChange={(url) => form.setValue(`gallery.${index}.url`, url)} folder="projects" />} />
+                  render={({ field }) => <ImageUpload label={`${t('galleryImage')} ${index + 1}`} value={form.watch(`gallery.${index}.url`) || ''} onChange={(url) => form.setValue(`gallery.${index}.url`, url)} folder="projects" />} />
                 <div className="flex gap-2 flex-wrap">
-                  {GALLERY_TYPES.map(({ value, label, icon: Icon }) => (
+                  {GALLERY_TYPES.map(({ value, icon: Icon }) => (
                     <button key={value} type="button"
                       onClick={() => form.setValue(`gallery.${index}.type`, value as any)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${form.watch(`gallery.${index}.type`) === value ? 'bg-rose-600 text-white border-rose-500' : 'bg-rose-950/30 text-rose-300 border-rose-900/50 hover:border-rose-500'}`}>
-                      <Icon className="w-3.5 h-3.5" /> {label}
+                      <Icon className="w-3.5 h-3.5" /> {t(`type${value[0].toUpperCase()}${value.slice(1)}` as any)}
                     </button>
                   ))}
                 </div>
@@ -314,83 +354,83 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           ))}
           <button type="button" onClick={() => appendGallery({ url: '', type: 'desktop' })}
             className="w-full py-3 border-2 border-dashed border-rose-900/50 hover:border-rose-500/50 rounded-xl text-rose-400 hover:text-rose-300 transition-colors flex items-center justify-center gap-2 text-sm">
-            <Plus className="w-4 h-4" /> Add Gallery Image
+            <Plus className="w-4 h-4" /> {t('addGalleryImage')}
           </button>
         </div>
       </div>
 
       {/* ══ SECTION 4: Before / After (Optional) ══ */}
       <div className="space-y-4">
-        <SectionHeader title="Before / After" subtitle="Optional — only add if the project has before/after comparisons" />
+        <SectionHeader title={t('beforeAfter')} subtitle={t('beforeAfterSub')} />
         <div className="space-y-4">
           {beforeAfterFields.map((field, index) => (
             <div key={field.id} className="p-4 bg-rose-950/10 rounded-xl border border-rose-900/20 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-rose-300">Pair {index + 1}</span>
+                <span className="text-sm font-medium text-rose-300">{t('pair')} {index + 1}</span>
                 <button type="button" onClick={() => removeBeforeAfter(index)} className="text-red-400 hover:text-red-300 transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ImageUpload label="Before" value={form.watch(`beforeAfter.${index}.before`) || ''} onChange={(url) => form.setValue(`beforeAfter.${index}.before`, url)} folder="projects" accept="image/*" />
-                <ImageUpload label="After" value={form.watch(`beforeAfter.${index}.after`) || ''} onChange={(url) => form.setValue(`beforeAfter.${index}.after`, url)} folder="projects" accept="image/*" />
+                <ImageUpload label={t('beforeLabel')} value={form.watch(`beforeAfter.${index}.before`) || ''} onChange={(url) => form.setValue(`beforeAfter.${index}.before`, url)} folder="projects" accept="image/*" />
+                <ImageUpload label={t('afterLabel')} value={form.watch(`beforeAfter.${index}.after`) || ''} onChange={(url) => form.setValue(`beforeAfter.${index}.after`, url)} folder="projects" accept="image/*" />
               </div>
             </div>
           ))}
           <button type="button" onClick={() => appendBeforeAfter({ before: '', after: '' })}
             className="w-full py-3 border-2 border-dashed border-rose-900/50 hover:border-rose-500/50 rounded-xl text-rose-400 hover:text-rose-300 transition-colors flex items-center justify-center gap-2 text-sm">
-            <Plus className="w-4 h-4" /> Add Before / After Pair
+            <Plus className="w-4 h-4" /> {t('addPair')}
           </button>
         </div>
       </div>
 
       {/* ══ SECTION 5: Closing Image ══ */}
       <div className="space-y-4">
-        <SectionHeader title="Closing Image" subtitle="Optional — final visual shown at the end of the case study" />
+        <SectionHeader title={t('closingImage')} subtitle={t('closingImageSub')} />
         <div className="p-6 bg-rose-950/10 rounded-xl border border-rose-900/20">
           <Controller name="closingImageUrl" control={form.control}
-            render={({ field }) => <ImageUpload label="Closing Image (Optional)" value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
+            render={({ field }) => <ImageUpload label={t('closingImageLabel')} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
         </div>
       </div>
 
       {/* ══ SEO Settings ══ */}
       <div className="space-y-4">
-        <SectionHeader title="SEO Settings" subtitle="Meta title & description per language (optional — falls back to project title/description)" />
+        <SectionHeader title={t('seoSettings')} subtitle={t('seoSub')} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Meta Title — EN</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaTitleEn')}</label>
             <input {...form.register('metaTitle.en')} maxLength={70}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
-              placeholder="e.g. Fintech Dashboard Case Study — Mariam" />
+              placeholder={t('metaTitleEnPh')} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Meta Title — AR</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaTitleAr')}</label>
             <input {...form.register('metaTitle.ar')} maxLength={70} dir="rtl"
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
-              placeholder="عنوان SEO بالعربية" />
+              placeholder={t('metaTitleArPh')} />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Meta Description — EN</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaDescEn')}</label>
             <textarea {...form.register('metaDescription.en')} rows={2} maxLength={160}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
-              placeholder="1-2 lines describing the project for search results..." />
+              placeholder={t('metaDescEnPh')} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">Meta Description — AR</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaDescAr')}</label>
             <textarea {...form.register('metaDescription.ar')} rows={2} maxLength={160} dir="rtl"
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
-              placeholder="وصف مختصر للمشروع في نتائج البحث" />
+              placeholder={t('metaDescArPh')} />
           </div>
         </div>
       </div>
 
       {/* ══ Featured Toggle ══ */}
-      <div className="flex items-center space-x-3 bg-rose-950/20 p-4 rounded-lg border border-rose-900/30">
+      <div className="flex items-center space-x-3 rtl:space-x-reverse bg-rose-950/20 p-4 rounded-lg border border-rose-900/30">
         <input type="checkbox" id="isFeatured" {...form.register('isFeatured')} className="w-5 h-5 accent-rose-500 cursor-pointer" />
         <label htmlFor="isFeatured" className="text-sm font-medium text-rose-200 cursor-pointer select-none">
-          Feature this project on the homepage
+          {t('featured')}
         </label>
       </div>
 
@@ -399,7 +439,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <button type="submit" disabled={isLoading}
           className="flex items-center gap-2 bg-gradient-to-r from-rose-600 to-rose-900 hover:from-rose-500 hover:to-rose-800 text-white px-8 py-3 rounded-lg font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-rose-900/20">
           {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
-          {initialData ? 'Update Project' : 'Publish Project'}
+          {initialData ? t('update') : t('publish')}
         </button>
       </div>
     </form>

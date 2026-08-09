@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { H1, H3 } from '@/components/ui/typography';
@@ -9,6 +10,7 @@ import TiptapEditor from '@/components/admin/TiptapEditor';
 
 export default function NewBlogPage() {
   const router = useRouter();
+  const t = useTranslations('Admin.blogsPage');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -75,62 +77,62 @@ export default function NewBlogPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-8">
-      <H1 className="mb-8">Create New Blog Post</H1>
+      <H1 className="mb-8">{t('title')}</H1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Title</label>
+            <label className="text-sm font-medium">{t('titleLabel')}</label>
             <Input 
               required
               value={formData.title}
               onChange={e => setFormData({...formData, title: e.target.value})}
-              placeholder="Post Title" 
+              placeholder={t('titlePh')} 
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Slug</label>
+            <label className="text-sm font-medium">{t('slugLabel')}</label>
             <Input 
               required
               value={formData.slug}
               onChange={e => setFormData({...formData, slug: e.target.value})}
-              placeholder="post-url-slug" 
+              placeholder={t('slugPh')} 
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Excerpt</label>
+          <label className="text-sm font-medium">{t('excerptLabel')}</label>
           <Input 
             value={formData.excerpt}
             onChange={e => setFormData({...formData, excerpt: e.target.value})}
-            placeholder="Short summary of the post..." 
+            placeholder={t('excerptPh')} 
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Cover Image</label>
+          <label className="text-sm font-medium">{t('coverLabel')}</label>
           <Input 
             type="file" 
             accept="image/*"
             onChange={handleFileUpload} 
           />
           {formData.coverImage && (
-            <p className="text-sm text-green-600">Image uploaded successfully!</p>
+            <p className="text-sm text-green-600">{t('imageUploaded')}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Tags (comma separated)</label>
+          <label className="text-sm font-medium">{t('tagsLabel')}</label>
           <Input 
             value={formData.tags}
             onChange={e => setFormData({...formData, tags: e.target.value})}
-            placeholder="Nextjs, React, Design" 
+            placeholder={t('tagsPh')} 
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Content</label>
+          <label className="text-sm font-medium">{t('contentLabel')}</label>
           <TiptapEditor 
             content={formData.content}
             onChange={(html) => setFormData({...formData, content: html})}
@@ -138,7 +140,7 @@ export default function NewBlogPage() {
         </div>
 
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Saving...' : 'Publish Blog Post'}
+          {loading ? t('saving') : t('publish')}
         </Button>
       </form>
     </div>

@@ -1,6 +1,7 @@
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { Plus, Edit2 } from 'lucide-react';
 import DeleteProjectButton from './DeleteProjectButton';
 import Image from 'next/image';
@@ -14,6 +15,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function AdminProjectsPage() {
+  const t = await getTranslations('Admin.projectsPage');
+
   await connectToDatabase();
   const rawProjects = await Project.find().sort({ createdAt: -1 }).lean();
   const projects = rawProjects.map((p: any) => ({
@@ -27,22 +30,22 @@ export default async function AdminProjectsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Projects</h1>
-          <p className="text-rose-200/60 mt-1">Manage your portfolio case studies.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">{t('title')}</h1>
+          <p className="text-rose-200/60 mt-1">{t('subtitle')}</p>
         </div>
         <Link
           href="/admin/projects/new"
           className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-600 to-rose-900 hover:from-rose-500 hover:to-rose-800 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-rose-900/20"
         >
           <Plus className="w-5 h-5" />
-          Add New Project
+          {t('addNew')}
         </Link>
       </div>
 
       {/* Projects Grid */}
       {projects.length === 0 ? (
         <div className="bg-rose-950/20 border border-rose-900/30 rounded-2xl p-12 text-center">
-          <p className="text-rose-300">No projects found. Start by creating one!</p>
+          <p className="text-rose-300">{t('noProjects')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -63,12 +66,12 @@ export default async function AdminProjectsPage() {
                   />
                 ) : (
                   <div className="flex items-center justify-center w-full h-full text-rose-500/30 text-sm">
-                    No Cover
+                    {t('noCover')}
                   </div>
                 )}
                 {project.isFeatured && (
-                  <span className="absolute top-3 right-3 bg-amber-500/90 text-amber-50 px-2 py-1 rounded text-xs font-bold shadow-lg">
-                    Featured
+                  <span className="absolute top-3 right-3 ltr:right-3 rtl:right-auto rtl:left-3 bg-amber-500/90 text-amber-50 px-2 py-1 rounded text-xs font-bold shadow-lg">
+                    {t('featured')}
                   </span>
                 )}
               </div>
@@ -95,7 +98,7 @@ export default async function AdminProjectsPage() {
                     href={`/admin/projects/${project._id}`}
                     className="inline-flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
                   >
-                    <Edit2 className="w-4 h-4 mr-1.5" /> Edit
+                    <Edit2 className="w-4 h-4 mr-1.5 rtl:mr-0 rtl:ml-1.5" /> {t('edit')}
                   </Link>
                   <DeleteProjectButton projectId={project._id.toString()} title={project.title} />
                 </div>

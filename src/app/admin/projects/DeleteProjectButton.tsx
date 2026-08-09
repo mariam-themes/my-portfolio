@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Trash2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function DeleteProjectButton({ projectId, title }: { projectId: string; title: string }) {
+  const t = useTranslations('Admin.deleteProject');
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) {
+    if (!window.confirm(t('confirm', { title }))) {
       return;
     }
 
@@ -22,10 +24,10 @@ export default function DeleteProjectButton({ projectId, title }: { projectId: s
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete project');
+        throw new Error(result.error || t('failed'));
       }
 
-      toast.success('Project deleted successfully');
+      toast.success(t('success'));
       router.refresh();
     } catch (error: any) {
       toast.error(error.message);
@@ -40,8 +42,8 @@ export default function DeleteProjectButton({ projectId, title }: { projectId: s
       disabled={isDeleting}
       className="inline-flex items-center text-sm font-medium text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
     >
-      {isDeleting ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
-      Delete
+      {isDeleting ? <Loader2 className="w-4 h-4 mr-1.5 rtl:mr-0 rtl:ml-1.5 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1.5 rtl:mr-0 rtl:ml-1.5" />}
+      {t('delete')}
     </button>
   );
 }

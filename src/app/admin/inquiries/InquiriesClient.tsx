@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Loader2, Trash2, Mail, Phone, Briefcase, Wallet, Clock, CheckCircle2, Inbox } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -48,8 +49,8 @@ function formatDate(value: string | undefined) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'Something went wrong';
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
 export default function InquiriesClient({
@@ -62,14 +63,18 @@ export default function InquiriesClient({
   stats: { total: number; new: number; contacted: number; closed: number };
 }) {
   const router = useRouter();
+  const t = useTranslations('Admin.inquiries');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const statusLabel = (status: InquiryStatus) =>
+    status === 'new' ? t('statusNew') : status === 'contacted' ? t('statusContacted') : t('statusClosed');
+
   const tabs: Array<{ key: FilterTab; label: string; count: number }> = [
-    { key: 'all', label: 'All', count: stats.total },
-    { key: 'new', label: 'New', count: stats.new },
-    { key: 'contacted', label: 'Contacted', count: stats.contacted },
-    { key: 'closed', label: 'Closed', count: stats.closed },
+    { key: 'all', label: t('all'), count: stats.total },
+    { key: 'new', label: t('statusNew'), count: stats.new },
+    { key: 'contacted', label: t('statusContacted'), count: stats.contacted },
+    { key: 'closed', label: t('statusClosed'), count: stats.closed },
   ];
 
   const handleStatusChange = async (id: string, status: InquiryStatus) => {
@@ -81,27 +86,27 @@ export default function InquiriesClient({
         body: JSON.stringify({ status }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Failed to update status');
-      toast.success(`Marked as ${STATUS_META[status].label.toLowerCase()}`);
+      if (!response.ok) throw new Error(result.error || t('updateFailed'));
+      toast.success(t('markAs', { status: statusLabel(status) }));
       router.refresh();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toast.error(errorMessage(error, t('error')));
     } finally {
       setBusyId(null);
     }
   };
 
   const handleDelete = async (inquiry: InquiryRecord) => {
-    if (!window.confirm(`Delete inquiry from "${inquiry.name}"? This cannot be undone.`)) return;
+    if (!window.confirm(t('deleteConfirm', { name: inquiry.name }))) return;
     setDeletingId(inquiry._id);
     try {
       const response = await fetch(`/api/admin/inquiries/${inquiry._id}`, { method: 'DELETE' });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Failed to delete inquiry');
-      toast.success('Inquiry deleted');
+      if (!response.ok) throw new Error(result.error || t('deleteFailed'));
+      toast.success(t('deleted'));
       router.refresh();
     } catch (error) {
-      toast.error(errorMessage(error));
+      toast.error(errorMessage(error, t('error')));
     } finally {
       setDeletingId(null);
     }
@@ -110,8 +115,8 @@ export default function InquiriesClient({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-white tracking-tight">Inquiries</h1>
-        <p className="text-rose-200/60 mt-1">Leads coming in from the contact form.</p>
+        <h1 className="text-3xl font-bold text-white tracking-tight">{t('title')}</h1>
+        <p className="text-rose-200/60 mt-1">{t('subtitle')}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -142,7 +147,7 @@ export default function InquiriesClient({
       {inquiries.length === 0 ? (
         <div className="bg-rose-950/20 border border-rose-900/30 rounded-2xl p-12 text-center">
           <p className="text-rose-300">
-            {activeStatus === 'all' ? 'No inquiries yet.' : 'No inquiries with this status.'}
+            {activeStatus === 'all' ? t('noInquiries') : t('noInquiriesFilter')}
           </p>
         </div>
       ) : (
@@ -167,7 +172,7 @@ export default function InquiriesClient({
                   <span
                     className={`shrink-0 px-2.5 py-1 rounded-md text-xs font-semibold ${STATUS_META[inquiry.status].badgeClass}`}
                   >
-                    {STATUS_META[inquiry.status].label}
+                    {statusLabel(inquiry.status)}
                   </span>
                 </div>
 
@@ -212,9 +217,9 @@ export default function InquiriesClient({
                       onChange={(e) => handleStatusChange(inquiry._id, e.target.value as InquiryStatus)}
                       className="bg-rose-950/60 text-rose-200 text-xs border border-rose-900/50 rounded-lg px-2 py-1.5 outline-none focus:border-rose-500/50 appearance-none disabled:opacity-50 cursor-pointer"
                     >
-                      <option value="new">New</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="closed">Closed</option>
+                      <option value="new">{t('statusNew')}</option>
+                      <option value="contacted">{t('statusContacted')}</option>
+                      <option value="closed">{t('statusClosed')}</option>
                     </select>
 
                     {inquiry.status === 'new' && (
@@ -229,7 +234,7 @@ export default function InquiriesClient({
                         ) : (
                           <CheckCircle2 className="w-4 h-4" />
                         )}
-                        Mark contacted
+                        {t('markContacted')}
                       </button>
                     )}
 
@@ -244,7 +249,7 @@ export default function InquiriesClient({
                       ) : (
                         <Trash2 className="w-4 h-4" />
                       )}
-                      Delete
+                      {t('delete')}
                     </button>
                   </div>
                 </div>
@@ -257,7 +262,7 @@ export default function InquiriesClient({
       {inquiries.length > 0 && (
         <p className="flex items-center justify-center gap-2 text-xs text-rose-200/40">
           <Inbox className="w-3.5 h-3.5" />
-          Showing {inquiries.length} of {stats.total} inquiry (ies)
+          {t('showing', { count: inquiries.length, total: stats.total })}
         </p>
       )}
     </div>

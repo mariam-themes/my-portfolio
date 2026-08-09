@@ -1,10 +1,13 @@
+import { getTranslations } from 'next-intl/server';
 import { ArrowUpRight, Image as ImageIcon, FileText, MousePointerClick } from 'lucide-react';
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const t = await getTranslations('Admin.dashboard');
+
   const stats = [
-    { label: 'Total Projects', value: '24', icon: ImageIcon, trend: '+12%' },
-    { label: 'Blog Articles', value: '18', icon: FileText, trend: '+4%' },
-    { label: 'Profile Clicks', value: '2,405', icon: MousePointerClick, trend: '+28%' },
+    { label: t('totalProjects'), value: '24', icon: ImageIcon, trend: '+12%' },
+    { label: t('blogArticles'), value: '18', icon: FileText, trend: '+4%' },
+    { label: t('profileClicks'), value: '2,405', icon: MousePointerClick, trend: '+28%' },
   ];
 
   return (
@@ -38,18 +41,18 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="col-span-2 p-8 rounded-3xl bg-gradient-to-br from-[#3F0D1C] to-[#2A0813] border border-rose-900/30 shadow-xl min-h-[400px] flex flex-col justify-center items-center relative overflow-hidden">
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-rose-600/20 blur-[80px] rounded-full pointer-events-none" />
-           <p className="text-rose-400/50 font-medium tracking-widest uppercase relative z-10">Analytics Chart Area</p>
+           <p className="text-rose-400/50 font-medium tracking-widest uppercase relative z-10">{t('analyticsChart')}</p>
         </div>
         
         <div className="p-8 rounded-3xl bg-gradient-to-b from-[#3F0D1C] to-black/40 border border-rose-900/30 shadow-xl min-h-[400px]">
-           <h3 className="text-lg font-bold text-white mb-6">Recent Activity</h3>
+           <h3 className="text-lg font-bold text-white mb-6">{t('recentActivity')}</h3>
            <div className="space-y-6">
              {[1, 2, 3, 4].map((i) => (
                <div key={i} className="flex gap-4 items-start">
                  <div className="w-2 h-2 rounded-full bg-rose-500 mt-2 shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
                  <div>
-                   <p className="text-sm text-rose-100 font-medium">New project published</p>
-                   <p className="text-xs text-rose-400/60 mt-0.5">2 hours ago</p>
+                   <p className="text-sm text-rose-100 font-medium">{t('newProjectPublished')}</p>
+                   <p className="text-xs text-rose-400/60 mt-0.5">{t('hoursAgo')}</p>
                  </div>
                </div>
              ))}
