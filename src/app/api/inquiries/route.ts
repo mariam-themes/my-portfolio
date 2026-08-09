@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import { Inquiry } from '@/models/Inquiry';
+import { sendNewInquiryNotification } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +35,9 @@ export async function POST(request: Request) {
       timeline: typeof body.timeline === 'string' ? body.timeline.trim() : undefined,
       message: typeof body.message === 'string' ? body.message.trim() : '',
     });
+
+    // Notify the owner (non-fatal: never fails the request).
+    await sendNewInquiryNotification(inquiry);
 
     return NextResponse.json({ success: true, data: inquiry }, { status: 201 });
   } catch (error) {
