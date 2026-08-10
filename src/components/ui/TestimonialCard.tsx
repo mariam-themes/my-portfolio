@@ -23,7 +23,7 @@ export default function TestimonialCard({
   rating,
 }: TestimonialCardProps) {
   return (
-    <div className="flex flex-col gap-6 p-8 rounded-2xl glass-card transition-shadow h-full">
+    <div className="flex flex-col gap-6 p-8 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-md transition-shadow h-full shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       
       {/* Stars */}
       <div className="flex gap-1 mb-2">
@@ -31,7 +31,7 @@ export default function TestimonialCard({
           <Star 
             key={i} 
             size={16} 
-            className={i < rating ? "fill-accent text-accent" : "fill-accent/20 text-accent/20"} 
+            className={i < rating ? "fill-yellow-400 text-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.45)]" : "fill-yellow-400/20 text-yellow-400/20"} 
           />
         ))}
       </div>

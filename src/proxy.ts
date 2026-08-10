@@ -10,17 +10,30 @@ const handleI18nRouting = createMiddleware(routing);
 const ADMIN_API_PATHS = [
   '/api/admin',
   '/api/upload',
-  '/api/blogs',
-  '/api/testimonials',
   '/api/setup',
   '/api/seed',
 ];
+
+// Content that is publicly readable but only writable by an admin.
+const CONTENT_PATHS = ['/api/blogs', '/api/testimonials'];
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protect admin API routes: require a valid session token.
   if (ADMIN_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    const token = await getToken({ req: request });
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
+  // Content APIs: GET is open for the public site, all other methods need auth.
+  if (CONTENT_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    if (request.method === 'GET') {
+      return NextResponse.next();
+    }
     const token = await getToken({ req: request });
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -54,7 +67,7 @@ export const config = {
   // Run on public pages (locale negotiation), /admin (auth guard + admin
   // locale) and the admin-only APIs (session token check).
   matcher: [
-    '/((?!api|login|_next|_vercel|.*\\..*).*)',
+    '/((?!api|login|blog|testimonials|_next|_vercel|.*\\..*).*)',
     '/api/admin/:path*',
     '/api/upload',
     '/api/blogs/:path*',
