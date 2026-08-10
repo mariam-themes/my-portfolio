@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 
 interface TiptapEditorProps {
@@ -12,6 +13,7 @@ interface TiptapEditorProps {
 }
 
 export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
+  const t = useTranslations('Admin.editor');
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -43,7 +45,7 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={editor.isActive('bold') ? 'bg-slate-200 dark:bg-slate-700' : ''}
         >
-          Bold
+          {t('bold')}
         </Button>
         <Button
           type="button"
@@ -52,7 +54,7 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={editor.isActive('italic') ? 'bg-slate-200 dark:bg-slate-700' : ''}
         >
-          Italic
+          {t('italic')}
         </Button>
         <Button
           type="button"
@@ -70,7 +72,7 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={editor.isActive('bulletList') ? 'bg-slate-200 dark:bg-slate-700' : ''}
         >
-          Bullet List
+          {t('bulletList')}
         </Button>
       </div>
       <EditorContent editor={editor} />

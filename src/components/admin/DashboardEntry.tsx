@@ -7,10 +7,16 @@ export default function DashboardEntry({ children }: { children: React.ReactNode
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Keep the loading screen for 2.5 seconds to show the animation
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2500); 
+    // Show the splash animation only on the first visit per session;
+    // later visits skip straight to the dashboard.
+    const alreadyShown = sessionStorage.getItem('admin-entry-shown');
+    const timer = setTimeout(
+      () => {
+        sessionStorage.setItem('admin-entry-shown', '1');
+        setLoading(false);
+      },
+      alreadyShown ? 150 : 1200
+    );
     return () => clearTimeout(timer);
   }, []);
 

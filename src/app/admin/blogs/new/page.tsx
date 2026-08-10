@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { H1, H3 } from '@/components/ui/typography';
@@ -9,6 +10,7 @@ import TiptapEditor from '@/components/admin/TiptapEditor';
 
 export default function NewBlogPage() {
   const router = useRouter();
+  const t = useTranslations('Admin.blogsPage');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -74,6 +76,7 @@ export default function NewBlogPage() {
   };
 
   return (
+<<<<<<< HEAD
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex items-center gap-4 mb-8">
         <div className="w-12 h-12 rounded-2xl bg-background/50 flex items-center justify-center border border-card-border">
@@ -145,9 +148,33 @@ export default function NewBlogPage() {
               onChange={e => setFormData({...formData, tags: e.target.value})}
               placeholder="Nextjs, React, Design" 
               className="bg-background/40 border-card-border text-foreground placeholder:text-foreground/50 focus:border-accent/50 focus:ring-accent/20"
+=======
+    <div className="max-w-4xl mx-auto py-8">
+      <H1 className="mb-8">{t('title')}</H1>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">{t('titleLabel')}</label>
+            <Input 
+              required
+              value={formData.title}
+              onChange={e => setFormData({...formData, title: e.target.value})}
+              placeholder={t('titlePh')} 
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">{t('slugLabel')}</label>
+            <Input 
+              required
+              value={formData.slug}
+              onChange={e => setFormData({...formData, slug: e.target.value})}
+              placeholder={t('slugPh')} 
+>>>>>>> main
             />
           </div>
 
+<<<<<<< HEAD
           <div className="space-y-3">
             <label className="text-sm font-semibold tracking-wider text-foreground/80 uppercase">Content</label>
             <div className="rounded-xl overflow-hidden border border-card-border bg-background/40">
@@ -163,6 +190,50 @@ export default function NewBlogPage() {
           </Button>
         </form>
       </div>
+=======
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t('excerptLabel')}</label>
+          <Input 
+            value={formData.excerpt}
+            onChange={e => setFormData({...formData, excerpt: e.target.value})}
+            placeholder={t('excerptPh')} 
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t('coverLabel')}</label>
+          <Input 
+            type="file" 
+            accept="image/*"
+            onChange={handleFileUpload} 
+          />
+          {formData.coverImage && (
+            <p className="text-sm text-green-600">{t('imageUploaded')}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t('tagsLabel')}</label>
+          <Input 
+            value={formData.tags}
+            onChange={e => setFormData({...formData, tags: e.target.value})}
+            placeholder={t('tagsPh')} 
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t('contentLabel')}</label>
+          <TiptapEditor 
+            content={formData.content}
+            onChange={(html) => setFormData({...formData, content: html})}
+          />
+        </div>
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? t('saving') : t('publish')}
+        </Button>
+      </form>
+>>>>>>> main
     </div>
   );
 }
