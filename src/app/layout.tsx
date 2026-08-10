@@ -1,17 +1,6 @@
 import type { Metadata } from "next";
-import { Outfit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Mariam Portfolio",
@@ -29,9 +18,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${geistMono.variable} h-full antialiased dark`}
+      className="h-full antialiased dark"
     >
-      <body className="min-h-full flex flex-col bg-[#0a0305] text-[#fde5ec]">
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+        <div className="bg-blob-1 fixed -z-10 top-[10%] left-[20%] w-[60vw] h-[60vw] rounded-full mix-blend-screen filter blur-[100px] opacity-40 animate-blob"></div>
+        <div className="bg-blob-2 fixed -z-10 top-[40%] right-[10%] w-[50vw] h-[50vw] rounded-full mix-blend-screen filter blur-[120px] opacity-30 animate-blob animation-delay-2000"></div>
         <Providers>{children}</Providers>
       </body>
     </html>

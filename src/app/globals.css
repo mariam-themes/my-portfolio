@@ -1,15 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Geist+Mono&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
 :root {
-  --background: #0a0305; /* Deep Burgundy Black */
-  --foreground: #fde5ec; /* Soft Rose White */
+  --background: #190508; /* Very dark rich burgundy */
+  --foreground: #fdfbf7; /* Soft cream */
+  --accent: #c8a97e; /* Muted gold */
+  --card-bg: rgba(60, 10, 15, 0.4);
+  --card-border: rgba(255, 255, 255, 0.08);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-outfit), sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-blob-1: #4a0d14;
+  --color-blob-2: #2d070b;
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+  
+  --animate-blob: blob 15s infinite alternate ease-in-out;
 }
 
 body {
@@ -17,4 +30,31 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  position: relative;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+}
+
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1rem;
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(20px, 30px) scale(1.1);
+  }
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
 }

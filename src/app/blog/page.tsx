@@ -25,26 +25,27 @@ export default async function BlogIndexPage() {
   const blogs = await getBlogs();
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-black pt-32 pb-24">
+    <main className="min-h-screen bg-transparent pt-32 pb-24 relative z-10">
       <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
         
         {/* Header Section */}
-        <div className="max-w-3xl mb-20">
-          <p className="text-sm font-bold tracking-widest text-rose-600 dark:text-rose-500 uppercase mb-4">
-            Editorial
-          </p>
-          <H1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-white">
-            Insights & Stories
+        <div className="max-w-3xl mb-20 text-left">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
+            <span className="w-12 h-[1px] bg-accent/50"></span>
+            JOURNAL
+          </div>
+          <H1 className="text-5xl md:text-7xl font-serif font-normal tracking-tight mb-6 text-foreground">
+            Insights & Stories.
           </H1>
-          <P className="text-xl md:text-2xl text-slate-600 dark:text-slate-400">
+          <P className="text-xl font-sans text-foreground/70">
             Thoughts, case studies, and perspectives on luxury design, architecture, and creating timeless digital experiences.
           </P>
         </div>
 
         {/* Grid Section */}
         {blogs.length === 0 ? (
-          <div className="py-24 text-center border-t border-slate-200 dark:border-rose-950/30">
-            <P className="text-slate-500 text-lg">No stories published yet. Check back soon.</P>
+          <div className="py-24 text-center border-t border-card-border">
+            <P className="text-foreground/50 text-lg font-serif">No stories published yet. Check back soon.</P>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">

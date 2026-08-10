@@ -29,24 +29,26 @@ export default function TestimonialsSection() {
   }, []);
 
   return (
-    <section className="py-24 bg-slate-50 dark:bg-black">
-      <div className="container mx-auto px-6 lg:px-8">
+    <section className="py-24 bg-transparent relative z-10">
+      <div className="container mx-auto px-6 lg:px-12">
         
-        <div className="max-w-2xl text-center mx-auto mb-16">
-          <H2 className="border-none text-4xl md:text-5xl font-bold mb-4">
-            Hear from our clients
-          </H2>
-          <P className="text-lg text-slate-600 dark:text-slate-400 mt-0">
-            We've had the pleasure of working with some amazing people. Here's what they have to say about their experience.
-          </P>
+        <div className="max-w-4xl mx-auto mb-20 text-left">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
+            <span className="w-12 h-[1px] bg-accent/50"></span>
+            KIND WORDS
+          </div>
+          <div className="font-serif text-lg tracking-[0.3em] text-foreground/80 mb-2">MAISON</div>
+          <h2 className="text-5xl md:text-7xl font-serif font-normal text-foreground">
+            Clients who stayed.
+          </h2>
         </div>
 
         {loading ? (
           <div className="flex justify-center items-center h-48">
             <div className="animate-pulse flex gap-2">
-              <div className="w-3 h-3 bg-rose-500 rounded-full animate-bounce"></div>
-              <div className="w-3 h-3 bg-rose-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-3 h-3 bg-rose-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-3 h-3 bg-accent rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-3 h-3 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             </div>
           </div>
         ) : testimonials.length === 0 ? (

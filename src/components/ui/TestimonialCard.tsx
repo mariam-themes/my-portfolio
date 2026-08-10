@@ -23,21 +23,21 @@ export default function TestimonialCard({
   rating,
 }: TestimonialCardProps) {
   return (
-    <div className="flex flex-col gap-6 p-6 md:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex flex-col gap-6 p-8 rounded-2xl glass-card transition-shadow h-full">
       
       {/* Stars */}
-      <div className="flex gap-1">
+      <div className="flex gap-1 mb-2">
         {Array.from({ length: 5 }).map((_, i) => (
           <Star 
             key={i} 
-            size={18} 
-            className={i < rating ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200 dark:fill-slate-700 dark:text-slate-700"} 
+            size={16} 
+            className={i < rating ? "fill-accent text-accent" : "fill-accent/20 text-accent/20"} 
           />
         ))}
       </div>
 
       {/* Content */}
-      <blockquote className="text-lg md:text-xl text-slate-700 dark:text-slate-300 leading-relaxed italic">
+      <blockquote className="text-xl md:text-2xl font-serif text-foreground/90 leading-relaxed mb-4">
         "{content}"
       </blockquote>
 
@@ -49,26 +49,26 @@ export default function TestimonialCard({
       )}
 
       {/* Client Info */}
-      <div className="flex items-center gap-4 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+      <div className="flex items-center gap-4 mt-auto pt-4 border-none">
         {avatarUrl ? (
           <img 
             src={avatarUrl} 
             alt={clientName} 
-            className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+            className="w-12 h-12 rounded-full object-cover border border-card-border"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 dark:text-rose-400 font-bold text-lg border border-rose-200 dark:border-rose-800">
-            {clientName.charAt(0)}
+          <div className="w-12 h-12 rounded-full border border-card-border flex items-center justify-center text-accent font-serif text-sm tracking-widest bg-transparent">
+            {clientName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
           </div>
         )}
         
         <div className="flex flex-col">
-          <span className="font-semibold text-slate-900 dark:text-slate-100">
+          <span className="font-sans text-sm font-medium text-foreground tracking-wide">
             {clientName}
           </span>
           {(role || company) && (
-            <span className="text-sm text-slate-500 dark:text-slate-400">
-              {role} {role && company && 'at '} {company}
+            <span className="text-xs text-foreground/60 tracking-wider uppercase mt-1">
+              {role} {role && company && '· '} {company}
             </span>
           )}
         </div>

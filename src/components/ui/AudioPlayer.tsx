@@ -79,7 +79,7 @@ export default function AudioPlayer({ url }: AudioPlayerProps) {
   };
 
   return (
-    <div className="flex flex-col gap-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-full max-w-sm">
+    <div className="flex flex-col gap-2 p-3 bg-black/20 rounded-xl border border-card-border shadow-sm w-full max-w-sm backdrop-blur-sm">
       <audio ref={audioRef} src={url} preload="metadata" />
       
       <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export default function AudioPlayer({ url }: AudioPlayerProps) {
           variant="default" 
           size="icon" 
           onClick={togglePlayPause}
-          className="rounded-full w-10 h-10 shadow-md bg-rose-600 hover:bg-rose-700 text-white flex-shrink-0"
+          className="rounded-full w-10 h-10 shadow-md bg-accent hover:bg-accent/90 text-background flex-shrink-0"
         >
           {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-1" />}
         </Button>
@@ -99,9 +99,9 @@ export default function AudioPlayer({ url }: AudioPlayerProps) {
             max="100" 
             value={isNaN(progress) ? 0 : progress} 
             onChange={handleSeek}
-            className="w-full h-1.5 bg-slate-300 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-rose-500"
+            className="w-full h-1.5 bg-background/50 rounded-lg appearance-none cursor-pointer accent-accent"
           />
-          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 font-medium px-1">
+          <div className="flex justify-between text-xs text-foreground/60 font-medium px-1">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -109,7 +109,7 @@ export default function AudioPlayer({ url }: AudioPlayerProps) {
         
         <button 
           onClick={toggleMute} 
-          className="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 transition-colors"
+          className="text-foreground/50 hover:text-accent transition-colors"
         >
           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>

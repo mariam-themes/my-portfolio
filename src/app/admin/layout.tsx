@@ -1,6 +1,6 @@
 import Sidebar from '@/components/admin/Sidebar';
 import Header from '@/components/admin/Header';
-import ParticlesBackground from '@/components/admin/ParticlesBackground';
+
 import DashboardEntry from '@/components/admin/DashboardEntry';
 
 export default function AdminLayout({
@@ -10,13 +10,9 @@ export default function AdminLayout({
 }) {
   return (
     <DashboardEntry>
-      <div className="flex h-screen bg-[#2A0813] overflow-hidden font-sans selection:bg-rose-500/30 relative">
-        <ParticlesBackground />
-        
+      <div className="flex h-screen bg-transparent overflow-hidden font-sans selection:bg-accent/30 relative">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          {/* Luxury Background Glow */}
-          <div className="absolute top-0 left-0 w-full h-96 bg-rose-600/10 blur-[120px] pointer-events-none" />
           <Header />
           <main className="flex-1 overflow-y-auto p-10 relative z-20">
             {children}
