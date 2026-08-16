@@ -161,6 +161,24 @@ body {
   background: linear-gradient(180deg, rgba(23, 3, 10, 0.84), transparent);
 }
 
+.case-study-narrative [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+.case-study-narrative [data-parallax] {
+  will-change: transform;
+}
+
+.cs-dot-title {
+  contain: layout style;
+}
+
+.cs-dot-title [data-dot] {
+  position: absolute;
+  pointer-events: none;
+}
+
 .case-study-hero-copy {
   transform-style: preserve-3d;
 }
@@ -190,5 +208,14 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
   .case-study-plane {
     transform: none !important;
     transition: none !important;
+  }
+
+  .case-study-narrative [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .case-study-narrative [data-parallax] {
+    transform: none !important;
   }
 }

@@ -1,14 +1,88 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useRef, useEffect, type DragEvent } from 'react';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
-import { Loader2, Plus, X, Trash2, Monitor, Smartphone, Layout, Video } from 'lucide-react';
+import { Loader2, Plus, X, Trash2, Monitor, Smartphone, Layout, Video, ImageIcon, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 import ImageUpload from './ImageUpload';
+
+const EMPTY_VD = { colors: [], fonts: [], identity: [], imageStyle: [] } as { colors: string[]; fonts: string[]; identity: string[]; imageStyle: string[] };
+const DEFAULT_SECTION_ORDER = ['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'] as const;
+
+const PROJECT_SECTIONS = [
+  { id: 'gallery', tKey: 'sGallery' },
+  { id: 'transform', tKey: 'sTransform' },
+  { id: 'visual', tKey: 'sVisual' },
+  { id: 'deliverables', tKey: 'sDeliverables' },
+  { id: 'tools', tKey: 'sTools' },
+  { id: 'mockup', tKey: 'sMockup' },
+] as const;
+
+function useDndReorder(onMove: (from: number, to: number) => void) {
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  const captureRects = () => {
+    const map = new Map<string, DOMRect>();
+    listRef.current?.querySelectorAll<HTMLElement>('[data-dnd-key]').forEach((el) => {
+      const key = el.dataset.dndKey;
+      if (key) map.set(key, el.getBoundingClientRect());
+    });
+    return map;
+  };
+
+  const flip = (before: Map<string, DOMRect>) => {
+    requestAnimationFrame(() => {
+      const after = captureRects();
+      listRef.current?.querySelectorAll<HTMLElement>('[data-dnd-key]').forEach((el) => {
+        const key = el.dataset.dndKey || '';
+        const prev = before.get(key);
+        const next = after.get(key);
+        if (!prev || !next) return;
+        const dx = prev.left - next.left;
+        const dy = prev.top - next.top;
+        if (dx === 0 && dy === 0) return;
+        el.style.transition = 'none';
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+        el.getBoundingClientRect();
+        el.style.transition = 'transform 0.24s cubic-bezier(0.2, 0, 0, 1)';
+        el.style.transform = '';
+      });
+    });
+  };
+
+  const reset = () => setDragIndex(null);
+
+  return {
+    listRef,
+    dragIndex,
+    isDragging: (index: number) => dragIndex === index,
+    handleProps: (index: number) => ({
+      draggable: true as const,
+      onDragStart: () => setDragIndex(index),
+      onDragEnd: reset,
+    }),
+    dropProps: (index: number) => ({
+      onDragEnter: () => {
+        if (dragIndex !== null && dragIndex !== index) {
+          const before = captureRects();
+          onMove(dragIndex, index);
+          setDragIndex(index);
+          flip(before);
+        }
+      },
+      onDragOver: (e: DragEvent) => e.preventDefault(),
+      onDrop: (e: DragEvent) => {
+        e.preventDefault();
+        reset();
+      },
+    }),
+  };
+}
 
 // ─── Zod Schema ────────────────────────────────────────────────────────────────
 const projectSchema = z.object({
@@ -47,6 +121,16 @@ const projectSchema = z.object({
     })
     .optional()
     .default({ en: '', ar: '' }),
+  visualDirection: z
+    .object({
+      colors: z.array(z.string()).default([]),
+      fonts: z.array(z.string()).default([]),
+      identity: z.array(z.string()).default([]),
+      imageStyle: z.array(z.string()).default([]),
+    })
+    .optional()
+    .default({ colors: [], fonts: [], identity: [], imageStyle: [] }),
+  sectionOrder: z.array(z.enum(['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'])).default([]),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -61,12 +145,26 @@ const GALLERY_TYPES = [
   { value: 'mobile', icon: Smartphone },
   { value: 'mockup', icon: Layout },
   { value: 'video', icon: Video },
+  { value: 'gif', icon: ImageIcon },
 ] as const;
 
 export default function ProjectForm({ initialData }: ProjectFormProps) {
   const router = useRouter();
   const t = useTranslations('Admin.projectForm');
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  // Fetch available categories on mount
+  useEffect(() => {
+    fetch('/api/admin/categories')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) {
+          setCategories(json.data.map((c: any) => c.name));
+        }
+      })
+      .catch(() => {/* silently fail — form still usable */});
+  }, []);
 
   const localizedSchema = z.object({
     title: z.string().min(3, t('errTitle')),
@@ -81,13 +179,14 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
     fullPageMockupUrl: z.string().optional().default(''),
     gallery: z.array(z.object({
       url: z.string().min(1),
-      type: z.enum(['desktop', 'mobile', 'mockup', 'video']),
+      type: z.enum(['desktop', 'mobile', 'mockup', 'video', 'gif']),
     })).default([]),
     beforeAfter: z.array(z.object({
       before: z.string().min(1, t('errBefore')),
       after: z.string().min(1, t('errAfter')),
     })).default([]),
     closingImageUrl: z.string().optional().default(''),
+    closingImages: z.array(z.string().min(1)).default([]),
     liveUrl: z.string().url(t('errUrl')).optional().or(z.literal('')),
     isFeatured: z.boolean().default(false),
     metaTitle: z
@@ -104,32 +203,58 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       })
       .optional()
       .default({ en: '', ar: '' }),
+    visualDirection: z
+      .object({
+        colors: z.array(z.string()).default([]),
+        fonts: z.array(z.string()).default([]),
+        identity: z.array(z.string()).default([]),
+        imageStyle: z.array(z.string()).default([]),
+      })
+      .optional()
+      .default(EMPTY_VD),
+    sectionOrder: z.array(z.enum(['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'])).default([]),
   });
+
+  const defaults = useMemo(() => {
+    const saved = initialData && (initialData as { visualDirection?: object; sectionOrder?: string[] });
+    return {
+      ...{
+        title: '',
+        category: '',
+        sector: '',
+        description: '',
+        services: [],
+        tools: [],
+        platform: '',
+        year: new Date().getFullYear(),
+        heroMediaUrl: '',
+        fullPageMockupUrl: '',
+        gallery: [],
+        beforeAfter: [],
+        closingImageUrl: '',
+        closingImages: [],
+        liveUrl: '',
+        isFeatured: false,
+        metaTitle: { en: '', ar: '' },
+        metaDescription: { en: '', ar: '' },
+      },
+      ...(initialData || {}),
+      visualDirection: { ...EMPTY_VD, ...(saved?.visualDirection || {}) },
+      sectionOrder: saved?.sectionOrder?.length ? [...saved.sectionOrder] : [...DEFAULT_SECTION_ORDER],
+    };
+  }, [initialData]);
 
   const form = useForm<z.input<typeof localizedSchema>, any, z.output<typeof localizedSchema>>({
     resolver: zodResolver(localizedSchema),
-    defaultValues: initialData || {
-      title: '',
-      category: '',
-      sector: '',
-      description: '',
-      services: [],
-      tools: [],
-      platform: '',
-      year: new Date().getFullYear(),
-      heroMediaUrl: '',
-      fullPageMockupUrl: '',
-      gallery: [],
-      beforeAfter: [],
-      closingImageUrl: '',
-      liveUrl: '',
-      isFeatured: false,
-      metaTitle: { en: '', ar: '' },
-      metaDescription: { en: '', ar: '' },
-    },
+    defaultValues: defaults,
   });
 
-  const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({
+  const {
+    fields: galleryFields,
+    append: appendGallery,
+    remove: removeGallery,
+    move: moveGallery,
+  } = useFieldArray({
     control: form.control,
     name: 'gallery',
   });
@@ -138,6 +263,39 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
     control: form.control,
     name: 'beforeAfter',
   });
+
+  const {
+    fields: closingImagesFields,
+    append: appendClosingImage,
+    remove: removeClosingImage,
+    move: moveClosingImage,
+  } = useFieldArray({
+    control: form.control,
+    name: 'closingImages' as never,
+  });
+
+  // ─── Section order handlers ─────────────────────────────────────────────────
+  type SectionId = 'gallery' | 'transform' | 'visual' | 'deliverables' | 'tools' | 'mockup';
+  const sectionOrderList = (form.watch('sectionOrder') || [...DEFAULT_SECTION_ORDER]) as SectionId[];
+
+  const toggleSection = (id: SectionId) => {
+    if (sectionOrderList.includes(id)) {
+      form.setValue('sectionOrder', sectionOrderList.filter((s) => s !== id));
+    } else {
+      form.setValue('sectionOrder', [...sectionOrderList, id]);
+    }
+  };
+
+  const moveSectionByIndex = (from: number, to: number) => {
+    const next = [...sectionOrderList];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    form.setValue('sectionOrder', next);
+  };
+
+  const galleryDnD = useDndReorder((from, to) => moveGallery(from, to));
+  const closingImagesDnD = useDndReorder((from, to) => moveClosingImage(from, to));
+  const sectionDnD = useDndReorder(moveSectionByIndex);
 
   // ─── Submit ───────────────────────────────────────────────────────────────
   const onSubmit = async (data: ProjectFormValues) => {
@@ -149,9 +307,11 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         if (value?.ar?.trim()) result.ar = value.ar.trim();
         return Object.keys(result).length > 0 ? result : undefined;
       };
-      type ProjectSubmitValues = Omit<ProjectFormValues, 'metaTitle' | 'metaDescription'> & {
+      type ProjectSubmitValues = Omit<ProjectFormValues, 'metaTitle' | 'metaDescription' | 'visualDirection' | 'sectionOrder'> & {
         metaTitle?: { en?: string; ar?: string };
         metaDescription?: { en?: string; ar?: string };
+        visualDirection?: { colors?: string[]; fonts?: string[]; identity?: string[]; imageStyle?: string[] };
+        sectionOrder?: string[];
       };
       const payload = { ...data } as ProjectSubmitValues;
       const metaTitle = cleanLocalized(data.metaTitle);
@@ -160,6 +320,14 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       else delete payload.metaTitle;
       if (metaDescription) payload.metaDescription = metaDescription;
       else delete payload.metaDescription;
+
+      const vd = payload.visualDirection as
+        | { colors?: string[]; fonts?: string[]; identity?: string[]; imageStyle?: string[] }
+        | undefined;
+      if (vd && !vd.colors?.length && !vd.fonts?.length && !vd.identity?.length && !vd.imageStyle?.length) {
+        delete payload.visualDirection;
+      }
+      if (!payload.sectionOrder?.length) delete payload.sectionOrder;
 
       const url = initialData ? `/api/admin/projects/${initialData._id}` : '/api/admin/projects';
       const method = initialData ? 'PUT' : 'POST';
@@ -255,9 +423,25 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           {/* Category */}
           <div className="space-y-1">
             <label className="text-xs font-medium text-rose-200">{t('category')}</label>
-            <input {...form.register('category')}
-              className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
-              placeholder={t('categoryPh')} />
+            {categories.length > 0 ? (
+              <select
+                {...form.register('category')}
+                className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
+              >
+                <option value="">{t('categoryPh')}</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat} className="bg-rose-950 text-white">
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                {...form.register('category')}
+                className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
+                placeholder={t('categoryPh')}
+              />
+            )}
           </div>
 
           {/* Sector */}
@@ -280,7 +464,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           {/* Description */}
           <div className="space-y-1">
             <label className="text-xs font-medium text-rose-200">{t('description')}</label>
-            <textarea {...form.register('description')} rows={3}
+            <textarea {...form.register('description')} rows={3} dir="auto"
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
               placeholder={t('descriptionPh')} />
             {form.formState.errors.description && <p className="text-red-400 text-xs">{form.formState.errors.description.message}</p>}
@@ -331,9 +515,14 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       {/* ══ SECTION 3: Gallery ══ */}
       <div className="space-y-4">
         <SectionHeader title={t('gallery')} subtitle={t('gallerySub')} />
-        <div className="space-y-4">
+        <div ref={galleryDnD.listRef} className="space-y-4">
           {galleryFields.map((field, index) => (
-            <div key={field.id} className="flex items-start gap-3 p-4 bg-rose-950/10 rounded-xl border border-rose-900/20">
+            <div key={field.id} data-dnd-key={field.id} {...galleryDnD.dropProps(index)}
+              className={`flex items-start gap-3 p-4 rounded-xl border transition-colors ${galleryDnD.isDragging(index) ? 'opacity-40 ring-1 ring-rose-500/70 border-rose-500/60 bg-rose-950/20' : 'bg-rose-950/10 border-rose-900/20'}`}>
+              <button type="button" {...galleryDnD.handleProps(index)}
+                className="mt-1 cursor-grab text-rose-500/80 transition-colors hover:text-rose-300 active:cursor-grabbing" title={t('dragToReorder')} aria-label={t('dragToReorder')}>
+                <GripVertical className="w-5 h-5" />
+              </button>
               <div className="flex-1 space-y-3">
                 <Controller name={`gallery.${index}.url`} control={form.control}
                   render={({ field }) => <ImageUpload label={`${t('galleryImage')} ${index + 1}`} value={form.watch(`gallery.${index}.url`) || ''} onChange={(url) => form.setValue(`gallery.${index}.url`, url)} folder="projects" />} />
@@ -346,6 +535,14 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
                     </button>
                   ))}
                 </div>
+              </div>
+              <div className="flex flex-col gap-1.5 mt-1">
+                <button type="button" onClick={() => moveGallery(index, index - 1)} disabled={index === 0} className="text-rose-400 hover:text-rose-200 transition-colors disabled:opacity-25 disabled:pointer-events-none" aria-label="Move up">
+                  <ChevronUp className="w-5 h-5" />
+                </button>
+                <button type="button" onClick={() => moveGallery(index, index + 1)} disabled={index === galleryFields.length - 1} className="text-rose-400 hover:text-rose-200 transition-colors disabled:opacity-25 disabled:pointer-events-none" aria-label="Move down">
+                  <ChevronDown className="w-5 h-5" />
+                </button>
               </div>
               <button type="button" onClick={() => removeGallery(index)} className="text-red-400 hover:text-red-300 transition-colors mt-1">
                 <Trash2 className="w-5 h-5" />
@@ -387,9 +584,94 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       {/* ══ SECTION 5: Closing Image ══ */}
       <div className="space-y-4">
         <SectionHeader title={t('closingImage')} subtitle={t('closingImageSub')} />
-        <div className="p-6 bg-rose-950/10 rounded-xl border border-rose-900/20">
-          <Controller name="closingImageUrl" control={form.control}
-            render={({ field }) => <ImageUpload label={t('closingImageLabel')} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
+        <div className="p-6 bg-rose-950/10 rounded-xl border border-rose-900/20 space-y-6">
+          <div ref={closingImagesDnD.listRef} className="space-y-4">
+            {closingImagesFields.map((field, index) => (
+              <div key={field.id} className="relative group p-4 bg-[#1A050C] rounded-xl border border-rose-900/30 flex flex-col gap-4 items-start"
+                data-dnd-id={field.id} data-dnd-index={index}>
+                <div className="flex items-center w-full gap-4">
+                  <div className="flex-shrink-0 cursor-move text-rose-500/50 hover:text-rose-400 opacity-50 group-hover:opacity-100 transition-opacity"
+                    onMouseDown={(e) => closingImagesDnD.handleDragStart(e, index, field.id)}>
+                    <GripVertical className="w-5 h-5" />
+                  </div>
+                  <div className="flex-grow">
+                    <Controller name={`closingImages.${index}` as never} control={form.control}
+                      render={({ field }) => <ImageUpload label={t('closingImageLabel')} value={field.value as string} onChange={field.onChange} folder="projects" accept="image/*,video/*" />} />
+                  </div>
+                </div>
+                <button type="button" onClick={() => removeClosingImage(index)} className="absolute -top-3 -right-3 p-1.5 bg-red-950/80 border border-red-900/50 rounded-full text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-all shadow-xl">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={() => appendClosingImage('')}
+            className="w-full py-4 border-2 border-dashed border-rose-900/50 hover:border-rose-500/50 rounded-xl text-rose-400 hover:text-rose-300 transition-colors flex flex-col items-center gap-2">
+            <Plus className="w-6 h-6" /> <span className="font-medium text-sm">Add Closing Media</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ══ SECTION 6: Visual Direction (Optional) ══ */}
+      <div className="space-y-4">
+        <SectionHeader title={t('visualDirection')} subtitle={t('visualDirectionSub')} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ChipInput fieldName="visualDirection.colors" label={t('vdColors')} placeholder={t('vdColorsPh')} />
+          <ChipInput fieldName="visualDirection.fonts" label={t('vdFonts')} placeholder={t('vdFontsPh')} />
+          <ChipInput fieldName="visualDirection.identity" label={t('vdIdentity')} placeholder={t('vdIdentityPh')} />
+          <ChipInput fieldName="visualDirection.imageStyle" label={t('vdImageStyle')} placeholder={t('vdImageStylePh')} />
+        </div>
+      </div>
+
+      {/* ══ SECTION 7: Section Order ══ */}
+      <div className="space-y-4">
+        <SectionHeader title={t('sections')} subtitle={t('sectionsSub')} />
+        <div className="space-y-2">
+          {/* Active / Sorted Sections */}
+          <div ref={sectionDnD.listRef} className="space-y-2">
+            {sectionOrderList.map((secId, pos) => {
+              const sec = PROJECT_SECTIONS.find((s) => s.id === secId);
+              if (!sec) return null;
+              return (
+                <div key={sec.id} data-dnd-key={sec.id} {...sectionDnD.dropProps(pos)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${sectionDnD.isDragging(pos) ? 'opacity-40 ring-1 ring-rose-500/70 border-rose-500/60 bg-rose-950/20' : 'bg-rose-950/10 border-rose-900/20'}`}>
+                  <span className="text-xs font-bold text-rose-500/60 tabular-nums">0{pos + 1}</span>
+                  <button type="button" {...sectionDnD.handleProps(pos)}
+                    className="cursor-grab text-rose-500/80 transition-colors hover:text-rose-300 active:cursor-grabbing" title={t('dragToReorder')} aria-label={t('dragToReorder')}>
+                    <GripVertical className="w-5 h-5" />
+                  </button>
+                  <label className="flex items-center gap-3 flex-1 cursor-pointer select-none">
+                    <input type="checkbox" checked={true} onChange={() => toggleSection(sec.id)} className="w-4 h-4 accent-rose-500 cursor-pointer" />
+                    <span className="text-sm font-medium text-rose-200">{t(sec.tKey)}</span>
+                  </label>
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => moveSectionByIndex(pos, pos - 1)} disabled={pos === 0}
+                      className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-900/30 hover:text-rose-200 transition-colors disabled:opacity-25 disabled:pointer-events-none" aria-label="Move up">
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                    <button type="button" onClick={() => moveSectionByIndex(pos, pos + 1)} disabled={pos === sectionOrderList.length - 1}
+                      className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-900/30 hover:text-rose-200 transition-colors disabled:opacity-25 disabled:pointer-events-none" aria-label="Move down">
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {/* Inactive Sections */}
+          {PROJECT_SECTIONS.filter(s => !sectionOrderList.includes(s.id)).length > 0 && (
+            <div className="pt-4 border-t border-rose-900/30 space-y-2">
+              <p className="text-xs text-rose-500/60 mb-2 font-bold uppercase">{t('addSection', { defaultValue: 'Available Sections' })}</p>
+              {PROJECT_SECTIONS.filter(s => !sectionOrderList.includes(s.id)).map(sec => (
+                <div key={sec.id} className="flex items-center gap-3 p-3 rounded-xl border border-rose-900/10 bg-black/20 opacity-60 hover:opacity-100 transition-opacity">
+                  <label className="flex items-center gap-3 flex-1 cursor-pointer select-none ml-8">
+                    <input type="checkbox" checked={false} onChange={() => toggleSection(sec.id)} className="w-4 h-4 accent-rose-500 cursor-pointer" />
+                    <span className="text-sm font-medium text-rose-200">{t(sec.tKey)}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

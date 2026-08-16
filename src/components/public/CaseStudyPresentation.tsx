@@ -1,6 +1,6 @@
 'use client';
 
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { gsap } from 'gsap';
@@ -10,64 +10,468 @@ import BrowserMockup from './BrowserMockup';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* ─── Types ─────────────────────────────────────────────── */
 type GalleryItem = { url: string; type: string };
+type VisualDirection = { colors?: string[]; fonts?: string[]; identity?: string[]; imageStyle?: string[] };
 type Project = {
-  _id: string; slug: string; title: string; description?: string; sector?: string;
-  platform?: string; services?: string[]; tools?: string[]; year?: number;
+  _id: string; slug: string; title: string; description?: string;
+  sector?: string; category?: string; platform?: string;
+  services?: string[]; tools?: string[]; year?: number;
   heroMediaUrl?: string; fullPageMockupUrl?: string; gallery?: GalleryItem[];
-  beforeAfter?: { before: string; after: string }[]; closingImageUrl?: string; liveUrl?: string;
+  beforeAfter?: { before: string; after: string }[]; closingImageUrl?: string; closingImages?: string[]; liveUrl?: string;
+  visualDirection?: VisualDirection; sectionOrder?: string[];
+};
+type NextProject = {
+  slug: string; title: string; sector?: string; heroMediaUrl?: string; year?: number;
 };
 
-const sceneLabels = ['Title', 'Story', 'Frames', 'Transform', 'Deliverables', 'Tools', 'Final'];
+const DEFAULT_SECTION_ORDER = ['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'] as const;
+const SECTION_LABEL: Record<string, string> = {
+  gallery: 'Frames',
+  transform: 'Transformation',
+  visual: 'Visual Direction',
+  deliverables: 'Deliverables',
+  tools: 'Tools',
+  mockup: 'Full Experience',
+};
 
+const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F]/;
+
+/* ─── Media ──────────────────────────────────────────────── */
 function Media({ item, alt, priority = false }: { item?: Partial<GalleryItem>; alt: string; priority?: boolean }) {
   if (!item?.url) return <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,#6a1631,transparent_45%),#16040a]" />;
   if (item.type === 'video') return <video src={item.url} autoPlay loop muted playsInline className="h-full w-full object-cover" aria-label={alt} />;
-  return <Image src={item.url} alt={alt} fill unoptimized priority={priority} sizes="(min-width: 1024px) 42vw, 84vw" className="object-cover" />;
+  // Use plain <img> for GIFs so animation is preserved (next/image kills GIF animation)
+  if (item.type === 'gif') return <img src={item.url} alt={alt} className="h-full w-full object-cover" loading={priority ? 'eager' : 'lazy'} />;
+  return <Image src={item.url} alt={alt} fill unoptimized priority={priority} sizes="(min-width: 1024px) 50vw, 92vw" className="object-cover" />;
 }
 
-function ParticleTitle({ title }: { title: string }) {
-  const dots = useMemo(() => Array.from({ length: 58 }, (_, index) => ({
-    id: index,
-    x: ((index * 47) % 101) - 50,
-    y: ((index * 73) % 89) - 44,
-    size: 2 + ((index * 11) % 5),
-    delay: (index % 9) * 0.055,
-  })), []);
-
+/* ─── ImageBackground — fixed, covers full page ──────── */
+function ImageBackground() {
   return (
-    <div className="relative h-[38svh] w-full max-w-6xl" aria-label={title}>
-      <div className="absolute inset-0" data-title-free-particles aria-hidden="true">
-        {dots.map((dot) => <i data-title-particle key={dot.id} className="absolute left-1/2 top-1/2 rounded-full bg-rose-100" style={{ width: dot.size, height: dot.size, marginLeft: dot.x * 7, marginTop: dot.y * 6, opacity: 0.22 + (dot.id % 5) * 0.1 }} />)}
+    <div className="pointer-events-none fixed inset-0 z-0 h-full w-full select-none overflow-hidden bg-[#0b0107]">
+      <div className="absolute inset-0 h-full w-full">
+        <Image
+          src="/images/satin-bg.jpg"
+          alt="Satin background"
+          fill
+          quality={100}
+          className="object-cover opacity-70"
+          priority
+        />
       </div>
-      <svg data-title-dots viewBox="0 0 1200 340" className="absolute inset-0 h-full w-full overflow-visible" role="img" aria-label={title}>
-        <defs>
-          <pattern id="title-dot-pattern" width="13" height="13" patternUnits="userSpaceOnUse">
-            <circle cx="6.5" cy="6.5" r="3.1" fill="#fff4f6" />
-          </pattern>
-          <filter id="title-atmosphere"><feGaussianBlur stdDeviation="0.18" /></filter>
-        </defs>
-        <text x="600" y="228" textAnchor="middle" fill="url(#title-dot-pattern)" filter="url(#title-atmosphere)" style={{ fontSize: 'clamp(78px, 14vw, 225px)', fontWeight: 700, letterSpacing: '-0.09em', textTransform: 'uppercase' }}>{title}</text>
-      </svg>
-      <div data-title-haze className="absolute left-1/2 top-1/2 h-48 w-[65%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose-400/10 blur-3xl" aria-hidden="true" />
+      {/* Gradient overlay to ensure text readability without performance-heavy mix-blend modes */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0107]/40 via-[#0b0107]/60 to-[#0b0107]/95" />
     </div>
   );
 }
 
-export default function CaseStudyPresentation({ project }: { project: Project; nextProject?: unknown }) {
-  const rootRef = useRef<HTMLElement>(null);
-  const [activeScene, setActiveScene] = useState(0);
-  const activeSceneRef = useRef(0);
+/* ─── Hero ───────────────────────────────────────────────── */
+function Hero({ project, reducedMotion }: { project: Project; reducedMotion: boolean }) {
+  const heroRef = useRef<HTMLElement>(null);
+
+  const ambientDots = useMemo(() => Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    left: ((i * 37) % 101) - 1,
+    top: ((i * 61) % 101) - 1,
+    size: 3 + ((i * 13) % 6), // slightly larger
+    dur: 4 + ((i * 7) % 8),
+  })), []);
+
+  useLayoutEffect(() => {
+    const root = heroRef.current;
+    if (!root || reducedMotion) return;
+    const context = gsap.context(() => {
+      const q = gsap.utils.selector(root);
+      const amb = q('[data-ambient-particle]');
+      gsap.set(amb, { opacity: 0 }); // Start hidden (use opacity, not autoAlpha so visibility doesn't break)
+      
+      amb.forEach((el, i) => {
+        gsap.to(el, {
+          x: () => gsap.utils.random(-80, 80),
+          y: () => gsap.utils.random(-80, 80),
+          opacity: () => gsap.utils.random(0.4, 0.8), // Brighter
+          duration: ambientDots[i % ambientDots.length].dur,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: gsap.utils.random(0, 2)
+        });
+      });
+    }, root);
+    return () => context.revert();
+  }, [reducedMotion, ambientDots]);
+
+  useLayoutEffect(() => {
+    const root = heroRef.current;
+    if (!root || reducedMotion) return;
+
+    const context = gsap.context(() => {
+      const q = gsap.utils.selector(root);
+      const title = q('[data-hero-title]');
+      const desc = q('[data-hero-desc]');
+
+      gsap.set(title, { opacity: 0, y: 50, scale: 0.95, filter: 'blur(12px)' });
+      gsap.set(desc, { opacity: 0, y: 20, filter: 'blur(8px)' });
+      gsap.set('[data-hero-cta]', { autoAlpha: 0, y: 20 });
+
+      const tl = gsap.timeline({ delay: 0.1 });
+      
+      tl.to(title, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.4, ease: 'power4.out' })
+        .to(desc, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }, '-=0.9')
+        .to('[data-hero-cta]', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.6');
+    }, root);
+    return () => context.revert();
+  }, [reducedMotion, project.title]);
+
+  return (
+    <section ref={heroRef} className="relative flex min-h-[100svh] flex-col items-start justify-center px-6 py-28 text-left sm:px-12 lg:px-16 perspective-[1000px]">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        {ambientDots.map((dot) => (
+          <i key={dot.id} data-ambient-particle className="absolute rounded-full bg-white/70 shadow-[0_0_8px_rgba(255,255,255,0.6)]" style={{ left: `${dot.left}%`, top: `${dot.top}%`, width: dot.size, height: dot.size }} aria-hidden="true" />
+        ))}
+      </div>
+      <div className="pointer-events-none absolute inset-0 opacity-50 [background:radial-gradient(circle_at_18%_26%,rgba(183,35,77,.22),transparent_50%)]" />
+
+      <div className="relative mb-8 flex flex-wrap items-center gap-3">
+        {(project.sector || project.category) && (
+          <span className="inline-block rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[.35em] text-[var(--accent)]">
+            {project.sector || project.category}
+          </span>
+        )}
+        {project.year && (
+          <span className="inline-block rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[.35em] text-[var(--accent)]">
+            {project.year}
+          </span>
+        )}
+      </div>
+
+      <div className="relative w-full">
+        <h1
+          data-hero-title
+          className="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tight text-[#fdf2f4] will-change-[opacity,transform,filter]"
+          style={{ textShadow: '0 4px 40px rgba(0,0,0,0.9), 0 2px 10px rgba(0,0,0,0.8)' }}
+        >
+          {project.title}
+        </h1>
+      </div>
+
+      <div className="relative mt-8 max-w-3xl text-[clamp(1.05rem,2.3vw,1.9rem)] font-medium leading-snug tracking-[-.01em] text-[#f4d7dd]" dir="auto">
+        <p data-hero-desc className="opacity-0 translate-y-6 will-change-[opacity,transform,filter]">{project.description || 'A focused visual system designed to make every interaction feel intentional.'}</p>
+      </div>
+
+      {project.liveUrl && (
+        <div data-hero-cta className="relative mt-11">
+          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#951C30] px-8 py-4 text-xs font-bold uppercase tracking-widest text-[#fdf2f4] shadow-xl shadow-rose-900/40 transition hover:bg-[#b8223b] hover:scale-[1.04]">
+            Explore Project <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ─── Section Heading ────────────────────────────────────── */
+function SectionHeading({ num, label, sub }: { num: string; label: string; sub?: string }) {
+  return (
+    <div className="mb-12 max-w-3xl">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-xs sm:text-sm font-black uppercase tracking-[.35em] text-[var(--accent)] opacity-90">{num}</span>
+        <span className="h-px flex-1 max-w-[40px] bg-[var(--accent)]/40" />
+        <span className="text-xs sm:text-sm font-black uppercase tracking-[.35em] text-[var(--accent)] opacity-90">{label}</span>
+      </div>
+      {sub && (
+        <p className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-[-.02em] text-white mt-4" style={{ textShadow: '0 4px 30px rgba(0,0,0,0.8)' }}>
+          {sub}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ─── Gallery Section (Bento Grid) ───────────────────────── */
+function GallerySection({ items, projectTitle }: { items: GalleryItem[]; projectTitle: string }) {
+  if (!items.length) return null;
+
+  const getGridClasses = (type?: string) => {
+    // Determine layout dynamically based on the type defined in the CMS
+    const t = (type || '').toLowerCase();
+    
+    // For mobile, default to 1 col / 1 row, but for desktop, create the bento spans
+    if (t === 'mobile' || t === 'mopail') {
+      return 'col-span-1 md:col-span-1 md:row-span-2'; // Tall
+    }
+    if (t === 'desktop') {
+      return 'col-span-1 md:col-span-2 md:row-span-2'; // Large block
+    }
+    if (t === 'mockup' || t === 'mocup') {
+      return 'col-span-1 md:col-span-2 md:row-span-1'; // Wide block
+    }
+    if (t === 'video' || t === 'vidio') {
+      return 'col-span-1 md:col-span-2 md:row-span-2'; // Large block for video
+    }
+    
+    // Default fallback
+    return 'col-span-1 md:col-span-1 md:row-span-1';
+  };
+
+  const Frame = ({ item, index }: { item: GalleryItem; index: number }) => (
+    <figure
+      className={`relative overflow-hidden rounded-xl border border-white/10 bg-[#1c060f] group ${getGridClasses(item.type)}`}
+    >
+      <Media item={item} alt={`${projectTitle} frame ${index + 1}`} />
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+    </figure>
+  );
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[250px] gap-4 md:gap-5 grid-flow-dense">
+      {items.map((item, i) => <Frame key={`${item.url}-${i}`} item={item} index={i} />)}
+    </div>
+  );
+}
+
+/* ─── Visual Direction ───────────────────────────────────── */
+function VisualSection({ blocks }: { blocks: { id: string; label: string; items: string[] }[] }) {
+  if (!blocks.length) return null;
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      {blocks.map((block, bi) => (
+        <div key={block.id} data-parallax className="flex min-h-32 flex-col justify-end border border-white/10 bg-white/[.03] p-6 will-change-transform" style={{ marginTop: `${16 + bi * 10}px` }}>
+          <p className="text-[10px] uppercase tracking-[.3em] text-[var(--accent)]">{block.label}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {block.id === 'colors'
+              ? block.items.map((it) => <span key={it} className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs tracking-wide"><i className="h-3 w-3 rounded-full border border-white/10" style={{ background: it }} />{it.toLowerCase()}</span>)
+              : block.items.map((it) => <span key={it} className="rounded-full border border-white/10 px-3 py-1.5 text-xs tracking-wide">{it}</span>)}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Before / After ─────────────────────────────────────── */
+function TransformSection({ before, title, reducedMotion }: { before: { before: string; after: string }; title: string; reducedMotion: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const wipeTl = useRef<gsap.core.Tween | null>(null);
+
+  useLayoutEffect(() => {
+    const root = ref.current;
+    if (!root || reducedMotion) return;
+    const context = gsap.context(() => {
+      gsap.set('[data-transform-wipe]', { clipPath: 'inset(0 100% 0 0)' });
+
+      wipeTl.current = gsap.to('[data-transform-wipe]', {
+        clipPath: 'inset(0 0% 0 0)',
+        duration: 3.5, // Much slower
+        ease: 'power2.inOut',
+        paused: true,
+      });
+
+      ScrollTrigger.create({
+        trigger: root,
+        start: 'top 68%',
+        end: 'bottom top',
+        toggleActions: 'play none none reverse', // Replays when scrolling back up
+        animation: wipeTl.current,
+      });
+
+      gsap.fromTo('[data-transform-stage]',
+        { y: 70, autoAlpha: 0 },
+        {
+          y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: root, start: 'top 82%', toggleActions: 'play none none reverse' },
+        });
+    }, root);
+    return () => context.revert();
+  }, [reducedMotion, before.before, before.after]);
+
+  const handleReplay = () => {
+    if (wipeTl.current) {
+      wipeTl.current.restart();
+    }
+  };
+
+  return (
+    <div ref={ref} data-transform-stage data-gsap-context-root className="will-change-transform">
+      <div
+        className="relative aspect-[16/10] overflow-hidden rounded-xl border border-white/10 bg-[#1c060f] lg:aspect-[21/9] cursor-pointer group"
+        onClick={handleReplay}
+        title="Click to replay transformation"
+      >
+        <Media item={{ url: before.after }} alt={`${title} — After`} />
+        <div data-transform-wipe className="absolute inset-0">
+          <Media item={{ url: before.before }} alt={`${title} — Before`} />
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 left-1/2 z-10 hidden w-px -translate-x-1/2 bg-white/30 lg:block" />
+
+        {/* Labels */}
+        <span className="absolute bottom-3 left-3 z-20 rounded bg-black/55 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.22em] text-white/85 backdrop-blur transition-opacity group-hover:opacity-100 opacity-70">Before</span>
+        <span className="absolute bottom-3 right-3 z-20 rounded bg-black/55 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[.22em] text-white/85 backdrop-blur transition-opacity group-hover:opacity-100 opacity-70">After</span>
+
+        {/* Replay Overlay */}
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <span className="rounded-full bg-white/10 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur">
+            Click to Replay
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Deliverables (services as cards) ──────────────────── */
+function DeliverablesSection({ services }: { services: string[] }) {
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      {services.map((service, index) => (
+        <div
+          key={service}
+          data-parallax
+          className="flex min-h-28 items-center gap-5 border border-white/10 bg-white/[.03] p-6 will-change-transform transition-colors hover:border-[var(--accent)]/25 hover:bg-white/[.05]"
+          style={{ marginTop: `${(index % 2 === 0 ? 0 : 22)}px` }}
+        >
+          <span className="text-[10px] font-bold text-[var(--accent)]">0{index + 1}</span>
+          <span className="text-lg font-medium tracking-[-.03em] text-white/90 sm:text-xl">{service}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Tools ──────────────────────────────────────────────── */
+function ToolsSection({ tools }: { tools: string[] }) {
+  return (
+    <div className="flex max-w-4xl flex-wrap gap-4">
+      {tools.map((tool, i) => (
+        <span
+          key={tool}
+          data-parallax
+          className="rounded-xl border border-white/20 bg-white/[.06] px-6 py-3.5 text-lg sm:text-xl font-medium tracking-wide text-white/95 will-change-transform"
+          style={{ marginTop: `${(i % 2 === 0 ? 0 : 18)}px` }}
+        >
+          {tool}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Project Meta (real schema fields only) ─────────────── */
+function MetaSection({ project }: { project: Project }) {
+  // Only render fields that actually exist in the Project schema with real data.
+  // Never substitute an unrelated field (e.g. title is NOT client).
+  const fields: { label: string; value: string }[] = [];
+
+  if (project.year) fields.push({ label: 'Year', value: String(project.year) });
+  if (project.platform) fields.push({ label: 'Platform', value: project.platform });
+
+  // sector and category are separate optional schema fields — show each when present
+  if (project.sector) fields.push({ label: 'Sector', value: project.sector });
+  if (project.category && project.category !== 'Uncategorized')
+    fields.push({ label: 'Category', value: project.category });
+
+  if (!fields.length) return null;
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {fields.map(({ label, value }) => (
+        <div key={label} className="rounded-xl border border-white/10 bg-white/[.03] px-6 py-6 backdrop-blur-sm shadow-xl shadow-black/20">
+          <p className="mb-3 text-[10px] md:text-xs font-black uppercase tracking-[.3em] text-[var(--accent)]">{label}</p>
+          <p className="text-lg md:text-xl font-bold text-white leading-snug">{value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
+
+/* ─── Next Project Teaser ────────────────────────────────── */
+function NextProjectTeaser({ next }: { next: NextProject }) {
+  return (
+    <div className="border-t border-white/5">
+      <Link
+        href={`/work/${next.slug}`}
+        className="group relative flex min-h-[42vh] flex-col items-center justify-center overflow-hidden px-6 py-20 text-center"
+        aria-label={`Next project: ${next.title}`}
+      >
+        {/* Background hero image with parallax-on-hover depth */}
+        {next.heroMediaUrl && (
+          <div className="pointer-events-none absolute inset-0 scale-[1.08] transition-transform duration-700 ease-out group-hover:scale-100">
+            <Image
+              src={next.heroMediaUrl}
+              alt=""
+              fill
+              unoptimized
+              className="object-cover opacity-15 transition-opacity duration-500 group-hover:opacity-25"
+            />
+          </div>
+        )}
+        {/* Dark overlay that lifts slightly on hover */}
+        <div className="pointer-events-none absolute inset-0 bg-[#0b0107]/75 transition-opacity duration-500 group-hover:bg-[#0b0107]/55" />
+
+        {/* Content */}
+        <div className="relative z-10">
+          <p className="mb-3 text-[9px] font-bold uppercase tracking-[.55em] text-[var(--accent)]">Next Project</p>
+          <h3 className="text-3xl font-bold tracking-tight text-white transition-transform duration-500 group-hover:-translate-y-1 sm:text-5xl">
+            {next.title}
+          </h3>
+          {(next.sector || next.year) && (
+            <p className="mt-2 text-xs text-white/35">
+              {[next.sector, next.year].filter(Boolean).join(' · ')}
+            </p>
+          )}
+          <div className="mt-6 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.35em] text-white/50 transition-colors duration-300 group-hover:text-white">
+            View Case Study <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+/* ─── Main Component ─────────────────────────────────────── */
+export default function CaseStudyPresentation({ project, nextProject }: { project: Project; nextProject?: NextProject }) {
   const [reducedMotion, setReducedMotion] = useState(false);
-  const gallery = project.gallery?.length ? project.gallery.slice(0, 5) : project.heroMediaUrl ? [{ url: project.heroMediaUrl, type: 'desktop' }] : [];
+  const mainRef = useRef<HTMLElement>(null);
+
+  const gallery = project.gallery?.length ? project.gallery : project.heroMediaUrl ? [{ url: project.heroMediaUrl, type: 'desktop' }] : [];
   const comparison = project.beforeAfter?.[0];
   const services = project.services?.length ? project.services : ['Art direction', 'Visual identity', 'Digital experience'];
   const tools = project.tools?.length ? project.tools : [project.platform || 'Digital', 'Strategy', 'Design'];
-  const finalMedia = project.closingImageUrl || project.heroMediaUrl;
+  const finalMedia = project.closingImageUrl;
+  const closingImages = project.closingImages?.length ? project.closingImages : null;
   const description = project.description || 'A focused visual system designed to make every interaction feel intentional.';
-  const descriptionWords = description.split(' ');
 
-  useLayoutEffect(() => {
+
+
+  const vdColors = useMemo(() => project.visualDirection?.colors?.filter(Boolean) || [], [project.visualDirection]);
+  const vdFonts = useMemo(() => project.visualDirection?.fonts?.filter(Boolean) || [], [project.visualDirection]);
+  const vdIdentity = useMemo(() => project.visualDirection?.identity?.filter(Boolean) || [], [project.visualDirection]);
+  const vdImageStyle = useMemo(() => project.visualDirection?.imageStyle?.filter(Boolean) || [], [project.visualDirection]);
+  const hasVisual = Boolean(vdColors.length || vdFonts.length || vdIdentity.length || vdImageStyle.length);
+
+  const vdBlocks = useMemo(() => {
+    const blocks: { id: string; label: string; items: string[] }[] = [];
+    if (vdColors.length) blocks.push({ id: 'colors', label: 'Color', items: vdColors });
+    if (vdFonts.length) blocks.push({ id: 'fonts', label: 'Type', items: vdFonts });
+    if (vdIdentity.length) blocks.push({ id: 'identity', label: 'Identity', items: vdIdentity });
+    if (vdImageStyle.length) blocks.push({ id: 'imageStyle', label: 'Art Direction', items: vdImageStyle });
+    return blocks;
+  }, [vdColors, vdFonts, vdIdentity, vdImageStyle]);
+
+  const orderedSections = useMemo(() => {
+    const raw: string[] = project.sectionOrder?.length ? project.sectionOrder : (DEFAULT_SECTION_ORDER as unknown as string[]);
+    let list = raw.filter((s) => (DEFAULT_SECTION_ORDER as unknown as string[]).includes(s));
+    list = list.filter((s) => s !== 'visual' || hasVisual);
+    list = list.filter((s) => s !== 'mockup' || Boolean(project.fullPageMockupUrl));
+    return [...new Set(list)];
+  }, [project.sectionOrder, hasVisual, project.fullPageMockupUrl]);
+
+
+
+  useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => setReducedMotion(query.matches);
     update(); query.addEventListener('change', update);
@@ -75,179 +479,163 @@ export default function CaseStudyPresentation({ project }: { project: Project; n
   }, []);
 
   useLayoutEffect(() => {
-    if (!rootRef.current || reducedMotion) return;
-    const root = rootRef.current;
+    const root = mainRef.current;
+    if (!root) return;
+    if (reducedMotion) return;
     const context = gsap.context(() => {
-      const q = gsap.utils.selector(root);
-      const scenes = q('[data-scene]');
-      const titleParticles = q('[data-title-particle]');
-      const galleryCards = q('[data-gallery-card]');
-      const serviceItems = q('[data-service]');
-      const toolItems = q('[data-tool]');
-      const scene = (index: number) => q(`[data-scene="${index}"]`);
-
-      gsap.set(scenes, { autoAlpha: 0 });
-      gsap.set(scene(0), { autoAlpha: 1 });
-      gsap.set(q('[data-title-dots]'), { autoAlpha: 0, scale: 0.74, transformOrigin: '50% 50%' });
-      gsap.set(titleParticles, { x: () => gsap.utils.random(-460, 460), y: () => gsap.utils.random(-300, 300), z: () => gsap.utils.random(-600, 200), opacity: () => gsap.utils.random(0.18, 0.82) });
-      gsap.set(q('[data-description-word]'), { y: 30, z: -100, rotationX: -30, autoAlpha: 0.1, scale: 0.8, color: 'rgba(255,255,255,0.2)' });
-      
-      // Initialize gallery cards for flipping stack
-      gsap.set(galleryCards, { z: -400, rotationY: 0, rotationX: 10, scale: 0.82, autoAlpha: 0 });
-      
-      gsap.set(q('[data-ba-stage]'), { z: -580, rotationY: 12, scale: 0.72, autoAlpha: 0 });
-      gsap.set(q('[data-before-after]'), { clipPath: 'inset(0 100% 0 0)' });
-      gsap.set(serviceItems, { y: 120, z: -300, rotationX: 42, autoAlpha: 0 });
-      gsap.set(toolItems, { scale: 0.35, z: -600, autoAlpha: 0 });
-      gsap.set(q('[data-final]'), { scale: 0.76, z: -500, autoAlpha: 0 });
-
-      const updateActive = (progress: number) => {
-        const budgets = [1.4, 1.15, 0.7 + galleryCards.length * 0.4, 1.45, 1.1, 1.15, 0.9];
-        const total = budgets.reduce((sum, budget) => sum + budget, 0);
-        let elapsed = 0;
-        const stops = budgets.map((budget) => { elapsed += budget; return elapsed / total; });
-        const next = stops.findIndex((stop) => progress <= stop);
-        const index = next === -1 ? 6 : next;
-        if (activeSceneRef.current !== index) { activeSceneRef.current = index; setActiveScene(index); }
-      };
-
-      const timeline = gsap.timeline({
-        scrollTrigger: { trigger: root, start: 'top top', end: 'bottom bottom', scrub: 0.55, invalidateOnRefresh: true, onUpdate: (self) => updateActive(self.progress) },
+      const reveals = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal]'));
+      reveals.forEach((el) => {
+        gsap.fromTo(el,
+          { y: 90, autoAlpha: 0, scale: 0.985 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            scale: 1,
+            duration: 1.1,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 84%', once: true },
+          });
       });
 
-      timeline
-        .to(titleParticles, { x: (i) => ((i % 9) - 4) * 13, y: (i) => (Math.floor(i / 9) - 3) * 10, z: 0, opacity: 0.28, duration: 0.65, stagger: 0.006, ease: 'power3.out' })
-        .to(q('[data-title-dots]'), { autoAlpha: 1, scale: 1, duration: 0.55, ease: 'power4.out' }, '<0.18')
-        .to(q('[data-title-haze]'), { scale: 1.5, opacity: 0.36, duration: 0.3 }, '<')
-        .to(scene(0), { z: -440, scale: 0.84, autoAlpha: 0, duration: 0.2, ease: 'power2.in' })
-        .set(scene(1), { autoAlpha: 1 })
-        // Sped up stagger for text words
-        .to(q('[data-description-word]'), { y: 0, z: 0, rotationX: 0, autoAlpha: 1, scale: 1, color: '#ffffff', stagger: 0.015, duration: 0.5, ease: 'back.out(2)' })
-        .to(scene(1), { y: -70, z: -340, autoAlpha: 0, duration: 0.45, ease: 'power2.inOut' })
-        .set(scene(2), { autoAlpha: 1 });
-
-      // Flipping Gallery Animation
-      galleryCards.forEach((card, index) => {
-        timeline.to(galleryCards, {
-          xPercent: 0,
-          z: (i) => {
-            if (i === index) return 200; // active is close
-            if (i > index) return -150 - ((i - index) * 80); // future ones are stacked behind
-            return -800; // past ones are pushed WAY back
-          },
-          rotationY: 0,
-          rotationX: (i) => {
-            if (i === index) return 0; // flat
-            if (i > index) return 5; // slightly tilted up
-            return -60; // past ones flip backwards "تتشقلب وترجع"
-          },
-          scale: (i) => i === index ? 1.6 : (i > index ? 0.9 : 0.4),
-          autoAlpha: (i) => i === index ? 1 : (i > index ? 0.4 : 0),
-          duration: 0.45,
-          ease: 'power3.inOut',
-          overwrite: 'auto',
-        });
+      const parallax = Array.from(root.querySelectorAll<HTMLElement>('[data-parallax]'));
+      parallax.forEach((el, index) => {
+        gsap.fromTo(el,
+          { yPercent: index % 2 === 0 ? 15 : -15 },
+          {
+            yPercent: index % 2 === 0 ? -15 : 15,
+            ease: 'none',
+            scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 1.4 },
+          });
       });
-
-      timeline
-        .to(galleryCards, { z: -800, rotationX: -60, scale: 0.4, autoAlpha: 0, duration: 0.3, ease: 'power3.in' })
-        .to(scene(2), { autoAlpha: 0, duration: 0.08 })
-        .set(scene(3), { autoAlpha: 1 })
-        .to(q('[data-ba-stage]'), { z: 0, rotationY: 0, scale: 1, autoAlpha: 1, duration: 0.5, ease: 'power4.out' })
-        .to(q('[data-before-after]'), { clipPath: 'inset(0 0% 0 0)', duration: 0.7, ease: 'power3.inOut' })
-        .to(q('[data-before-image]'), { scale: 1.1, duration: 0.2 }, '<')
-        .to(scene(3), { z: -430, rotationX: 8, autoAlpha: 0, duration: 0.25 })
-        .set(scene(4), { autoAlpha: 1 })
-        .to(serviceItems, { y: 0, z: 0, rotationX: 0, autoAlpha: 1, stagger: 0.1, duration: 0.65, ease: 'power4.out' })
-        .to(scene(4), { z: -350, autoAlpha: 0, duration: 0.45 })
-        .set(scene(5), { autoAlpha: 1 })
-        .to(toolItems, { scale: 1, z: 0, autoAlpha: 1, stagger: 0.08, duration: 0.7, ease: 'back.out(1.25)' })
-        .to(q('[data-tools-core]'), { rotation: 180, scale: 1.22, duration: 0.45, ease: 'power2.inOut' }, '<')
-        .to(scene(5), { z: -500, autoAlpha: 0, duration: 0.45 })
-        .set(scene(6), { autoAlpha: 1 })
-        .to(q('[data-final]'), { scale: 1, z: 0, autoAlpha: 1, duration: 0.9, ease: 'power4.out' });
     }, root);
     return () => context.revert();
-  }, [project.slug, reducedMotion, gallery.length, services.length, tools.length]);
+  }, [reducedMotion]);
 
-  if (reducedMotion) return <StaticCaseStudy project={project} gallery={gallery} comparison={comparison} services={services} tools={tools} finalMedia={finalMedia} />;
+  const renderSection = (secId: string, index: number) => {
+    const heading = <SectionHeading num={`0${index + 1}`} label={SECTION_LABEL[secId] || secId} />;
+
+    if (secId === 'gallery') return (
+      <section key={secId} data-reveal className="px-5 py-24 sm:px-12 lg:px-16">
+        {heading}
+        <GallerySection items={gallery} projectTitle={project.title} />
+      </section>
+    );
+
+    if (secId === 'transform') return comparison
+      ? <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<TransformSection before={comparison} title={project.title} reducedMotion={reducedMotion} /></section>
+      : null;
+
+    if (secId === 'visual') return (
+      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<VisualSection blocks={vdBlocks} /></section>
+    );
+
+    if (secId === 'deliverables') return (
+      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<DeliverablesSection services={services} /></section>
+    );
+
+    if (secId === 'tools') return (
+      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<ToolsSection tools={tools} /></section>
+    );
+
+    if (secId === 'mockup' && project.fullPageMockupUrl) return (
+      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+        {heading}
+        <div className="mx-auto mb-16 max-w-6xl text-center">
+          <p className="text-sm tracking-wide text-white/50">Scroll inside the window to view the complete design.</p>
+        </div>
+        <BrowserMockup imageUrl={project.fullPageMockupUrl} />
+        {project.liveUrl && (
+          <div className="mt-16 text-center">
+            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-[#951C30] px-10 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-xl shadow-rose-900/30 transition hover:scale-[1.04] hover:bg-[#b8223b]">
+              Visit live project <ArrowUpRight className="h-5 w-5" />
+            </a>
+          </div>
+        )}
+      </section>
+    );
+
+    return null;
+  };
 
   return (
-    <>
-      <main ref={rootRef} className="case-study-cinematic case-study-narrative relative bg-[#17030a] text-white" style={{ minHeight: `${800 + gallery.length * 60}svh` }}>
-        <div className="sticky top-0 h-[100svh] overflow-hidden [perspective:1400px]">
-          <header className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 py-5 sm:px-8 md:px-12">
-            <Link href="/work" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white"><ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">All projects</span></Link>
-            <div className="hidden gap-1 sm:flex">{sceneLabels.map((label, index) => <span key={label} title={label} className="h-1 rounded-full transition-all duration-200" style={{ width: index === activeScene ? 24 : 5, background: index <= activeScene ? 'var(--accent)' : 'rgba(255,255,255,.25)' }} />)}</div>
-            {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.22em] text-[var(--accent)]">Live <ExternalLink className="h-3.5 w-3.5" /></a>}
-          </header>
-          <div className="pointer-events-none absolute inset-0 opacity-45 [background:radial-gradient(circle_at_50%_35%,rgba(183,35,77,.2),transparent_30%),linear-gradient(115deg,transparent_48%,rgba(255,255,255,.035)_49%,transparent_50%)]" />
-          <p className="absolute bottom-7 left-5 z-30 text-[10px] font-bold uppercase tracking-[.35em] text-white/45 sm:left-8">{String(activeScene + 1).padStart(2, '0')} / 07 · scroll to direct</p>
+    <main ref={mainRef} className="case-study-narrative relative isolate min-h-screen overflow-x-clip bg-[#0b0107] text-white">
+      {/* Background image covers the full scroll experience via `fixed inset-0` */}
+      <ImageBackground />
 
-          <section data-scene="0" className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center"><p className="mb-6 text-[10px] font-bold uppercase tracking-[.48em] text-[var(--accent)]">{project.sector || 'Project'} · {project.year}</p><ParticleTitle title={project.title} /></section>
-          <section data-scene="1" className="absolute inset-0 flex items-center px-5 sm:px-12 lg:px-[12vw]"><div className="max-w-5xl [transform-style:preserve-3d]"><p className="mb-10 text-[10px] font-bold uppercase tracking-[.42em] text-[var(--accent)]">The brief</p><div className="flex flex-wrap gap-x-3 sm:gap-x-5 gap-y-2 sm:gap-y-4">{descriptionWords.map((word, index) => <span data-description-word key={index} className="inline-block origin-bottom text-[clamp(1.8rem,4.5vw,4.5rem)] font-bold leading-[1.1] tracking-[-.04em] text-white/90">{word}</span>)}</div></div></section>
-          
-          {/* Flipped Gallery Scene */}
-          <section data-scene="2" className="absolute inset-0 flex items-center justify-center overflow-hidden px-5"><div className="relative flex w-max items-center justify-center [transform-style:preserve-3d]">{gallery.map((item, index) => <figure data-gallery-card key={`${item.url}-${index}`} className="absolute h-[clamp(16rem,45vw,30rem)] w-[clamp(10rem,22vw,20rem)] shrink-0 overflow-hidden border border-white/15 bg-[#230712] shadow-2xl [transform-style:preserve-3d]" style={{ marginLeft: '-10vw', marginTop: '-15vw' }}><Media item={item} alt={`${project.title} frame ${index + 1}`} priority={index === 0} /><figcaption className="absolute bottom-3 left-3 text-[9px] font-bold uppercase tracking-[.25em] text-white/65">Frame {String(index + 1).padStart(2, '0')}</figcaption></figure>)}</div></section>
-          
-          <section data-scene="3" className="absolute inset-0 flex items-center justify-center px-5"><div data-ba-stage className="relative aspect-video w-full max-w-5xl overflow-hidden border border-white/15 bg-[#230712] [transform-style:preserve-3d]">{comparison ? <><div data-before-image className="absolute inset-0"><Media item={{ url: comparison.before }} alt="Before" /></div><div data-before-after className="absolute inset-0"><Media item={{ url: comparison.after }} alt="After" /></div></> : <Media item={gallery[0]} alt={project.title} />}<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,.12),transparent_24%,transparent_70%,rgba(0,0,0,.3))]" /><span className="absolute bottom-5 left-5 text-[10px] font-bold uppercase tracking-[.34em]">Before</span><span className="absolute bottom-5 right-5 text-[10px] font-bold uppercase tracking-[.34em]">After</span></div></section>
-          <section data-scene="4" className="absolute inset-0 flex items-center justify-center px-5"><div className="grid w-full max-w-6xl gap-3 md:grid-cols-2">{services.map((service, index) => <div data-service key={service} className="flex min-h-28 items-end border border-white/15 bg-white/[.035] p-5 [transform-style:preserve-3d]"><span className="mr-4 text-[10px] text-[var(--accent)]">0{index + 1}</span><span className="text-2xl font-medium tracking-[-.04em] sm:text-4xl">{service}</span></div>)}</div></section>
-          <section data-scene="5" className="absolute inset-0 flex items-center justify-center overflow-hidden px-5"><div data-tools-core className="absolute h-28 w-28 rounded-full border border-[var(--accent)] bg-[var(--accent)]/10" />{tools.map((tool, index) => { const angle = 360 / tools.length * index; return <span data-tool key={tool} className="absolute flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-[#21060e] px-2 text-center text-[10px] font-bold uppercase tracking-wider sm:h-28 sm:w-28" style={{ transform: `rotate(${angle}deg) translateY(clamp(-13rem, -26vw, -7rem)) rotate(${-angle}deg)` }}>{tool}</span>; })}</section>
-          <section data-scene="6" className="absolute inset-0 flex items-center justify-center px-5 py-20"><div data-final className="relative flex h-full max-h-[72svh] w-full max-w-6xl items-end overflow-hidden border border-white/15 bg-[#21060e] p-6 sm:p-10"><Media item={finalMedia ? { url: finalMedia } : undefined} alt={`${project.title} final preview`} /><div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_20%,rgba(17,2,7,.94)_100%)]" /><div className="relative z-10"><p className="text-[10px] font-bold uppercase tracking-[.38em] text-[var(--accent)]">End of project</p><h2 className="mt-3 max-w-3xl text-5xl font-semibold uppercase leading-[.8] tracking-[-.08em] sm:text-7xl">{project.title}</h2></div></div></section>
-        </div>
-      </main>
-
-      {/* Standard Scrolling Section for Full Page Mockup */}
-      {project.fullPageMockupUrl && (
-        <section className="relative z-10 bg-[#110205] py-24 px-5 sm:px-12 border-t border-rose-900/30">
-          <div className="max-w-6xl mx-auto mb-16 text-center">
-            <h3 className="text-3xl font-light tracking-tight text-white mb-4">Explore the Full Experience</h3>
-            <p className="text-white/50 text-sm tracking-wide">Scroll inside the window to view the complete design.</p>
-          </div>
-          <BrowserMockup imageUrl={project.fullPageMockupUrl} />
-          
-          <div className="mt-24 text-center pb-12 flex flex-col items-center gap-6">
-            {project.liveUrl && (
-              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest transition-opacity hover:opacity-80" style={{ backgroundColor: '#951C30' }}>
-                Visit live project <ArrowUpRight className="h-4" />
-              </a>
-            )}
-            <Link href="/work" className="inline-flex items-center gap-2 border-b border-white/40 pb-2 text-xs font-bold uppercase tracking-widest text-white/70 hover:text-white transition-colors">
-              Back to portfolio <ArrowLeft className="h-4" />
-            </Link>
-          </div>
-        </section>
-      )}
-      
-      {!project.fullPageMockupUrl && (
-        <section className="bg-[#110205] py-24 text-center flex flex-col items-center gap-6 border-t border-rose-900/30">
+      {/* ── Navigation ───────────────────────────────────── */}
+      <header className="case-study-nav relative z-20 flex items-center justify-between px-5 py-5 sm:px-12 lg:px-16">
+        <Link href="/work" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white">
+          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">All projects</span>
+        </Link>
+        <div className="flex items-center gap-5">
+          {project.platform && <span className="hidden text-xs md:text-sm font-black uppercase tracking-[.15em] text-white/80 sm:inline">{project.platform}</span>}
           {project.liveUrl && (
-            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest transition-opacity hover:opacity-80" style={{ backgroundColor: '#951C30' }}>
-              Visit live project <ArrowUpRight className="h-4" />
+            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-[#951C30] px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-rose-900/30 transition hover:scale-[1.04] hover:bg-[#b8223b]">
+              Live Demo <ExternalLink className="h-4 w-4" />
             </a>
           )}
-          <Link href="/work" className="inline-flex items-center gap-2 border-b border-white/40 pb-2 text-xs font-bold uppercase tracking-widest text-white/70 hover:text-white transition-colors">
-            Back to portfolio <ArrowLeft className="h-4" />
-          </Link>
-        </section>
-      )}
-    </>
-  );
-}
+        </div>
+      </header>
 
-function StaticCaseStudy({ project, gallery, comparison, services, tools, finalMedia }: { project: Project; gallery: GalleryItem[]; comparison?: { before: string; after: string }; services: string[]; tools: string[]; finalMedia?: string }) {
-  const section = (label: string, content: React.ReactNode) => <section className="min-h-[74svh] px-5 py-24 sm:px-8"><p className="mb-7 text-[10px] font-bold uppercase tracking-[.36em] text-[var(--accent)]">{label}</p>{content}</section>;
-  return <main className="case-study-narrative min-h-screen bg-[#17030a] text-white"><header className="sticky top-0 z-20 flex justify-between bg-[#17030a]/90 px-5 py-5 backdrop-blur sm:px-8"><Link href="/work" className="text-xs font-bold uppercase tracking-widest"><ArrowLeft className="mr-2 inline h-4" />All projects</Link>{project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">Live site</a>}</header>{section('01 — Project', <><h1 className="text-6xl font-semibold uppercase leading-[.8] tracking-[-.08em] sm:text-8xl">{project.title}</h1><p className="mt-10 max-w-xl text-lg leading-relaxed text-white/70">{project.description}</p></>)}{section('02 — Gallery', <div className="grid gap-5 sm:grid-cols-2">{gallery.map((item, index) => <div key={item.url} className="relative aspect-[4/3] overflow-hidden"><Media item={item} alt={`${project.title} gallery ${index + 1}`} /></div>)}</div>)}{section('03 — Transformation', comparison ? <div className="relative aspect-video overflow-hidden"><Media item={{ url: comparison.after }} alt="After" /><div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden"><div className="relative h-full w-[200%]"><Media item={{ url: comparison.before }} alt="Before" /></div></div></div> : <p className="text-white/60">The final outcome is shown in the project frames.</p>)}{section('04 — Deliverables', <div className="flex flex-wrap gap-3">{services.map((service) => <span key={service} className="border border-white/20 px-5 py-3">{service}</span>)}</div>)}{section('05 — Tools', <div className="flex flex-wrap gap-3">{tools.map((tool) => <span key={tool} className="rounded-full border border-white/20 px-5 py-3">{tool}</span>)}</div>)}{section('06 — Final', <><div className="relative aspect-video overflow-hidden"><Media item={finalMedia ? { url: finalMedia } : undefined} alt={project.title} /></div><Link href="/work" className="mt-8 inline-flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-[var(--accent)]">Back to portfolio <ArrowLeft className="h-4 rotate-180" /></Link></>)}
-  
-  {/* Static Mockup */}
-  {project.fullPageMockupUrl && (
-    <section className="px-5 py-24 sm:px-8 border-t border-rose-900/30 bg-[#110205]">
-      <div className="max-w-6xl mx-auto mb-16 text-center">
-        <h3 className="text-3xl font-light tracking-tight text-white mb-4">Explore the Full Experience</h3>
-        <p className="text-white/50 text-sm tracking-wide">Scroll inside the window to view the complete design.</p>
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <Hero project={project} reducedMotion={reducedMotion} />
+
+      {/* ── Body ─────────────────────────────────────────── */}
+      <div className="relative z-10 border-t border-white/5">
+
+        {/* Project Meta — real schema fields only, omitted if no data */}
+        {(project.year || project.platform || project.sector || (project.category && project.category !== 'Uncategorized')) && (
+          <section data-reveal className="px-5 py-32 sm:px-12 lg:px-24">
+            <SectionHeading num="00" label="Project Details" />
+            <MetaSection project={project} />
+          </section>
+        )}
+
+        {/* Ordered sections (deliverables, tools, gallery, transform, visual) */}
+        {orderedSections.map((secId, i) => renderSection(secId, i))}
+
+        {/* ── Final / Closing CTA ──────────────────────── */}
+        {(closingImages || finalMedia) && (
+          <section data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-[#1c060f]/40 to-transparent">
+            <SectionHeading num="06" label="Final" sub="End of project" />
+            
+            <div className="mb-16">
+              {closingImages ? (
+                <div className="flex flex-wrap gap-4 justify-center items-center">
+                  {closingImages.map((url, i) => (
+                    <div key={i} className="relative overflow-hidden border border-white/10 bg-[#1c060f] rounded-xl will-change-transform flex-grow flex-shrink basis-[calc(50%-1rem)] min-w-[300px]">
+                      <Media item={{ url, type: 'desktop' }} alt={`${project.title} — closing image ${i + 1}`} />
+                    </div>
+                  ))}
+                </div>
+              ) : finalMedia ? (
+                <div data-parallax className="relative overflow-hidden border border-white/10 bg-[#1c060f] rounded-xl will-change-transform aspect-[16/10] lg:aspect-[21/9]">
+                  <Media item={{ url: finalMedia, type: 'desktop' }} alt={`${project.title} — final preview`} />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                </div>
+              ) : null}
+            </div>
+
+            <div className="relative z-10 px-6 sm:px-10 max-w-4xl">
+              <h2 className="text-4xl font-semibold uppercase leading-[.85] tracking-[-.07em] sm:text-6xl">{project.title}</h2>
+              <p className="mt-4 text-sm leading-relaxed text-white/60">Have a similar project? Let&apos;s create a visual experience that reflects your brand.</p>
+              <div className="mt-7 flex flex-wrap items-center gap-6">
+                <Link href="/contact" className="inline-flex items-center gap-2 rounded-full bg-[#951C30] px-7 py-3.5 text-xs font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-80">
+                  Start your project <ArrowUpRight className="h-4" />
+                </Link>
+                <Link href="/work" className="inline-flex items-center gap-2 border-b border-white/40 pb-2 text-xs font-bold uppercase tracking-widest text-white/70 transition-colors hover:text-white">
+                  Back to portfolio <ArrowLeft className="h-4" />
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
-      <BrowserMockup imageUrl={project.fullPageMockupUrl} />
-    </section>
-  )}
-  </main>;
+
+      {/* ── Next project teaser ───────────────────────────── */}
+      {nextProject && <NextProjectTeaser next={nextProject} />}
+    </main>
+  );
 }

@@ -11,6 +11,7 @@ type ProjectListRecord = {
   year: number;
   title?: LocalizedText;
   sector?: LocalizedText;
+  category?: LocalizedText;
 };
 
 export const metadata = {
@@ -26,7 +27,7 @@ export default async function WorkPage() {
 
   const projects = await Project.find()
     .sort({ year: -1, createdAt: -1 })
-    .select('title slug sector heroMediaUrl year')
+    .select('title slug sector category heroMediaUrl year')
     .lean();
 
   const serializedProjects: ProjectRecord[] = (
@@ -37,6 +38,8 @@ export default async function WorkPage() {
     heroMediaUrl: project.heroMediaUrl,
     year: project.year,
     title: typeof project.title === 'object' ? project.title?.en || '' : project.title || '',
+    category:
+      typeof project.category === 'object' ? project.category?.en || '' : project.category || '',
     sector:
       typeof project.sector === 'object' ? project.sector?.en || '' : project.sector || '',
   }));

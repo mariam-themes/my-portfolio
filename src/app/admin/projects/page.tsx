@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { Plus, Edit2 } from 'lucide-react';
 import DeleteProjectButton from './DeleteProjectButton';
 import Image from 'next/image';
+import CategoriesManager from '@/components/admin/CategoriesManager';
 
 export const metadata = {
   title: 'Projects | Admin Dashboard',
@@ -41,6 +42,9 @@ export default async function AdminProjectsPage() {
           {t('addNew')}
         </Link>
       </div>
+
+      {/* Categories Management */}
+      <CategoriesManager />
 
       {/* Projects Grid */}
       {projects.length === 0 ? (

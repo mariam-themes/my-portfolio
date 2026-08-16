@@ -3,7 +3,7 @@ import slugify from 'slugify';
 
 export interface IGalleryItem {
   url: string;
-  type: 'desktop' | 'mobile' | 'mockup' | 'video';
+  type: 'desktop' | 'mobile' | 'mockup' | 'video' | 'gif';
 }
 
 export interface IBeforeAfter {
@@ -15,6 +15,21 @@ export interface ILocalizedText {
   en?: string;
   ar?: string;
 }
+
+export interface IVisualDirection {
+  colors?: string[];
+  fonts?: string[];
+  identity?: string[];
+  imageStyle?: string[];
+}
+
+export type ProjectSectionId =
+  | 'gallery'
+  | 'transform'
+  | 'visual'
+  | 'deliverables'
+  | 'tools'
+  | 'mockup';
 
 export interface IProject extends Document {
   title: string;
@@ -31,10 +46,13 @@ export interface IProject extends Document {
   gallery?: IGalleryItem[];
   beforeAfter?: IBeforeAfter[];
   closingImageUrl?: string;
+  closingImages?: string[];
   liveUrl?: string;
   isFeatured?: boolean;
   metaTitle?: ILocalizedText;
   metaDescription?: ILocalizedText;
+  visualDirection?: IVisualDirection;
+  sectionOrder?: ProjectSectionId[];
 }
 
 const GalleryItemSchema = new Schema<IGalleryItem>(
@@ -42,7 +60,7 @@ const GalleryItemSchema = new Schema<IGalleryItem>(
     url: { type: String, required: true },
     type: {
       type: String,
-      enum: ['desktop', 'mobile', 'mockup', 'video'],
+      enum: ['desktop', 'mobile', 'mockup', 'video', 'gif'],
       default: 'desktop',
     },
   },
@@ -56,6 +74,25 @@ const BeforeAfterSchema = new Schema<IBeforeAfter>(
   },
   { _id: false }
 );
+
+const VisualDirectionSchema = new Schema<IVisualDirection>(
+  {
+    colors: { type: [String], default: [] },
+    fonts: { type: [String], default: [] },
+    identity: { type: [String], default: [] },
+    imageStyle: { type: [String], default: [] },
+  },
+  { _id: false }
+);
+
+export const DEFAULT_SECTION_ORDER: ProjectSectionId[] = [
+  'gallery',
+  'transform',
+  'visual',
+  'deliverables',
+  'tools',
+  'mockup',
+];
 
 const ProjectSchema = new Schema<IProject>(
   {
@@ -93,6 +130,7 @@ const ProjectSchema = new Schema<IProject>(
     gallery: { type: [GalleryItemSchema], default: [] },
     beforeAfter: { type: [BeforeAfterSchema], default: [] },
     closingImageUrl: { type: String, default: '' },
+    closingImages: { type: [String], default: [] },
     liveUrl: {
       type: String,
       match: [
@@ -120,6 +158,12 @@ const ProjectSchema = new Schema<IProject>(
         { _id: false }
       ),
       default: undefined,
+    },
+    visualDirection: { type: VisualDirectionSchema, default: undefined },
+    sectionOrder: {
+      type: [String],
+      enum: ['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'],
+      default: [],
     },
   },
   { timestamps: true }
