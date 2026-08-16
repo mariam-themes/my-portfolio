@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Geist+Mono&display=swap');
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-/* ── GPT-Inspired Design Tokens ── */
+/* ── Design Tokens ── */
 :root {
+  /* Dashboard / global theme */
   --bg-primary: #0d0d0d;
   --bg-secondary: #171717;
   --bg-card: #1e1e1e;
@@ -14,13 +17,27 @@
   --text-muted: #4d4d5a;
   --border: rgba(255, 255, 255, 0.06);
   --border-accent: rgba(149, 28, 48, 0.4);
+
+  /* Legacy theme tokens (kept for shared UI components) */
+  --background: #190508;
+  --foreground: #fdfbf7;
+  --card-bg: rgba(149, 28, 48, 0.15);
+  --card-border: rgba(255, 255, 255, 0.08);
 }
 
 @theme inline {
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);
-  --font-sans: var(--font-geist-sans), var(--font-arabic);
-  --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-blob-1: #4a0d14;
+  --color-blob-2: #2d070b;
+  --font-serif: "Playfair Display", serif;
+  --font-sans: var(--font-geist-sans), var(--font-arabic), "Inter", sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", monospace;
+
+  --animate-blob: blob 15s infinite alternate ease-in-out;
 }
 
 /* ── Base Reset ── */
@@ -39,6 +56,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
 }
 
 /* ── Custom Scrollbar ── */
@@ -92,6 +113,27 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
+}
+
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1rem;
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(20px, 30px) scale(1.1);
+  }
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
 }
 
 /* Work and case-study styling is scoped to the Project feature only. */

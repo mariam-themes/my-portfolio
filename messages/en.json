@@ -72,9 +72,7 @@
       "dashboard": "Dashboard",
       "projects": "Projects",
       "blog": "Blog",
-      "addBlog": "Add Blog",
       "testimonials": "Testimonials",
-      "addTestimonial": "Add Testimonial",
       "inquiries": "Inquiries",
       "settings": "Settings",
       "systemStatus": "System Status",
@@ -212,8 +210,26 @@
       "failed": "Failed to delete project",
       "delete": "Delete"
     },
+    "blogsList": {
+      "title": "Blog",
+      "subtitle": "Manage your blog posts.",
+      "addNew": "Add Blog",
+      "noBlogs": "No blog posts yet. Start writing!",
+      "noCover": "No Cover",
+      "published": "Published",
+      "draft": "Draft",
+      "view": "View"
+    },
+    "deleteBlog": {
+      "confirm": "Are you sure you want to delete \"{title}\"? This cannot be undone.",
+      "success": "Blog post deleted successfully",
+      "failed": "Failed to delete blog post",
+      "delete": "Delete"
+    },
     "blogsPage": {
-      "title": "Create New Blog Post",
+      "back": "Back to Blogs",
+      "title": "Add New Blog Post",
+      "subtitle": "Write and publish a new article for your blog.",
       "titleLabel": "Title",
       "titlePh": "Post Title",
       "slugLabel": "Slug",
@@ -228,8 +244,22 @@
       "publish": "Publish Blog Post",
       "saving": "Saving..."
     },
+    "testimonialsList": {
+      "title": "Testimonials",
+      "subtitle": "Manage client testimonials.",
+      "addNew": "Add Testimonial",
+      "noTestimonials": "No testimonials yet. Add your first one!"
+    },
+    "deleteTestimonial": {
+      "confirm": "Are you sure you want to delete the testimonial from \"{name}\"? This cannot be undone.",
+      "success": "Testimonial deleted successfully",
+      "failed": "Failed to delete testimonial",
+      "delete": "Delete"
+    },
     "testimonialsPage": {
+      "back": "Back to Testimonials",
       "title": "Add New Testimonial",
+      "subtitle": "Add a new testimonial from a satisfied client.",
       "clientName": "Client Name",
       "clientNamePh": "John Doe",
       "role": "Role (optional)",

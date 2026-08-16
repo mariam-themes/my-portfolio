@@ -13,10 +13,8 @@ export default function Sidebar() {
   const links = [
     { name: t('dashboard'), href: '/admin', icon: Home },
     { name: t('projects'), href: '/admin/projects', icon: Folder },
-    { name: t('blog'), href: '/admin/blog', icon: FileText },
-    { name: t('addBlog'), href: '/admin/blogs/new', icon: FileText },
+    { name: t('blog'), href: '/admin/blogs', icon: FileText },
     { name: t('testimonials'), href: '/admin/testimonials', icon: Star },
-    { name: t('addTestimonial'), href: '/admin/testimonials/new', icon: Star },
     { name: t('inquiries'), href: '/admin/inquiries', icon: Inbox },
     { name: t('settings'), href: '/admin/settings', icon: Settings },
   ];
