@@ -587,11 +587,11 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div className="p-6 bg-rose-950/10 rounded-xl border border-rose-900/20 space-y-6">
           <div ref={closingImagesDnD.listRef} className="space-y-4">
             {closingImagesFields.map((field, index) => (
-              <div key={field.id} className="relative group p-4 bg-[#1A050C] rounded-xl border border-rose-900/30 flex flex-col gap-4 items-start"
-                data-dnd-id={field.id} data-dnd-index={index}>
+              <div key={field.id} data-dnd-key={field.id} {...closingImagesDnD.dropProps(index)}
+                className={`relative group p-4 rounded-xl border flex flex-col gap-4 items-start transition-colors ${closingImagesDnD.isDragging(index) ? 'opacity-40 ring-1 ring-rose-500/70 border-rose-500/60 bg-rose-950/20' : 'bg-[#1A050C] border-rose-900/30'}`}>
                 <div className="flex items-center w-full gap-4">
-                  <div className="flex-shrink-0 cursor-move text-rose-500/50 hover:text-rose-400 opacity-50 group-hover:opacity-100 transition-opacity"
-                    onMouseDown={(e) => closingImagesDnD.handleDragStart(e, index, field.id)}>
+                  <div className="flex-shrink-0 cursor-grab active:cursor-grabbing text-rose-500/50 hover:text-rose-400 opacity-50 group-hover:opacity-100 transition-opacity"
+                    {...closingImagesDnD.handleProps(index)}>
                     <GripVertical className="w-5 h-5" />
                   </div>
                   <div className="flex-grow">
