@@ -15,7 +15,7 @@ const ADMIN_API_PATHS = [
 ];
 
 // Content that is publicly readable but only writable by an admin.
-const CONTENT_PATHS = ['/api/blogs', '/api/testimonials'];
+const CONTENT_PATHS = ['/api/blogs', '/api/testimonials', '/api/section-layout'];
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -72,6 +72,7 @@ export const config = {
     '/api/upload',
     '/api/blogs/:path*',
     '/api/testimonials/:path*',
+    '/api/section-layout/:path*',
     '/api/setup',
     '/api/seed',
   ],

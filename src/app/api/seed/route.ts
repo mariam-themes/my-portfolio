@@ -23,7 +23,7 @@ export async function GET() {
         passwordHash,
         role: 'admin'
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     return NextResponse.json({ 

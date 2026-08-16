@@ -47,9 +47,11 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 ## Sprint 3: Advanced Features & Polish (Parallel Development)
 
 ### Epic C: Dynamic Layout & UI Master (Assigned to Naira)
-- [ ] **Task 3.C.1 (Naira - DB/API):** Create Schema and API for `SectionLayout` to store the order and visibility of homepage sections.
-- [ ] **Task 3.C.2 (Naira - Dashboard UI):** Build a Drag-and-Drop interface in the dashboard to reorder sections and toggle them on/off.
-- [ ] **Task 3.C.3 (Naira - Public UI):** Wire the public Homepage to dynamically render sections based on the DB order instead of hardcoded components.
+> **Requirement change (client):** Homepage sections are **NOT** reorderable from the dashboard. The presentation order is **fixed and defined in code** (the section registry), while the admin can **show/hide** sections and **edit their content**. The final homepage structure may still change during design, so the section set is registered in code (add/remove = edit the registry array) while the DB stores only per-section visibility + content. This avoids redesigning the DB/API when sections are added, removed, or reworked later.
+
+- [ ] **Task 3.C.1 (Naira - DB/API):** Create `SectionLayout` Schema + API to store per-section **visibility** (and optional future content) for the homepage. The section *set* and *order* live in a code registry, so adding/removing sections needs no schema change.
+- [ ] **Task 3.C.2 (Naira - Dashboard UI):** Build a "Homepage Sections" manager to **toggle sections on/off** (no drag-and-drop reordering, per client requirement).
+- [ ] **Task 3.C.3 (Naira - Public UI):** Wire the public Homepage to render sections **in code-defined order**, filtered by the DB visibility flags, instead of hardcoded components.
 - [ ] **Task 3.C.4 (Naira - Public UI):** Build the 3D Interactive Hero section (using Three.js / React Three Fiber).
 
 ### Epic D: Lead Generation & SEO (Assigned to Menna)

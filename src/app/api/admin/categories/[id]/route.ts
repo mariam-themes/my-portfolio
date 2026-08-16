@@ -6,7 +6,7 @@ import Category from '@/models/Category';
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,8 +15,9 @@ export async function DELETE(
     }
 
     await connectToDatabase();
+    const { id } = await params;
     
-    const category = await Category.findByIdAndDelete(params.id);
+    const category = await Category.findByIdAndDelete(id);
     
     if (!category) {
       return NextResponse.json({ success: false, error: 'Category not found' }, { status: 404 });

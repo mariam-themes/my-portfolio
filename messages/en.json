@@ -74,6 +74,7 @@
       "blog": "Blog",
       "testimonials": "Testimonials",
       "inquiries": "Inquiries",
+      "sections": "Homepage",
       "settings": "Settings",
       "systemStatus": "System Status",
       "allOperational": "All services operational",
@@ -307,6 +308,19 @@
       "italic": "Italic",
       "heading": "Heading",
       "bulletList": "Bullet List"
+    },
+    "homeSections": {
+      "title": "Homepage Sections",
+      "subtitle": "Show or hide sections on the public homepage.",
+      "orderNote": "The presentation order is fixed by the design and cannot be changed from the dashboard. Add, remove or rework sections in the code registry (src/lib/home-sections.tsx) — the database adapts automatically.",
+      "section": "Section",
+      "visibility": "Visibility",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Homepage layout saved!",
+      "failed": "Failed to save layout",
+      "blog": "Blog / Journal",
+      "testimonials": "Testimonials"
     }
   }
 }
