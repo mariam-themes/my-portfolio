@@ -1,8 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Project {
   _id: string;
@@ -17,7 +21,7 @@ interface Project {
 export type ProjectRecord = Project;
 
 export default function ProjectListClient({ projects }: { projects: Project[] }) {
-  const [activeFilter, setActiveFilter] = useState<string>('All');
+  const [activeFilter, setActiveFilter] = useState<string>('');
   
   // Custom Cursor State
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -34,11 +38,40 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
   }, []);
 
   // Extract unique categories (use sector as fallback if category is missing)
-  const categories = ['All', ...Array.from(new Set(projects.map(p => p.category || p.sector).filter(Boolean))) as string[]];
+  const categories = Array.from(new Set(projects.map(p => p.category || p.sector).filter(Boolean))) as string[];
   
-  const filteredProjects = activeFilter === 'All'
-    ? projects
-    : projects.filter(p => (p.category || p.sector) === activeFilter);
+  const filteredProjects = useMemo(() => {
+    return activeFilter === ''
+      ? projects
+      : projects.filter(p => (p.category || p.sector) === activeFilter);
+  }, [projects, activeFilter]);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+    
+    const ctx = gsap.context(() => {
+      const cards = gsap.utils.toArray('.project-card');
+      
+      if (cards.length > 0) {
+        gsap.fromTo(cards, 
+          { y: 100, autoAlpha: 0 },
+          { 
+            y: 0, 
+            autoAlpha: 1, 
+            duration: 0.9, 
+            stagger: 0.15, 
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: 'top 85%',
+            }
+          }
+        );
+      }
+    }, containerRef);
+    
+    return () => ctx.revert();
+  }, [filteredProjects]);
 
   return (
     <div className="min-h-screen pb-32 bg-[#0a0507] text-white overflow-hidden relative">
@@ -73,6 +106,22 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
           
           {/* Filters (Pills style) */}
           <div className="lg:w-1/2 flex flex-wrap items-center lg:justify-end gap-3">
+            {/* "All" pill */}
+            <button
+              onClick={() => setActiveFilter('')}
+              className={`
+                px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300
+                ${activeFilter === ''
+                  ? 'text-white border-transparent'
+                  : 'bg-transparent text-white/60 border border-white/20 hover:border-white/50 hover:text-white'}
+              `}
+              style={{
+                borderWidth: '1px',
+                backgroundColor: activeFilter === '' ? '#951C30' : 'transparent'
+              }}
+            >
+              All
+            </button>
             {categories.map(category => {
               const isActive = activeFilter === category;
               return (
@@ -111,11 +160,11 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
               <Link 
                 key={project._id}
                 href={`/projects/${project.slug}`} 
-                className={`block group ${isRightColumn ? 'md:mt-32' : ''}`}
+                className={`project-card block group ${isRightColumn ? 'md:mt-32' : ''}`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
                 // We use cursor-none to hide the default pointer since we have a custom follower
-                style={{ cursor: 'none' }}
+                style={{ cursor: 'none', visibility: 'hidden' }} // GSAP autoAlpha will make it visible
               >
                 {/* Image Container */}
                 <div className="relative w-full aspect-[4/3] sm:aspect-[3/2] overflow-hidden bg-[#111]">

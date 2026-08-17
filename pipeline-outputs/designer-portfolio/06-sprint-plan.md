@@ -3,73 +3,104 @@
 This document splits the entire project into equal, end-to-end tasks (Vertical Slices) assigned to Menna and Naira. Each developer is responsible for their feature from the Database level all the way to the Public UI.
 
 ## Overview of Division
-- **Menna:** Responsible for "Projects & Case Studies" and "Contact/Lead Generation".
-- **Naira:** Responsible for "Testimonials", "Blog", and "Dynamic Layout Manager".
-- **Shared / Initial:** Both will initially collaborate on the base setup (Next.js config, Auth, Shared UI components) before splitting off into their independent features.
+- **Menna:** Projects & Case Studies | Contact/Lead Generation | About Me | Deployment.
+- **Naira:** Testimonials & Blog | Content/Visibility/Services Manager | Homepage UI Sections (Services, Footer, Other Projects) | i18n.
+- **Shared / Initial:** Both collaborate on base setup before splitting independently.
 
 ---
 
 ## Sprint 1: Foundation & Base Setup (Shared Work)
-*Goal: Setup the repository, database connection, authentication, and core UI components so both developers can work independently afterward.*
+*Goal: Setup the repository, database connection, authentication, and core UI components.*
 
-- [ ] **Task 1.1 (Shared):** Initialize Next.js App Router, Tailwind CSS, and GSAP. Set up folder structure.
-- [ ] **Task 1.2 (Shared):** Configure MongoDB Atlas and set up Mongoose connection utility.
-- [ ] **Task 1.3 (Shared):** Implement NextAuth.js for the Admin Dashboard (Email/Password).
-- [ ] **Task 1.4 (Shared):** Build the Base Dashboard Layout (Sidebar, Header, Auth protection).
-- [x] **Task 1.5 (Shared):** Build Shared Public UI Components (Buttons, Inputs, Base Typography).
+- [✓] **Task 1.1 (Shared - Menna):** Initialize Next.js App Router, Tailwind CSS, and GSAP. Set up folder structure.
+- [✓] **Task 1.2 (Shared - Menna):** Configure MongoDB Atlas and set up Mongoose connection utility.
+- [✓] **Task 1.3 (Shared - Naira):** Implement NextAuth.js for the Admin Dashboard (Email/Password).
+- [✓] **Task 1.4 (Shared - Menna):** Build the Base Dashboard Layout (Sidebar, Header, Auth protection).
+- [✓] **Task 1.5 (Shared - Naira):** Build Shared Public UI Components (Buttons, Inputs, Base Typography).
 
 ---
 
 ## Sprint 2: Core Vertical Slices (Parallel Development)
 
-### Epic A: Projects & Case Studies (Assigned strictly to Menna)
-*Menna takes full ownership of this feature.*
+### Epic A: Projects & Case Studies (Assigned to Menna)
+*Menna takes full ownership of this feature. (8 tasks)*
 - [✓] **Task 2.A.1 (Menna - DB):** Create the Mongoose `Project` Schema.
-- [ ] **Task 2.A.1.b (Menna - DB):** Refactor `Project` Schema to support Arabic/English (i18n) objects for title, description, platform, etc.
+- [✓] **Task 2.A.1.b (Menna - DB):** Refactor `Project` Schema to support Arabic/English (i18n) objects for title, description, platform, etc.
 - [✓] **Task 2.A.2 (Menna - API):** Build GET, POST, PUT, DELETE routes for `/api/projects` and `/api/admin/projects`.
-- [ ] **Task 2.A.3 (Menna - Infra):** Implement Cloudinary upload logic specifically for massive Full-Page Screenshots and videos.
+- [✓] **Task 2.A.3 (Menna - Infra):** Implement Cloudinary upload logic specifically for massive Full-Page Screenshots and videos.
 - [✓] **Task 2.A.4 (Menna - Dashboard UI):** Build the Admin "Add/Edit Project" form with image uploaders and dynamic fields.
-- [ ] **Task 2.A.4.b (Menna - Dashboard UI):** Refactor `ProjectForm` UI to include Arabic fields (side-by-side or Tabs).
-- `[✓]` **Task 2.A.5 (Menna - Public UI):** Build the public "Portfolio List" page (filtering, GSAP animations for cards).
-- `[✓]` **Task 2.A.6 (Menna - Public UI):** Build the dynamic "Project Case Study" page (`app/work/[slug]`), including the **Browser Mockup Component** with internal scroll behavior.
+- [✓] **Task 2.A.4.b (Menna - Dashboard UI):** Refactor `ProjectForm` UI to include Arabic fields (side-by-side or Tabs).
+- [✓] **Task 2.A.5 (Menna - Public UI):** Build the public "Portfolio List" page — full `/work` page with filtering and GSAP animations for cards.
+- [✓] **Task 2.A.6 (Menna - Public UI):** Build the dynamic "Project Case Study" page (`app/work/[slug]`), including the **Browser Mockup Component** with internal scroll behavior.
+- [ ] **Task 2.A.7 (Menna - Public UI):** Build the **"Projects Preview Section"** on the Homepage — displays only the 4 most recent projects, with a "See All Work →" button that navigates to the full `/work` page.
 
-### Epic B: Testimonials & Blog (Assigned strictly to Naira)
-*Naira takes full ownership of these features.*
-- [x] **Task 2.B.1 (Naira - DB):** Create the Mongoose `Testimonial` and `Blog` Schemas.
-- [x] **Task 2.B.2 (Naira - API):** Build CRUD API routes for Testimonials and Blogs.
-- [x] **Task 2.B.3 (Naira - Infra):** Implement Cloudinary upload logic specifically for Audio files (Voice Testimonials).
-- [x] **Task 2.B.4 (Naira - Dashboard UI):** Build the Admin panels for creating Blog posts (Rich Text Editor) and adding Testimonials.
-- [x] **Task 2.B.5 (Naira - Public UI):** Build the Testimonials section with the custom **Audio Player UI**.
-- [x] **Task 2.B.6 (Naira - Public UI):** Build the public Blog index and dynamic Post pages.
+### Epic B: Testimonials & Blog (Assigned to Naira)
+*Naira takes full ownership of these features. (6 tasks)*
+- [✓] **Task 2.B.1 (Naira - DB):** Create the Mongoose `Testimonial` and `Blog` Schemas.
+- [✓] **Task 2.B.2 (Naira - API):** Build CRUD API routes for Testimonials and Blogs.
+- [✓] **Task 2.B.3 (Naira - Infra):** Implement Cloudinary upload logic specifically for Audio files (Voice Testimonials).
+- [✓] **Task 2.B.4 (Naira - Dashboard UI):** Build the Admin panels for creating Blog posts (Rich Text Editor) and adding Testimonials.
+- [✓] **Task 2.B.5 (Naira - Public UI):** Build the Testimonials section with the custom **Audio Player UI**.
+- [✓] **Task 2.B.6 (Naira - Public UI):** Build the public Blog index and dynamic Post pages.
 
 ---
 
 ## Sprint 3: Advanced Features & Polish (Parallel Development)
 
-### Epic C: Dynamic Layout & UI Master (Assigned to Naira)
-- [ ] **Task 3.C.1 (Naira - DB/API):** Create Schema and API for `SectionLayout` to store the order and visibility of homepage sections.
-- [ ] **Task 3.C.2 (Naira - Dashboard UI):** Build a Drag-and-Drop interface in the dashboard to reorder sections and toggle them on/off.
-- [ ] **Task 3.C.3 (Naira - Public UI):** Wire the public Homepage to dynamically render sections based on the DB order instead of hardcoded components.
-- [ ] **Task 3.C.4 (Naira - Public UI):** Build the 3D Interactive Hero section (using Three.js / React Three Fiber).
+### Epic C: Content, Visibility & Homepage Sections (Assigned to Naira)
+*All homepage section UI designs + their dynamic data controls. (9 tasks)*
+- [ ] **Task 3.C.1 (Naira - DB/API):** Create Schema and API for `GlobalSettings` (section visibility toggles, Hero text, Footer content, "Other Projects" gallery).
+- [ ] **Task 3.C.2 (Naira - Dashboard UI):** Build "Site Settings" panel to toggle sections on/off and edit Hero & Footer text content.
+- [ ] **Task 3.C.3 (Naira - DB/API):** Create Schema and API for `Services` (Title, description, icon, order).
+- [ ] **Task 3.C.4 (Naira - Dashboard UI):** Build "Services Manager" in the Admin Dashboard (CRUD for services + "Other Projects" image uploader).
+- [✓] **Task 3.C.5 (Naira - Public UI):** Build the 3D Interactive Hero section (using Three.js / React Three Fiber).
+- [ ] **Task 3.C.6 (Naira - Public UI):** Design and build the **Services section** on the public homepage (animated cards, icons, dynamic data from API).
+- [ ] **Task 3.C.7 (Naira - Public UI):** Design and build the **"Other Projects" gallery section** on the public homepage (image grid, dynamic from DB).
+- [ ] **Task 3.C.8 (Naira - Public UI):** Design and build the **Footer** on the public site (links, social icons, dynamic content from `GlobalSettings`).
+- [ ] **Task 3.C.9 (Naira - Public UI):** Wire the complete Homepage to respect section visibility toggles from `GlobalSettings`.
 
 ### Epic D: Lead Generation & SEO (Assigned to Menna)
+*(5 tasks)*
 - [✓] **Task 3.D.1 (Menna - DB/API):** Create Schema and API for `Inquiries` (Contact Form submissions).
-- [✓] **Task 3.D.2 (Menna - API):** Implement email notification trigger when a new inquiry is submitted (e.g., using Resend or NodeMailer).
-- [✓] **Task 3.D.3 (Menna - Public UI):** Build the complex Contact Request Form with validation (Budget, Timeline, Service selection).
+- [✓] **Task 3.D.2 (Menna - API):** Implement email notification trigger when a new inquiry is submitted (using Resend or NodeMailer).
+- [✓] **Task 3.D.3 (Menna - Public UI):** Build the Contact page with the complex Request Form — includes a **Service input field (free text)**, plus Budget, Timeline fields and full validation.
 - [✓] **Task 3.D.4 (Menna - Dashboard UI):** Build a "Leads/Inquiries" viewer in the Admin Dashboard.
 - [✓] **Task 3.D.5 (Menna - Global):** Implement Next.js SEO Metadata API for dynamic pages (Projects) so the client can edit Meta Titles/Descriptions.
 
-### Epic E: i18n & Theme Manager (Assigned to Shared / Menna)
-*Core infrastructure upgrades for dual-language and dynamic coloring.*
-- [x] **Task 3.E.1 (Shared - Infra):** Setup Next.js `[locale]` routing, `next-intl` configuration, and Middleware for language detection.
-- [ ] **Task 3.E.2 (Shared - DB/API):** Create `Theme` schema and API to store global colors (primary, background, specific text highlights).
-- [ ] **Task 3.E.3 (Shared - Dashboard UI):** Build "Theme & Colors" Manager interface in the Admin Dashboard.
-- [ ] **Task 3.E.4 (Shared - Public UI):** Inject dynamic CSS variables into the public site based on DB theme.
+### Epic F: About Me (Assigned to Menna)
+*Full ownership of the About Me feature — DB to Public Page. (4 tasks)*
+- [ ] **Task 3.F.1 (Menna - DB/API):** Create Schema and API for `AboutMe` (bio, photo, skills, experience, CV link).
+- [ ] **Task 3.F.2 (Menna - Dashboard UI):** Build "About Me Editor" in the Admin Dashboard to update bio, upload photo, add/remove skills.
+- [ ] **Task 3.F.3 (Menna - Public UI):** Design and build the public `/about` page — animated, cinematic layout pulling dynamic data from the API.
+- [ ] **Task 3.F.4 (Menna - Public UI):** Implement smooth-scroll anchor navigation so each Navbar link (`About`, `Work`, `Contact`, `Blog`) scrolls to its corresponding section on the homepage instead of navigating to a separate page.
+
+### Epic E: i18n (Assigned to Naira)
+*(1 task — already done)*
+- [✓] **Task 3.E.1 (Naira - Infra):** Setup Next.js `[locale]` routing, `next-intl` configuration, and Middleware for language detection.
+
+---
+
+> **Workload Summary (excluding Shared Sprint 1 tasks):**
+> - **Menna:** 8 (Epic A) + 5 (Epic D) + 4 (Epic F) = **17 tasks**
+> - **Naira:** 6 (Epic B) + 9 (Epic C) + 1 (Epic E) = **16 tasks**
+>
+> *1 task difference is acceptable and reflects that Menna handles Vercel deployment solo in Sprint 4.*
+
+---
+
+## Sprint 3.5: Deployment (Before Testing)
+*Must be done BEFORE Sprint 4 testing — you can't test on mobile/iOS without a live URL.*
+
+- [ ] **Task 3.5.1 (Menna - Infra):** Configure Vercel project, connect GitHub repo, set all `.env` variables (MongoDB URI, NextAuth, Cloudinary, Resend keys).
+- [ ] **Task 3.5.2 (Menna - Infra):** First production deploy to Vercel and verify all pages are accessible on the live URL.
 
 ---
 
 ## Sprint 4: Final Assembly & Testing
-- [ ] **Task 4.1 (Menna):** Test Project case studies on mobile (ensure the Browser Mockup is responsive).
-- [ ] **Task 4.2 (Naira):** Test the Audio player on iOS/Android browsers.
-- [ ] **Task 4.3 (Shared):** End-to-end testing of the complete Dashboard.
-- [ ] **Task 4.4 (Shared):** Final Vercel deployment and database index optimization.
+*Requires live Vercel URL from Sprint 3.5.*
+
+- [ ] **Task 4.1 (Menna):** Test all Project Case Study pages on mobile (responsive layout, Browser Mockup behavior).
+- [ ] **Task 4.2 (Naira):** Test the Audio Testimonials player on iOS/Android browsers (Safari compatibility).
+- [ ] **Task 4.3 (Menna):** Test the About Me, Contact, Work, and Blog public pages across devices.
+- [ ] **Task 4.4 (Shared):** End-to-end testing of the complete Admin Dashboard (CRUD for all features).
+- [ ] **Task 4.5 (Shared):** Final Vercel deployment with database index optimization and performance audit.

@@ -29,7 +29,8 @@ export type ProjectSectionId =
   | 'visual'
   | 'deliverables'
   | 'tools'
-  | 'mockup';
+  | 'mockup'
+  | 'closing';
 
 export interface IProject extends Document {
   title: string;
@@ -92,6 +93,7 @@ export const DEFAULT_SECTION_ORDER: ProjectSectionId[] = [
   'deliverables',
   'tools',
   'mockup',
+  'closing',
 ];
 
 const ProjectSchema = new Schema<IProject>(
@@ -162,7 +164,7 @@ const ProjectSchema = new Schema<IProject>(
     visualDirection: { type: VisualDirectionSchema, default: undefined },
     sectionOrder: {
       type: [String],
-      enum: ['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'],
+      enum: ['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup', 'closing'],
       default: [],
     },
   },

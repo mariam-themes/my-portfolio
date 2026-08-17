@@ -15,7 +15,7 @@
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.7.1",
     "@react-three/fiber": "^9.7.0",
-    "@tailwindcss/typography": "^0.5.20",
+    "@tailwindcss/typography": "^0.5.0-alpha.3",
     "@tiptap/extension-image": "^3.29.2",
     "@tiptap/extension-link": "^3.29.2",
     "@tiptap/react": "^3.29.2",

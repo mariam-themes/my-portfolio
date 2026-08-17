@@ -20,6 +20,7 @@ const PROJECT_SECTIONS = [
   { id: 'deliverables', tKey: 'sDeliverables' },
   { id: 'tools', tKey: 'sTools' },
   { id: 'mockup', tKey: 'sMockup' },
+  { id: 'closing', tKey: 'sClosing' },
 ] as const;
 
 function useDndReorder(onMove: (from: number, to: number) => void) {
@@ -98,7 +99,7 @@ const projectSchema = z.object({
   fullPageMockupUrl: z.string().optional().default(''),
   gallery: z.array(z.object({
     url: z.string().min(1),
-    type: z.enum(['desktop', 'mobile', 'mockup', 'video']),
+    type: z.enum(['desktop', 'mobile', 'mockup', 'video', 'gif']),
   })).default([]),
   beforeAfter: z.array(z.object({
     before: z.string().min(1, 'Before image required'),
@@ -130,7 +131,7 @@ const projectSchema = z.object({
     })
     .optional()
     .default({ colors: [], fonts: [], identity: [], imageStyle: [] }),
-  sectionOrder: z.array(z.enum(['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'])).default([]),
+  sectionOrder: z.array(z.enum(['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup', 'closing'])).default([]),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -212,7 +213,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       })
       .optional()
       .default(EMPTY_VD),
-    sectionOrder: z.array(z.enum(['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup'])).default([]),
+    sectionOrder: z.array(z.enum(['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup', 'closing'])).default([]),
   });
 
   const defaults = useMemo(() => {
@@ -275,7 +276,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   });
 
   // ─── Section order handlers ─────────────────────────────────────────────────
-  type SectionId = 'gallery' | 'transform' | 'visual' | 'deliverables' | 'tools' | 'mockup';
+  type SectionId = 'gallery' | 'transform' | 'visual' | 'deliverables' | 'tools' | 'mockup' | 'closing';
   const sectionOrderList = (form.watch('sectionOrder') || [...DEFAULT_SECTION_ORDER]) as SectionId[];
 
   const toggleSection = (id: SectionId) => {
