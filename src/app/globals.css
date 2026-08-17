@@ -36,6 +36,7 @@
   --font-serif: "Playfair Display", serif;
   --font-sans: var(--font-geist-sans), var(--font-arabic), "Inter", sans-serif;
   --font-mono: var(--font-geist-mono), "Geist Mono", monospace;
+  --font-display: var(--font-archivo), "Helvetica Neue", sans-serif;
 
   --animate-blob: blob 15s infinite alternate ease-in-out;
 }

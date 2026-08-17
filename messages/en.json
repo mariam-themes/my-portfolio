@@ -1,4 +1,13 @@
 {
+  "Hero": {
+    "kicker": "Visual Identity · Web · E-commerce · AI",
+    "nameTop": "MARIAM",
+    "nameBottom": "ALJUMAIAH",
+    "subtitle": "I design brands and digital experiences for companies that refuse to look ordinary — identity systems, storefronts and AI-assisted art direction with obsessive attention to craft.",
+    "ctaPrimary": "Start a Project",
+    "ctaSecondary": "Selected Work",
+    "scrollHint": "Scroll"
+  },
   "HomePage": {
     "title": "UI Components Showcase",
     "tagline": "Luxury designer portfolio — bilingual (English / Arabic) infrastructure"
@@ -319,6 +328,7 @@
       "saving": "Saving...",
       "saved": "Homepage layout saved!",
       "failed": "Failed to save layout",
+      "hero": "Hero / 3D Intro",
       "blog": "Blog / Journal",
       "testimonials": "Testimonials"
     }

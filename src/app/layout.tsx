@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
+import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic, Archivo } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
@@ -18,6 +18,12 @@ const arabicFont = IBM_Plex_Sans_Arabic({
   variable: "--font-arabic",
   subsets: ["arabic"],
   weight: ["400", "500", "600", "700"],
+});
+
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  weight: ["400", "600", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -42,7 +48,7 @@ export default async function RootLayout({
       lang={locale}
       dir={dir}
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} ${arabicFont.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${arabicFont.variable} ${archivo.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
