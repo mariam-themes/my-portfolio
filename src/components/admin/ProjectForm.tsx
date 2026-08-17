@@ -519,6 +519,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div ref={galleryDnD.listRef} className="space-y-4">
           {galleryFields.map((field, index) => (
             <div key={field.id} data-dnd-key={field.id} {...galleryDnD.dropProps(index)}
+              suppressHydrationWarning
               className={`flex items-start gap-3 p-4 rounded-xl border transition-colors ${galleryDnD.isDragging(index) ? 'opacity-40 ring-1 ring-rose-500/70 border-rose-500/60 bg-rose-950/20' : 'bg-rose-950/10 border-rose-900/20'}`}>
               <button type="button" {...galleryDnD.handleProps(index)}
                 className="mt-1 cursor-grab text-rose-500/80 transition-colors hover:text-rose-300 active:cursor-grabbing" title={t('dragToReorder')} aria-label={t('dragToReorder')}>
@@ -589,6 +590,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           <div ref={closingImagesDnD.listRef} className="space-y-4">
             {closingImagesFields.map((field, index) => (
               <div key={field.id} data-dnd-key={field.id} {...closingImagesDnD.dropProps(index)}
+                suppressHydrationWarning
                 className={`relative group p-4 rounded-xl border flex flex-col gap-4 items-start transition-colors ${closingImagesDnD.isDragging(index) ? 'opacity-40 ring-1 ring-rose-500/70 border-rose-500/60 bg-rose-950/20' : 'bg-[#1A050C] border-rose-900/30'}`}>
                 <div className="flex items-center w-full gap-4">
                   <div className="flex-shrink-0 cursor-grab active:cursor-grabbing text-rose-500/50 hover:text-rose-400 opacity-50 group-hover:opacity-100 transition-opacity"
