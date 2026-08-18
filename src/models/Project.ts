@@ -23,6 +23,21 @@ export interface IVisualDirection {
   imageStyle?: string[];
 }
 
+export interface IProjectTranslationSet {
+  title?: string;
+  description?: string;
+  sector?: string;
+  platform?: string;
+  category?: string;
+  services?: string[];
+  tools?: string[];
+}
+
+export interface IProjectTranslations {
+  en?: IProjectTranslationSet;
+  ar?: IProjectTranslationSet;
+}
+
 export type ProjectSectionId =
   | 'gallery'
   | 'transform'
@@ -54,6 +69,8 @@ export interface IProject extends Document {
   metaDescription?: ILocalizedText;
   visualDirection?: IVisualDirection;
   sectionOrder?: ProjectSectionId[];
+  sourceLang?: 'en' | 'ar';
+  translations?: IProjectTranslations;
 }
 
 const GalleryItemSchema = new Schema<IGalleryItem>(
@@ -166,6 +183,33 @@ const ProjectSchema = new Schema<IProject>(
       type: [String],
       enum: ['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup', 'closing'],
       default: [],
+    },
+    sourceLang: { type: String, enum: ['en', 'ar'], default: undefined },
+    translations: {
+      type: new Schema<IProjectTranslations>(
+        {
+          en: { type: new Schema<IProjectTranslationSet>({
+            title: String,
+            description: String,
+            sector: String,
+            platform: String,
+            category: String,
+            services: { type: [String], default: undefined },
+            tools: { type: [String], default: undefined },
+          }, { _id: false }), default: undefined },
+          ar: { type: new Schema<IProjectTranslationSet>({
+            title: String,
+            description: String,
+            sector: String,
+            platform: String,
+            category: String,
+            services: { type: [String], default: undefined },
+            tools: { type: [String], default: undefined },
+          }, { _id: false }), default: undefined },
+        },
+        { _id: false }
+      ),
+      default: undefined,
     },
   },
   { timestamps: true }

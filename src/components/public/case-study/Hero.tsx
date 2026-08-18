@@ -1,18 +1,21 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { gsap } from 'gsap';
+import { useTranslations } from 'next-intl';
 import { Project } from '@/types/case-study';
 
 export function Hero({ project, reducedMotion }: { project: Project; reducedMotion: boolean }) {
+  const t = useTranslations('CaseStudy');
   const heroRef = useRef<HTMLElement>(null);
 
   const ambientDots = useMemo(() => Array.from({ length: 15 }, (_, i) => ({
     id: i,
     left: ((i * 37) % 101) - 1,
     top: ((i * 61) % 101) - 1,
-    size: 3 + ((i * 13) % 6), // slightly larger
+    size: 3 + ((i * 13) % 6),
     dur: 4 + ((i * 7) % 8),
   })), []);
+
 
   useLayoutEffect(() => {
     const root = heroRef.current;
@@ -21,7 +24,7 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
       const q = gsap.utils.selector(root);
       const amb = q('[data-ambient-particle]');
       gsap.set(amb, { opacity: 0 }); // Start hidden (use opacity, not autoAlpha so visibility doesn't break)
-      
+
       amb.forEach((el, i) => {
         gsap.to(el, {
           x: () => gsap.utils.random(-80, 80),
@@ -52,7 +55,7 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
       gsap.set('[data-hero-cta]', { autoAlpha: 0, y: 20 });
 
       const tl = gsap.timeline({ delay: 0.1 });
-      
+
       tl.to(title, { opacity: 1, y: 0, scale: 1, duration: 1.4, ease: 'power4.out' })
         .to(desc, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, '-=0.9')
         .to('[data-hero-cta]', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.6');
@@ -71,38 +74,53 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
 
       <div className="relative mb-8 flex flex-wrap items-center gap-3">
         {(project.sector || project.category) && (
-          <span className="inline-block rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[.35em] text-[var(--accent)]">
+          <span className="inline-block rounded-full border border-[#951C30]/50 bg-[#951C30]/10 px-5 py-2 text-[11px] font-bold tracking-widest text-[#951C30] uppercase transition-colors hover:bg-[#951C30]/20"
+            style={{ textShadow: '0 0 20px rgba(149,28,48,0.5)' }}>
             {project.sector || project.category}
           </span>
         )}
         {project.year && (
-          <span className="inline-block rounded-full border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[.35em] text-[var(--accent)]">
+          <span className="inline-block rounded-full border border-[#951C30]/50 bg-[#951C30]/10 px-5 py-2 text-[11px] font-bold tracking-widest text-[#951C30] uppercase transition-colors hover:bg-[#951C30]/20"
+            style={{ textShadow: '0 0 20px rgba(149,28,48,0.5)' }}>
             {project.year}
           </span>
         )}
       </div>
 
-      <div className="relative w-full">
+      <div className="relative w-full max-w-5xl">
         <h1
           data-hero-title
-          className="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tight text-[#fdf2f4] will-change-[opacity,transform]"
-          style={{ textShadow: '0 4px 40px rgba(0,0,0,0.9), 0 2px 10px rgba(0,0,0,0.8)' }}
+          className="text-6xl sm:text-7xl md:text-[7rem] font-serif uppercase tracking-normal text-[#951C30] will-change-[opacity,transform] leading-[0.9]"
+          style={{ textShadow: '0 8px 32px rgba(149,28,48,0.5), 0 0 60px rgba(149,28,48,0.3)' }}
         >
           {project.title}
         </h1>
       </div>
 
-      <div className="relative mt-8 max-w-3xl text-[clamp(1.05rem,2.3vw,1.9rem)] font-medium leading-snug tracking-[-.01em] text-[#f4d7dd]" dir="auto">
+      <div className="relative mt-8 max-w-2xl text-base sm:text-lg md:text-xl font-medium leading-relaxed tracking-wide text-white/80" dir="auto">
         <p data-hero-desc className="opacity-0 translate-y-6 will-change-[opacity,transform]">{project.description || 'A focused visual system designed to make every interaction feel intentional.'}</p>
       </div>
 
       {project.liveUrl && (
-        <div data-hero-cta className="relative mt-11">
-          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#951C30] px-8 py-4 text-xs font-bold uppercase tracking-widest text-[#fdf2f4] shadow-xl shadow-rose-900/40 transition hover:bg-[#b8223b] hover:scale-[1.04]">
-            Explore Project <ExternalLink className="h-4 w-4" />
+        <div data-hero-cta className="relative mt-12">
+          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 rounded-full border border-[var(--accent)] px-8 py-3.5 text-xs font-bold uppercase tracking-[.2em] text-[var(--accent)] transition-all hover:bg-[var(--accent)] hover:text-white hover:scale-[1.02]">
+            {t('exploreProject')} <ArrowRight className="h-4 w-4" />
           </a>
         </div>
       )}
+
+      {/* Scroll Indicator */}
+      <button
+        onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
+        aria-label={t('scrollHint')}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer group"
+      >
+        <span className="text-[9px] font-bold uppercase tracking-[.3em] text-white/30 transition-colors group-hover:text-white/60">{t('scroll')}</span>
+        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 animate-bounce group-hover:border-white/50 transition-colors">
+          <ChevronDown className="h-4 w-4 text-white/40 group-hover:text-white/70 transition-colors" />
+        </div>
+      </button>
+
     </section>
   );
 }

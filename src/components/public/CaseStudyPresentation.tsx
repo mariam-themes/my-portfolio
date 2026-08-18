@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft, ArrowUpRight, ExternalLink } from 'lucide-react';
@@ -22,24 +23,28 @@ import { ClosingSection, NextProjectTeaser } from './case-study/Closing';
 gsap.registerPlugin(ScrollTrigger);
 
 const DEFAULT_SECTION_ORDER = ['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup', 'closing'] as const;
-const SECTION_LABEL: Record<string, string> = {
-  gallery: 'Frames',
-  transform: 'Transformation',
-  visual: 'Visual Direction',
-  deliverables: 'Deliverables',
-  tools: 'Tools',
-  mockup: 'Full Experience',
-  closing: 'Final',
+const SECTION_LABEL_KEY: Record<string, string> = {
+  gallery: 'frames',
+  transform: 'transformation',
+  visual: 'visualDirection',
+  deliverables: 'deliverables',
+  tools: 'tools',
+  mockup: 'fullExperience',
+  closing: 'final',
 };
 
 export default function CaseStudyPresentation({ project, nextProject }: { project: Project; nextProject?: NextProject }) {
+  const t = useTranslations('CaseStudy');
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [activeSection, setActiveSection] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const mainRef = useRef<HTMLElement>(null);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   const gallery = project.gallery?.length ? project.gallery : project.heroMediaUrl ? [{ url: project.heroMediaUrl, type: 'desktop' }] : [];
   const comparison = project.beforeAfter?.[0];
-  const services = project.services?.length ? project.services : ['Art direction', 'Visual identity', 'Digital experience'];
-  const tools = project.tools?.length ? project.tools : [project.platform || 'Digital', 'Strategy', 'Design'];
+  const services = project.services?.length ? project.services : [t('fallbackArtDirection'), t('fallbackVisualIdentity'), t('fallbackDigitalExperience')];
+  const tools = project.tools?.length ? project.tools : [project.platform || t('fallbackDigital'), t('fallbackStrategy'), t('fallbackDesign')];
   const finalMedia = project.closingImageUrl;
   const closingImages = project.closingImages?.length ? project.closingImages : null;
 
@@ -51,12 +56,12 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
   const vdBlocks = useMemo(() => {
     const blocks: { id: string; label: string; items: string[] }[] = [];
-    if (vdColors.length) blocks.push({ id: 'colors', label: 'Color', items: vdColors });
-    if (vdFonts.length) blocks.push({ id: 'fonts', label: 'Type', items: vdFonts });
-    if (vdIdentity.length) blocks.push({ id: 'identity', label: 'Identity', items: vdIdentity });
-    if (vdImageStyle.length) blocks.push({ id: 'imageStyle', label: 'Art Direction', items: vdImageStyle });
+    if (vdColors.length) blocks.push({ id: 'colors', label: t('vdColors'), items: vdColors });
+    if (vdFonts.length) blocks.push({ id: 'fonts', label: t('vdFonts'), items: vdFonts });
+    if (vdIdentity.length) blocks.push({ id: 'identity', label: t('vdIdentity'), items: vdIdentity });
+    if (vdImageStyle.length) blocks.push({ id: 'imageStyle', label: t('vdImageStyle'), items: vdImageStyle });
     return blocks;
-  }, [vdColors, vdFonts, vdIdentity, vdImageStyle]);
+  }, [vdColors, vdFonts, vdIdentity, vdImageStyle, t]);
 
   const orderedSections = useMemo(() => {
     const raw: string[] = project.sectionOrder?.length ? project.sectionOrder : (DEFAULT_SECTION_ORDER as unknown as string[]);
@@ -64,14 +69,45 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     list = list.filter((s) => s !== 'visual' || hasVisual);
     list = list.filter((s) => s !== 'mockup' || Boolean(project.fullPageMockupUrl));
     list = list.filter((s) => s !== 'closing' || Boolean(project.closingImages?.length || project.closingImageUrl));
+    list = list.filter((s) => s !== 'transform' || Boolean(project.beforeAfter?.[0])); // skip if no comparison
     return [...new Set(list)];
-  }, [project.sectionOrder, hasVisual, project.fullPageMockupUrl, project.closingImages, project.closingImageUrl]);
+  }, [project.sectionOrder, hasVisual, project.fullPageMockupUrl, project.closingImages, project.closingImageUrl, project.beforeAfter]);
 
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => setReducedMotion(query.matches);
     update(); query.addEventListener('change', update);
     return () => query.removeEventListener('change', update);
+  }, []);
+
+  // Track active section for left sidebar indicators
+  useEffect(() => {
+    const sections = sectionRefs.current.filter(Boolean) as HTMLElement[];
+    if (!sections.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = sections.indexOf(entry.target as HTMLElement);
+            if (idx !== -1) setActiveSection(idx);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, [orderedSections]);
+
+  // Track scroll progress for the traveling cursor
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? scrollTop / docHeight : 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useLayoutEffect(() => {
@@ -121,36 +157,37 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
   }, [reducedMotion]);
 
   const renderSection = (secId: string, index: number) => {
-    const heading = <SectionHeading num={`0${index + 1}`} label={SECTION_LABEL[secId] || secId} />;
+    const heading = <SectionHeading num={`0${index + 1}`} label={t(SECTION_LABEL_KEY[secId] || secId)} />;
+    const refCallback = (el: HTMLElement | null) => { sectionRefs.current[index + 1] = el; };
 
     if (secId === 'gallery') return (
-      <section key={secId} data-reveal className="px-5 py-24 sm:px-12 lg:px-16">
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-24 sm:px-12 lg:px-16">
         {heading}
         <GallerySection items={gallery} projectTitle={project.title} />
       </section>
     );
 
     if (secId === 'transform') return comparison
-      ? <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<TransformSection before={comparison} title={project.title} reducedMotion={reducedMotion} /></section>
+      ? <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<TransformSection before={comparison} title={project.title} reducedMotion={reducedMotion} /></section>
       : null;
 
     if (secId === 'visual') return (
-      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<VisualSection blocks={vdBlocks} /></section>
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<VisualSection blocks={vdBlocks} /></section>
     );
 
     if (secId === 'deliverables') return (
-      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<DeliverablesSection services={services} /></section>
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<DeliverablesSection services={services} /></section>
     );
 
     if (secId === 'tools') return (
-      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<ToolsSection tools={tools} /></section>
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<ToolsSection tools={tools} /></section>
     );
 
     if (secId === 'mockup' && project.fullPageMockupUrl) return (
-      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
         {heading}
         <div className="mx-auto mb-16 max-w-6xl text-center">
-          <p className="text-sm tracking-wide text-white/50">Scroll inside the window to view the complete design.</p>
+          <p className="text-sm tracking-wide text-white/50">{t('scrollInside')}</p>
         </div>
         <div className="mx-auto max-w-[1200px] h-[75vh]">
           <BrowserMockup url={project.liveUrl || 'eixglow.com'} imageUrl={project.fullPageMockupUrl} />
@@ -159,7 +196,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
           <div className="mt-12 text-center">
             <a href={project.liveUrl} target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-[#951C30] px-10 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-xl shadow-rose-900/30 transition hover:scale-[1.04] hover:bg-[#b8223b]">
-              Visit live project <ArrowUpRight className="h-5 w-5" />
+              {t('visitLiveProject')} <ArrowUpRight className="h-5 w-5" />
             </a>
           </div>
         )}
@@ -167,7 +204,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     );
 
     if (secId === 'closing' && (closingImages || finalMedia)) return (
-      <section key={secId} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-[#1c060f]/30 to-transparent">
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-[#1c060f]/30 to-transparent">
         {heading}
         <ClosingSection
           images={closingImages}
@@ -186,16 +223,59 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
       <CSSKeyframes />
       <ImageBackground />
 
+      {/* Fixed Left Sidebar — Growing Progress Line (no numbers) */}
+      {(() => {
+        const clampedProgress = Math.min(scrollProgress, 1);
+        return (
+          <div
+            className="pointer-events-none fixed left-3 sm:left-5 top-0 bottom-0 z-30 hidden md:flex flex-col items-center"
+            style={{ paddingTop: 72, paddingBottom: 72 }}
+            aria-hidden="true"
+          >
+            <div className="relative flex-1 w-[1px]">
+              {/* Background track */}
+              <div className="absolute inset-0 bg-white/[0.06]" />
+
+              {/* Burgundy fill line */}
+              <div
+                className="absolute top-0 left-0 w-full"
+                style={{
+                  height: `${clampedProgress * 100}%`,
+                  background: 'linear-gradient(to bottom, rgba(149,28,48,0.35) 0%, #951C30 100%)',
+                  boxShadow: '0 0 4px rgba(149,28,48,0.55)',
+                  transition: 'height 55ms linear',
+                }}
+              />
+
+              {/* Glowing tip */}
+              <div
+                className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+                style={{ top: `${clampedProgress * 100}%`, transition: 'top 55ms linear' }}
+              >
+                <div
+                  style={{
+                    width: '4px', height: '4px', borderRadius: '50%',
+                    background: '#951C30',
+                    boxShadow: '0 0 7px 2px rgba(149,28,48,0.9), 0 0 18px 5px rgba(149,28,48,0.4)',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+
       <header className="case-study-nav relative z-20 flex items-center justify-between px-5 py-5 sm:px-12 lg:px-16">
         <Link href="/work" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white">
-          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">All projects</span>
+          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{t('allProjects')}</span>
         </Link>
         <div className="flex items-center gap-5">
           {project.platform && <span className="hidden text-xs md:text-sm font-black uppercase tracking-[.15em] text-white/80 sm:inline">{project.platform}</span>}
           {project.liveUrl && (
             <a href={project.liveUrl} target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-[#951C30] px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-lg shadow-rose-900/30 transition hover:scale-[1.04] hover:bg-[#b8223b]">
-              Live Demo <ExternalLink className="h-4 w-4" />
+              {t('liveDemo')} <ExternalLink className="h-4 w-4" />
             </a>
           )}
         </div>
@@ -205,8 +285,12 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
       <div className="relative z-10 border-t border-white/5">
         {(project.year || project.platform || project.sector || (project.category && project.category !== 'Uncategorized')) && (
-          <section data-reveal className="px-5 py-32 sm:px-12 lg:px-24">
-            <SectionHeading num="00" label="Project Details" />
+          <section
+            data-reveal
+            ref={(el) => { sectionRefs.current[0] = el; }}
+            className="px-5 py-12 sm:px-12 lg:px-24"
+          >
+            <SectionHeading num="00" label={t('projectDetails')} />
             <MetaSection project={project} />
           </section>
         )}
@@ -215,7 +299,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
         <section data-reveal className="relative overflow-hidden border-t border-white/5 px-5 py-36 sm:px-12 lg:px-24">
           <div className="cta-glow-orb pointer-events-none absolute left-1/2 top-1/2 h-[700px] w-[700px] rounded-full [background:radial-gradient(circle,rgba(149,28,48,0.2)_0%,transparent_68%)]" />
-          
+
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.035]"
             style={{
@@ -225,20 +309,20 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
           <div className="relative z-10 max-w-5xl">
             <p className="mb-8 text-[10px] font-black uppercase tracking-[.45em] text-[var(--accent)]">
-              Let&apos;s Work Together
+              {t('letWorkTogether')}
             </p>
 
             <h2
               className="text-5xl font-black uppercase leading-[.85] tracking-[-.04em] text-white sm:text-7xl md:text-8xl"
               style={{ textShadow: '0 4px 60px rgba(0,0,0,0.8)' }}
             >
-              Ready to build<br />
-              <em className="not-italic text-[var(--accent)]">something</em><br />
-              great.
+              {t('ctaTitle1')}<br />
+              <em className="not-italic text-[var(--accent)]">{t('ctaTitle2')}</em><br />
+              {t('ctaTitle3')}
             </h2>
 
             <p className="mt-8 max-w-md text-sm leading-relaxed text-white/45">
-              Have a project in mind? Let&apos;s create a visual experience that speaks louder than words.
+              {t('ctaSub')}
             </p>
 
             <div className="mt-12 flex flex-wrap items-center gap-8">
@@ -247,7 +331,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
                 className="cta-primary-btn group/btn relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#951C30] px-9 py-[1.1rem] text-xs font-bold uppercase tracking-widest text-white shadow-[0_8px_32px_rgba(149,28,48,0.45)] transition-all duration-300 hover:scale-[1.04] hover:bg-[#b8223b] hover:shadow-[0_14px_44px_rgba(149,28,48,0.65)]"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  Start your project
+                  {t('startYourProject')}
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                 </span>
                 <span className="cta-shimmer absolute inset-0" aria-hidden="true" />
@@ -258,7 +342,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
                 className="group/sec inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/50 transition-colors duration-300 hover:text-white"
               >
                 <span className="relative pb-0.5">
-                  Back to portfolio
+                  {t('backToPortfolio')}
                   <span className="absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-white/80 transition-transform duration-[400ms] group-hover/sec:scale-x-100" />
                 </span>
                 <ArrowLeft className="h-4 w-4 transition-transform group-hover/sec:-translate-x-0.5" />

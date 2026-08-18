@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { ArrowUpRight } from 'lucide-react';
 import { NextProject } from '@/types/case-study';
 import { Media } from './Shared';
@@ -95,6 +96,7 @@ export function ClosingSection({
 }
 
 export function NextProjectTeaser({ next }: { next: NextProject }) {
+  const t = useTranslations('CaseStudy');
   return (
     <div className="group/teaser relative border-t border-white/5">
       <div className="absolute top-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-gradient-to-r from-[#951C30] via-[#c4243c] to-[#951C30] transition-transform duration-700 ease-out group-hover/teaser:scale-x-100" />
@@ -121,7 +123,7 @@ export function NextProjectTeaser({ next }: { next: NextProject }) {
 
         <div className="relative z-10">
           <p className="mb-4 text-[9px] font-bold uppercase tracking-[.55em] text-[var(--accent)] opacity-60 transition-opacity duration-300 group-hover/teaser:opacity-100">
-            Next Project
+            {t('nextProject')}
           </p>
           <h3 className="text-3xl font-bold tracking-tight text-white transition-all duration-500 group-hover/teaser:-translate-y-1 group-hover/teaser:tracking-wide sm:text-5xl">
             {next.title}
@@ -133,7 +135,7 @@ export function NextProjectTeaser({ next }: { next: NextProject }) {
           )}
           <div className="mt-8 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.35em] text-white/40 transition-colors duration-300 group-hover/teaser:text-white">
             <span className="relative">
-              View Case Study
+              {t('viewCaseStudy')}
               <span className="absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-white transition-transform duration-500 group-hover/teaser:scale-x-100" />
             </span>
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/teaser:translate-x-0.5 group-hover/teaser:-translate-y-0.5" />

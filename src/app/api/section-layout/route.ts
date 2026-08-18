@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import { SectionLayout } from '@/models/SectionLayout';
-import { HOME_SECTIONS } from '@/lib/home-sections';
+import { HOME_SECTIONS_DATA } from '@/lib/home-sections-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +21,7 @@ export async function GET() {
       }
     }
 
-    const sections = HOME_SECTIONS.map((sec) => ({
+    const sections = HOME_SECTIONS_DATA.map((sec) => ({
       id: sec.id,
       labelKey: sec.labelKey,
       isVisible: dbMap.get(sec.id) ?? sec.defaultVisible,

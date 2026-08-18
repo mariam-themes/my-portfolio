@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
+import { buildProjectTranslations } from '@/lib/translate';
 
 export async function GET() {
   try {
@@ -36,6 +37,15 @@ export async function POST(request: Request) {
     await connectToDatabase();
     
     const body = await request.json();
+
+    // Auto-translate text fields into the other language so the admin
+    // only ever enters content once (Arabic or English).
+    const tr = await buildProjectTranslations(body);
+    if (tr.sourceLang) body.sourceLang = tr.sourceLang;
+    if (tr.translations) body.translations = tr.translations;
+    if (tr.metaTitle) body.metaTitle = tr.metaTitle;
+    if (tr.metaDescription) body.metaDescription = tr.metaDescription;
+
     const project = await Project.create(body);
 
     return NextResponse.json({ success: true, data: project }, { status: 201 });

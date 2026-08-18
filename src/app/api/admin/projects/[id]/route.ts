@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
 import cloudinary, { extractPublicId } from '@/lib/cloudinary';
+import { buildProjectTranslations } from '@/lib/translate';
 
 export async function GET(
   request: Request,
@@ -69,6 +70,14 @@ export async function PUT(
 
     // Update fields
     Object.assign(project, body);
+
+    // Auto-translate text fields into the other language (one-language input).
+    const tr = await buildProjectTranslations(body);
+    if (tr.sourceLang) project.set('sourceLang', tr.sourceLang);
+    if (tr.translations) project.set('translations', tr.translations);
+    else project.set('translations', undefined);
+    if (tr.metaTitle) project.set('metaTitle', tr.metaTitle);
+    if (tr.metaDescription) project.set('metaDescription', tr.metaDescription);
     
     // Save to trigger hooks and validations
     const updatedProject = await project.save();

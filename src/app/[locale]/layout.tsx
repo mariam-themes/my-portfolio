@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { getMessages } from 'next-intl/server';
+import Navbar from '@/components/public/Navbar';
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <Navbar />
       {children}
     </NextIntlClientProvider>
   );

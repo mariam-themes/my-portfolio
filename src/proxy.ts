@@ -14,11 +14,19 @@ const ADMIN_API_PATHS = [
   '/api/seed',
 ];
 
+// Fully public API paths — always pass through with no auth check.
+const PUBLIC_API_PATHS = ['/api/section-layout', '/api/projects', '/api/inquiries'];
+
 // Content that is publicly readable but only writable by an admin.
-const CONTENT_PATHS = ['/api/blogs', '/api/testimonials', '/api/section-layout'];
+const CONTENT_PATHS = ['/api/blogs', '/api/testimonials'];
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Fully public APIs: pass through with no auth check at all.
+  if (PUBLIC_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return NextResponse.next();
+  }
 
   // Protect admin API routes: require a valid session token.
   if (ADMIN_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {

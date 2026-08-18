@@ -1,7 +1,9 @@
 import type { ComponentType } from 'react';
 import HeroSection from '@/components/sections/HeroSection';
+import ProjectsPreviewSection from '@/components/sections/ProjectsPreviewSection';
 import BlogSection from '@/components/sections/BlogSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
+import ContactSection from '@/components/sections/ContactSection';
 
 /**
  * Homepage section registry — the SINGLE source of truth for which sections
@@ -29,6 +31,12 @@ export const HOME_SECTIONS: HomeSection[] = [
     defaultVisible: true,
   },
   {
+    id: 'projectsPreview',
+    labelKey: 'projectsPreview', // We'll add this to i18n later if needed, or it can reuse a key
+    component: ProjectsPreviewSection,
+    defaultVisible: true,
+  },
+  {
     id: 'blog',
     labelKey: 'blog',
     component: BlogSection,
@@ -38,6 +46,12 @@ export const HOME_SECTIONS: HomeSection[] = [
     id: 'testimonials',
     labelKey: 'testimonials',
     component: TestimonialsSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'contact',
+    labelKey: 'contact', // Can add to i18n later if needed for admin panel
+    component: ContactSection,
     defaultVisible: true,
   },
 ];

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -21,6 +22,8 @@ interface Project {
 export type ProjectRecord = Project;
 
 export default function ProjectListClient({ projects }: { projects: Project[] }) {
+  const locale = useLocale();
+  const t = useTranslations('Work');
   const [activeFilter, setActiveFilter] = useState<string>('');
   
   // Custom Cursor State
