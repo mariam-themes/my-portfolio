@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import HeroSection from '@/components/sections/HeroSection';
+import ServicesSection from '@/components/sections/ServicesSection';
 import ProjectsPreviewSection from '@/components/sections/ProjectsPreviewSection';
 import BlogSection from '@/components/sections/BlogSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
@@ -28,6 +29,12 @@ export const HOME_SECTIONS: HomeSection[] = [
     id: 'hero',
     labelKey: 'hero',
     component: HeroSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'services',
+    labelKey: 'services', // Can add to Admin.homeSections.services
+    component: ServicesSection,
     defaultVisible: true,
   },
   {

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Home, Folder, FileText, Settings, Star, Inbox, LayoutDashboard } from 'lucide-react';
+import { Home, Folder, FileText, Settings, Star, Inbox, LayoutDashboard, Briefcase } from 'lucide-react';
 
 export default function Sidebar() {
   const t = useTranslations('Admin.shell');
@@ -14,6 +14,7 @@ export default function Sidebar() {
     { name: t('dashboard'), href: '/admin', icon: Home },
     { name: t('sections'), href: '/admin/sections', icon: LayoutDashboard },
     { name: t('projects'), href: '/admin/projects', icon: Folder },
+    { name: 'Services', href: '/admin/services', icon: Briefcase },
     { name: t('blog'), href: '/admin/blogs', icon: FileText },
     { name: t('testimonials'), href: '/admin/testimonials', icon: Star },
     { name: t('inquiries'), href: '/admin/inquiries', icon: Inbox },

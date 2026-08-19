@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
  *   HERO_BG_MODE = 'silk'      → uses /arcana-hero.jpg
  *   HERO_BG_MODE = 'gradient'  → uses a layered burgundy gradient (no image)
  */
-const HERO_BG_MODE = 'gradient' as const;
+const HERO_BG_MODE = 'gradient';
 
 export default function HeroSection() {
   const t = useTranslations('Hero');
@@ -18,7 +18,7 @@ export default function HeroSection() {
   return (
     <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
       {/* Background */}
-      {HERO_BG_MODE === 'silk' ? (
+      {HERO_BG_MODE === 'gradient' ? (
         <div className="absolute inset-0">
           <Image
             src="/arcana-hero.jpg"

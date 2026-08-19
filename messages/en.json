@@ -1,4 +1,8 @@
 {
+  "Services": {
+    "title": "SERVICES",
+    "description": "Five disciplines, one continuous system — from the first mark to the shipped storefront."
+  },
   "Navbar": {
     "home": "HOME",
     "about": "ABOUT",
@@ -406,9 +410,12 @@
       "saving": "Saving...",
       "saved": "Homepage layout saved!",
       "failed": "Failed to save layout",
-      "hero": "Hero / 3D Intro",
+      "hero": "Hero",
+      "services": "Services",
+      "projectsPreview": "Projects preview",
       "blog": "Blog / Journal",
-      "testimonials": "Testimonials"
+      "testimonials": "Testimonials",
+      "contact": "Contact"
     }
   }
 }
