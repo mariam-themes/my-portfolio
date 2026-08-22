@@ -31,11 +31,23 @@ export function isArabic(text: string): boolean {
 }
 
 /**
+ * Translation cache to avoid repeated API calls for the same content.
+ * In-memory cache, resets on server restart.
+ * Key format: `{text}:{langPair}` 
+ */
+const cache = new Map<string, string>();
+
+/**
  * Translates text using the free MyMemory API.
+ * Uses in-memory caching to avoid redundant calls.
  * Returns the original text if translation fails (graceful fallback).
  */
 async function translateText(text: string, langPair: LangPair): Promise<string> {
   if (!text || text.trim().length === 0) return text;
+
+  // Check cache first
+  const cacheKey = `${langPair}:${text}`;
+  if (cache.has(cacheKey)) return cache.get(cacheKey)!;
 
   try {
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`;
@@ -56,7 +68,9 @@ async function translateText(text: string, langPair: LangPair): Promise<string> 
       return text;
     }
 
-    return decodeHtmlEntities(translated);
+    const decoded = decodeHtmlEntities(translated);
+    cache.set(cacheKey, decoded);
+    return decoded;
   } catch {
     // Network error or timeout — silently return original
     return text;
@@ -242,4 +256,40 @@ export async function buildProjectTranslations(input: {
     metaTitle,
     metaDescription,
   };
+}
+
+/**
+ * Given a text value and target locale, returns the appropriate translation.
+ * - If locale is 'ar' and text is English → translates to Arabic
+ * - If locale is 'en' and text is Arabic → translates to English
+ * - If text is already in target locale → returns as-is
+ * - If text is already an object { en, ar } → picks the right one
+ */
+export async function localizeText(
+  value: string | { en?: string; ar?: string } | undefined,
+  locale: 'en' | 'ar'
+): Promise<string> {
+  if (!value) return '';
+
+  // Already a localized object
+  if (typeof value === 'object') {
+    const direct = value[locale];
+    if (direct) return direct;
+    
+    // Translate the available language to the target
+    const fallback = locale === 'ar' ? value.en : value.ar;
+    if (!fallback) return '';
+    return translateText(fallback, locale === 'ar' ? 'en|ar' : 'ar|en');
+  }
+
+  // It's a plain string — detect language and translate if needed
+  const textIsArabic = isArabic(value);
+  if (locale === 'ar' && !textIsArabic) {
+    return translateText(value, 'en|ar');
+  }
+  if (locale === 'en' && textIsArabic) {
+    return translateText(value, 'ar|en');
+  }
+
+  return value; // Already in the right language
 }

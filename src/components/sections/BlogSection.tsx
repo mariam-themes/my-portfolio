@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import BlogCard from '@/components/ui/BlogCard';
+import { useTranslations } from 'next-intl';
 
 export default function BlogSection() {
+  const t = useTranslations('BlogPreview');
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,16 +34,16 @@ export default function BlogSection() {
         <div className="max-w-4xl mx-auto mb-16 text-left">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50"></span>
-            JOURNAL
+            {t('kicker')}
           </div>
           <h2 className="text-5xl md:text-7xl font-serif font-normal text-foreground">
-            Stories with <span className="italic text-[#d36a86]">substance.</span>
+            {t('title')} <span className="italic text-[#d36a86]">{t('titleAccent')}</span>
           </h2>
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 mt-6 text-sm font-semibold tracking-wide uppercase text-[#d36a86] hover:text-[#e8a3b6] transition-colors"
           >
-            Read all stories
+            {t('readAll')}
             <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>
         </div>
@@ -56,7 +58,7 @@ export default function BlogSection() {
           </div>
         ) : blogs.length === 0 ? (
           <div className="text-center text-slate-500 py-12 border border-dashed rounded-xl">
-            No articles published yet.
+            {t('noBlogs')}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

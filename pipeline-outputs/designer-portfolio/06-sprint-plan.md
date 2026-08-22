@@ -106,3 +106,6 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 - [ ] **Task 4.3 (Menna):** Test the About Me, Contact, Work, and Blog public pages across devices.
 - [ ] **Task 4.4 (Shared):** End-to-end testing of the complete Admin Dashboard (CRUD for all features).
 - [ ] **Task 4.5 (Shared):** Final Vercel deployment with database index optimization and performance audit.
+- [✓] **Task 4.6 (Menna):** Wire up the Admin Dashboard Homepage to fetch and display real statistics (Projects, Blogs, Inquiries) and Recent Activity.
+- [✓] **Task 4.7 (Menna):** Implement a live Notification Dropdown in the Admin Header to show incoming leads/inquiries in real-time.
+- [✓] **Task 4.8 (Menna):** Build Global Search API and integrate bilingual, debounced search UI in the Admin Header.

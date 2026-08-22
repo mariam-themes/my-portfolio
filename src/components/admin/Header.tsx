@@ -1,12 +1,69 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
-import { User, Search, Bell } from 'lucide-react';
+import { User, Search, Bell, Image as ImageIcon, FileText, Mail } from 'lucide-react';
 import { setAdminLocaleCookie } from '@/lib/adminLocaleCookie';
+import { useState, useRef, useEffect } from 'react';
+import useSWR from 'swr';
+import Link from 'next/link';
+
+// Simple fetcher for SWR
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Header() {
   const t = useTranslations('Admin.shell');
+  const tInq = useTranslations('Admin.inquiries');
   const locale = useLocale();
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Debounced Search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.trim().length === 0) {
+        setSearchResults([]);
+        setIsSearchOpen(false);
+        setIsSearching(false);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const res = await fetch(`/api/admin/search?q=${encodeURIComponent(searchQuery)}`);
+        const json = await res.json();
+        if (json.success) {
+          setSearchResults(json.data);
+          setIsSearchOpen(true);
+        }
+      } catch (error) {
+        console.error('Search failed', error);
+      }
+      setIsSearching(false);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const switchLocale = (next: 'en' | 'ar') => {
     if (next === locale) return;
@@ -14,8 +71,14 @@ export default function Header() {
     window.location.reload();
   };
 
+  // Fetch new inquiries every 30 seconds
+  const { data } = useSWR('/api/admin/inquiries?status=new', fetcher, { refreshInterval: 30000 });
+  
+  const newInquiries = data?.data || [];
+  const hasNotifications = newInquiries.length > 0;
+
   return (
-    <header className="h-24 border-b border-rose-900/30 bg-[#2A0813]/80 backdrop-blur-xl flex items-center justify-between px-10 sticky top-0 z-10">
+    <header className="h-24 border-b border-rose-900/30 bg-[#2A0813]/80 backdrop-blur-xl flex items-center justify-between px-10 sticky top-0 z-40">
       <div className="flex items-center gap-6">
         <h1 className="text-3xl font-light text-white tracking-wide">
           {t('welcomeBack')} <span className="font-bold">Mariam</span>
@@ -23,19 +86,132 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-8">
-        <div className="hidden md:flex items-center gap-4 bg-black/20 border border-white/5 rounded-full px-4 py-2.5 w-64 focus-within:ring-1 focus-within:ring-rose-500/50 transition-all">
-          <Search size={18} className="text-rose-300" />
-          <input
-            type="text"
-            placeholder={t('searchPlaceholder')}
-            className="bg-transparent border-none outline-none text-sm text-rose-100 placeholder-rose-400/50 w-full"
-          />
+        {/* Search */}
+        <div className="relative" ref={searchRef}>
+          <div className="hidden md:flex items-center gap-4 bg-black/20 border border-white/5 rounded-full px-4 py-2.5 w-64 focus-within:ring-1 focus-within:ring-rose-500/50 transition-all relative z-50">
+            <Search size={18} className="text-rose-300" />
+            <input
+              type="text"
+              placeholder={t('searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => {
+                if (searchQuery.trim().length > 0) setIsSearchOpen(true);
+              }}
+              className="bg-transparent border-none outline-none text-sm text-rose-100 placeholder-rose-400/50 w-full"
+            />
+            {isSearching && (
+              <span className="absolute right-4 w-3 h-3 rounded-full border-2 border-rose-500/30 border-t-rose-500 animate-spin" />
+            )}
+          </div>
+
+          {/* Search Results Dropdown */}
+          {isSearchOpen && (
+            <div className="absolute left-0 top-full mt-2 w-full min-w-[320px] bg-[#1A050C] border border-rose-900/50 rounded-2xl shadow-2xl overflow-hidden z-50">
+              <div className="px-5 py-3 border-b border-rose-900/30 bg-[#2A0813]/50">
+                <h3 className="text-white font-bold text-xs uppercase tracking-wider">
+                  {locale === 'ar' ? 'نتائج البحث' : 'Search Results'}
+                </h3>
+              </div>
+              <div className="max-h-80 overflow-y-auto p-2">
+                {searchResults.length > 0 ? (
+                  searchResults.map((result, i) => (
+                    <Link
+                      key={i}
+                      href={result.url}
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchQuery('');
+                      }}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-rose-950 flex items-center justify-center border border-rose-900/50 flex-shrink-0">
+                        {result.type === 'project' ? <ImageIcon size={14} className="text-rose-400" /> : 
+                         result.type === 'blog' ? <FileText size={14} className="text-purple-400" /> : 
+                         <Mail size={14} className="text-amber-400" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-rose-100 group-hover:text-white truncate">{result.title}</p>
+                        <p className="text-xs text-rose-400/60 capitalize mt-0.5">{result.subtitle}</p>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="p-6 text-center text-sm text-rose-300/50">
+                    {locale === 'ar' ? 'لا توجد نتائج' : 'No results found'}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        <button className="relative text-rose-300 hover:text-white transition-colors">
-          <Bell size={22} />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-[#2A0813] rtl:-right-auto rtl:-left-1" />
-        </button>
+        {/* Notifications */}
+        <div className="relative" ref={dropdownRef}>
+          <button 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className={`relative transition-colors ${hasNotifications || isDropdownOpen ? 'text-white' : 'text-rose-300 hover:text-white'}`}
+          >
+            <Bell size={22} />
+            {hasNotifications && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-[#2A0813] rtl:-right-auto rtl:-left-1 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+            )}
+          </button>
+
+          {isDropdownOpen && (
+            <div className="absolute right-0 rtl:right-auto rtl:left-0 top-full mt-4 w-80 bg-[#1A050C] border border-rose-900/50 rounded-2xl shadow-2xl overflow-hidden z-50">
+              <div className="px-5 py-4 border-b border-rose-900/30 flex justify-between items-center bg-[#2A0813]/50">
+                <h3 className="text-white font-bold text-sm">
+                  {locale === 'ar' ? 'الإشعارات' : 'Notifications'}
+                </h3>
+                {hasNotifications && (
+                  <span className="bg-rose-500/20 text-rose-400 text-xs px-2 py-0.5 rounded-full font-bold">
+                    {newInquiries.length} {tInq('statusNew')}
+                  </span>
+                )}
+              </div>
+              
+              <div className="max-h-80 overflow-y-auto">
+                {hasNotifications ? (
+                  <div className="flex flex-col">
+                    {newInquiries.map((inq: any) => (
+                      <Link 
+                        key={inq._id} 
+                        href="/admin/inquiries"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="px-5 py-4 border-b border-white/5 hover:bg-white/5 transition-colors group block"
+                      >
+                        <p className="text-sm font-semibold text-rose-100 group-hover:text-white transition-colors">{inq.name}</p>
+                        <p className="text-xs text-rose-400 mt-1 line-clamp-1">{inq.service}</p>
+                        <p className="text-[10px] text-rose-500/50 mt-2 uppercase tracking-wider">
+                          {new Date(inq.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-5 py-8 text-center">
+                    <p className="text-sm text-rose-300/50">
+                      {locale === 'ar' ? 'لا توجد إشعارات جديدة' : 'No new notifications'}
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              {hasNotifications && (
+                <div className="p-3 bg-[#2A0813]/30 border-t border-rose-900/30">
+                  <Link 
+                    href="/admin/inquiries"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="block w-full py-2 text-center text-xs font-bold text-rose-400 hover:text-white bg-rose-900/20 hover:bg-rose-600/40 rounded-xl transition-all"
+                  >
+                    {tInq('title')}
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="h-8 w-px bg-rose-900/50" />
 

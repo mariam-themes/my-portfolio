@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 
 interface Particle {
   id: number;
-  x: number[];
-  y: number[];
+  x: string[];
+  y: string[];
   size: number;
   duration: number;
   delay: number;
@@ -15,17 +15,29 @@ export default function ParticlesBackground() {
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
-    // Generate particles on the client to avoid hydration mismatch
+    // Use window innerWidth/Height in pixels to avoid any RTL vw/vh calculation issues
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
     const generated = Array.from({ length: 40 }).map((_, i) => {
-      const startX = Math.random() * 100;
-      const startY = Math.random() * 100;
+      const startX = Math.random() * W;
+      const startY = Math.random() * H;
       return {
         id: i,
-        // Create a seamless loop of 4 random points across the whole screen
-        x: [startX, Math.random() * 100, Math.random() * 100, startX],
-        y: [startY, Math.random() * 100, Math.random() * 100, startY],
-        size: Math.random() * 5 + 2, // 2px to 7px (Subtle and elegant)
-        duration: Math.random() * 40 + 20, // 20s to 60s (Very slow drifting)
+        x: [
+          `${startX}px`,
+          `${Math.random() * W}px`,
+          `${Math.random() * W}px`,
+          `${startX}px`,
+        ],
+        y: [
+          `${startY}px`,
+          `${Math.random() * H}px`,
+          `${Math.random() * H}px`,
+          `${startY}px`,
+        ],
+        size: Math.random() * 5 + 2,
+        duration: Math.random() * 40 + 20,
         delay: Math.random() * 5,
       };
     });
@@ -33,15 +45,25 @@ export default function ParticlesBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div
+      className="fixed inset-0 pointer-events-none z-0"
+      // Force LTR so RTL page direction doesn't affect x-axis positioning
+      dir="ltr"
+      style={{ direction: 'ltr', overflow: 'hidden' }}
+    >
       {particles.map((p) => (
         <motion.div
           key={p.id}
           className="absolute rounded-full bg-rose-300 blur-[1px] shadow-[0_0_12px_rgba(251,113,133,0.9)]"
-          style={{ width: p.size, height: p.size }}
+          style={{
+            width: p.size,
+            height: p.size,
+            top: 0,
+            left: 0,
+          }}
           animate={{
-            x: p.x.map((val) => `${val}vw`),
-            y: p.y.map((val) => `${val}vh`),
+            x: p.x,
+            y: p.y,
             opacity: [0, 0.8, 0.4, 0],
           }}
           transition={{

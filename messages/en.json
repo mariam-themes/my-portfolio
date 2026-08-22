@@ -6,7 +6,9 @@
     "work": "WORK",
     "blog": "BLOG",
     "contact": "CONTACT",
-    "startProject": "START A PROJECT"
+    "startProject": "START A PROJECT",
+    "nameTop": "MARIAM",
+    "nameBottom": "ALJUMAIAH"
   },
   "ContactSection": {
     "kicker": "START A PROJECT",
@@ -152,6 +154,19 @@
     "noProjects": "No projects published yet.",
     "noImage": "No Image Available",
     "design": "Design"
+  },
+  "BlogPreview": {
+    "kicker": "JOURNAL",
+    "title": "Stories with",
+    "titleAccent": "substance.",
+    "readAll": "Read all stories",
+    "noBlogs": "No articles published yet."
+  },
+  "TestimonialsPreview": {
+    "kicker": "KIND WORDS",
+    "maison": "MAISON",
+    "title": "Clients who stayed.",
+    "noTestimonials": "No testimonials found. Add some from the dashboard!"
   },
   "Admin": {
     "shell": {
@@ -407,8 +422,10 @@
       "saved": "Homepage layout saved!",
       "failed": "Failed to save layout",
       "hero": "Hero / 3D Intro",
+      "projectsPreview": "Projects Preview",
       "blog": "Blog / Journal",
-      "testimonials": "Testimonials"
+      "testimonials": "Testimonials",
+      "contact": "Contact Section"
     }
   }
 }

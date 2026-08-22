@@ -33,10 +33,10 @@
   --color-card-border: var(--card-border);
   --color-blob-1: #4a0d14;
   --color-blob-2: #2d070b;
-  --font-serif: "Playfair Display", serif;
-  --font-sans: var(--font-geist-sans), var(--font-arabic), "Inter", sans-serif;
-  --font-mono: var(--font-geist-mono), "Geist Mono", monospace;
-  --font-display: var(--font-archivo), "Helvetica Neue", sans-serif;
+  --font-serif: var(--font-playfair), "Playfair Display", serif;
+  --font-sans: var(--font-inter), "Inter", sans-serif;
+  --font-mono: monospace;
+  --font-display: var(--font-inter), sans-serif;
 
   --animate-blob: blob 15s infinite alternate ease-in-out;
 }
@@ -53,7 +53,7 @@ html {
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-geist-sans), var(--font-arabic), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;

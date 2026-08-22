@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { resolveText, type LocalizedProject } from '@/lib/localizeProject';
 
 export default function ProjectsPreviewSection() {
   const locale = useLocale();
+  const t = useTranslations('ProjectsPreview');
   const [projects, setProjects] = useState<LocalizedProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -38,10 +39,10 @@ export default function ProjectsPreviewSection() {
           <div className="max-w-4xl text-left">
             <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
               <span className="w-12 h-[1px] bg-accent/50"></span>
-              Selected Work
+              {t('kicker')}
             </div>
             <h2 className="text-5xl md:text-7xl font-serif font-normal text-foreground leading-tight">
-              Projects with <span className="italic" style={{ color: '#951C30' }}>consequence.</span>
+              {t('title')} <span className="italic" style={{ color: '#951C30' }}>{t('titleAccent')}</span>
             </h2>
           </div>
           
@@ -49,7 +50,7 @@ export default function ProjectsPreviewSection() {
             href="/work"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-sm font-semibold tracking-widest uppercase text-white hover:bg-white hover:text-black transition-all duration-300 shrink-0"
           >
-            See All Work
+            {t('seeAll')}
             <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>
         </div>
@@ -64,7 +65,7 @@ export default function ProjectsPreviewSection() {
           </div>
         ) : projects.length === 0 ? (
           <div className="text-center text-slate-500 py-12 border border-white/10 rounded-xl">
-            No projects published yet.
+            {t('noProjects')}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
@@ -93,7 +94,7 @@ export default function ProjectsPreviewSection() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/20 font-light">
-                        No Image Available
+                        {t('noImage')}
                       </div>
                     )}
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" />
@@ -103,8 +104,8 @@ export default function ProjectsPreviewSection() {
                     <h3 className="text-2xl font-bold tracking-tight text-white/90 group-hover:text-white transition-colors">
                       {title}
                     </h3>
-                    <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">
-                      <span>{category || sector || 'Design'}</span>
+                    <div className="flex items-center gap-3 text-[10px] rtl:text-xs font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-white/50">
+                      <span>{category || sector || t('design')}</span>
                       <span className="w-1 h-1 rounded-full bg-[#951C30]/80" />
                       <span>{project.year}</span>
                     </div>

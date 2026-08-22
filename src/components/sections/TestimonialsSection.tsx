@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { H2, P } from '@/components/ui/typography';
 import TestimonialCard from '@/components/ui/TestimonialCard';
+import { useTranslations } from 'next-intl';
 
 export default function TestimonialsSection() {
+  const t = useTranslations('TestimonialsPreview');
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,11 +37,11 @@ export default function TestimonialsSection() {
         <div className="max-w-4xl mx-auto mb-20 text-left">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50"></span>
-            KIND WORDS
+            {t('kicker')}
           </div>
-          <div className="font-serif text-lg tracking-[0.3em] text-foreground/80 mb-2">MAISON</div>
+          <div className="font-serif text-lg tracking-[0.3em] text-foreground/80 mb-2">{t('maison')}</div>
           <h2 className="text-5xl md:text-7xl font-serif font-normal text-foreground">
-            Clients who stayed.
+            {t('title')}
           </h2>
         </div>
 
@@ -53,7 +55,7 @@ export default function TestimonialsSection() {
           </div>
         ) : testimonials.length === 0 ? (
           <div className="text-center text-slate-500 py-12 border border-dashed rounded-xl">
-            No testimonials found. Add some from the dashboard!
+            {t('noTestimonials')}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

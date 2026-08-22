@@ -91,7 +91,7 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
           transition: 'transform 0.15s ease-out, opacity 0.3s ease-out, width 0.3s, height 0.3s',
         }}
       >
-        <span className="text-center leading-tight">View<br/>Project</span>
+        <span className="text-center leading-tight">{t('viewProject') || 'View'}</span>
       </div>
 
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 pt-32 pb-16">
@@ -102,8 +102,8 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
           {/* Header Typography */}
           <div className="lg:w-1/2">
             <h1 className="text-6xl sm:text-7xl md:text-8xl font-black tracking-tighter leading-[0.9]">
-              <span className="text-white block">Projects with</span>
-              <span className="block mt-2" style={{ color: '#951C30' }}>consequence.</span>
+              <span className="text-white block">{t('headingTop')}</span>
+              <span className="block mt-2" style={{ color: '#951C30' }}>{t('headingBottom')}</span>
             </h1>
           </div>
           
@@ -123,7 +123,7 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
                 backgroundColor: activeFilter === '' ? '#951C30' : 'transparent'
               }}
             >
-              All
+              {t('all')}
             </button>
             {categories.map(category => {
               const isActive = activeFilter === category;
@@ -181,7 +181,7 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/30 font-light">
-                      No Image Available
+                      {t('noImage')}
                     </div>
                   )}
                   {/* Subtle Dark Overlay */}
@@ -194,7 +194,7 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
                     {project.title}
                   </h2>
                   <div className="flex items-center gap-4 text-xs font-medium uppercase tracking-[0.15em] text-white/50">
-                    <span>{project.category || project.sector || 'Design'}</span>
+                    <span>{project.category || project.sector || t('design')}</span>
                     <span className="w-1 h-1 rounded-full" style={{ backgroundColor: '#951C30', opacity: 0.8 }} />
                     <span>{project.year}</span>
                   </div>
@@ -207,7 +207,7 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
         {/* Empty State */}
         {filteredProjects.length === 0 && (
           <div className="text-center py-40 text-white/30 font-light text-xl">
-            No projects found in this category.
+            {t('noProjectsInCategory')}
           </div>
         )}
       </div>

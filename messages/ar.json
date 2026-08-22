@@ -6,7 +6,9 @@
     "work": "الأعمال",
     "blog": "المدونة",
     "contact": "تواصل",
-    "startProject": "ابدأ مشروعك"
+    "startProject": "ابدأ مشروعك",
+    "nameTop": "مريم",
+    "nameBottom": "الجميعة"
   },
   "ContactSection": {
     "kicker": "ابدأ مشروعك",
@@ -21,12 +23,12 @@
   },
   "Hero": {
     "kicker": "هوية بصرية · ويب · تجارة إلكترونية · ذكاء اصطناعي",
-    "nameTop": "MARIAM",
-    "nameBottom": "ALJUMAIAH",
+    "nameTop": "مريم",
+    "nameBottom": "الجميعة",
     "subtitle": "أصمم هويات وتجارب رقمية للعلامات التي ترفض أن تبدو عادية — أنظمة هوية ومتاجر واتجاه فني مدعوم بالذكاء الاصطناعي بعناية مهووسة بالتفاصيل.",
-    "ctaPrimary": "ابدئي مشروعًا",
+    "ctaPrimary": "ابدأ مشروعًا",
     "ctaSecondary": "أعمال مختارة",
-    "scrollHint": "مرري للأسفل"
+    "scrollHint": "مرر للأسفل"
   },
   "HomePage": {
     "title": "عرض مكونات الواجهة",
@@ -152,6 +154,19 @@
     "noProjects": "لم تُنشر مشاريع بعد.",
     "noImage": "لا توجد صورة",
     "design": "تصميم"
+  },
+  "BlogPreview": {
+    "kicker": "المدونة",
+    "title": "قصص ذات",
+    "titleAccent": "جوهر.",
+    "readAll": "اقرأ كل القصص",
+    "noBlogs": "لم تُنشر مقالات بعد."
+  },
+  "TestimonialsPreview": {
+    "kicker": "كلمات طيبة",
+    "maison": "الدار",
+    "title": "عملاء بقوا معنا.",
+    "noTestimonials": "لا توجد شهادات بعد."
   },
   "Admin": {
     "shell": {
@@ -407,8 +422,10 @@
       "saved": "تم حفظ تخطيط الصفحة الرئيسية!",
       "failed": "فشل حفظ التخطيط",
       "hero": "الترويسة / مقدمة ثلاثية الأبعاد",
+      "projectsPreview": "معرض المشاريع",
       "blog": "المدونة",
-      "testimonials": "الشهادات"
+      "testimonials": "الشهادات",
+      "contact": "قسم التواصل"
     }
   }
 }

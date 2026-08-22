@@ -81,8 +81,8 @@ export default function Navbar() {
               />
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs font-bold leading-tight tracking-widest text-white">MARIAM</p>
-              <p className="text-[10px] font-medium leading-tight tracking-widest text-rose-100/60">ALJUMAIAH</p>
+              <p className="text-xs font-bold leading-tight tracking-widest text-white">{t('nameTop')}</p>
+              <p className="text-[10px] font-medium leading-tight tracking-widest text-rose-100/60">{t('nameBottom')}</p>
             </div>
           </Link>
 
@@ -93,7 +93,7 @@ export default function Navbar() {
                 key={link.key}
                 href={`/${link.target}`}
                 onClick={(e) => handleNavClick(e, link.target)}
-                className="text-[11px] font-bold uppercase tracking-[0.2em] text-rose-100/70 transition-colors hover:text-white"
+                className="text-[11px] rtl:text-sm font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
               >
                 {t(link.key)}
               </a>
@@ -106,7 +106,7 @@ export default function Navbar() {
             
             <Link
               href="/contact"
-              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-[#951C30] px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#b3223a]"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full bg-[#951C30] px-6 py-2.5 text-xs rtl:text-sm font-bold uppercase tracking-widest rtl:tracking-normal text-white transition-colors hover:bg-[#b3223a]"
             >
               {t('startProject')}
               <ArrowUpRight className="h-4 w-4 rtl:-scale-x-100" />
@@ -133,7 +133,7 @@ export default function Navbar() {
                 key={link.key}
                 href={`/${link.target}`}
                 onClick={(e) => handleNavClick(e, link.target)}
-                className="text-sm font-bold uppercase tracking-[0.2em] text-rose-100/70 transition-colors hover:text-white"
+                className="text-sm rtl:text-base font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
               >
                 {t(link.key)}
               </a>
@@ -141,7 +141,7 @@ export default function Navbar() {
             <Link
               href="/contact"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#951C30] px-8 py-3 text-sm font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#b3223a]"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#951C30] px-8 py-3 text-sm rtl:text-base font-bold uppercase tracking-widest rtl:tracking-normal text-white transition-colors hover:bg-[#b3223a]"
             >
               {t('startProject')}
               <ArrowUpRight className="h-4 w-4 rtl:-scale-x-100" />
