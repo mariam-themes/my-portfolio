@@ -1,5 +1,5 @@
 import { getVisibleHomeSections } from '@/lib/home-layout';
-import LocaleSwitcher from '@/components/LocaleSwitcher';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,6 @@ export default async function Home() {
           '#0a0507',
       }}
     >
-      <LocaleSwitcher />
 
       {sections.length === 0 ? (
         <div className="min-h-[70vh] flex items-center justify-center">

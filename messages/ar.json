@@ -157,6 +157,22 @@
     "noImage": "لا توجد صورة",
     "design": "تصميم"
   },
+  "OtherProjects": {
+    "kicker": "الأرشيف",
+    "title": "المزيد من",
+    "titleAccent": "الأرشيف.",
+    "seeAll": "عرض الأرشيف الكامل",
+    "noImage": "لا توجد صورة"
+  },
+  "Footer": {
+    "tagline": "هوية بصرية، ويب وتجارة إلكترونية بعناية مهووسة بالتفاصيل.",
+    "navigate": "استكشف",
+    "connect": "تواصل",
+    "startProject": "ابدأ مشروعك",
+    "designedBy": "صُمم وبُني بعناية.",
+    "noSocials": "ستظهر روابط السوشيال هنا بعد إضافتها.",
+    "usefulLinks": "روابط مفيدة"
+  },
   "Admin": {
     "shell": {
       "dashboard": "لوحة التحكم",
@@ -413,6 +429,7 @@
       "hero": "الترويسة",
       "services": "الخدمات",
       "projectsPreview": "معاينة الأعمال",
+      "otherProjects": "مشاريع أخرى",
       "blog": "المدونة",
       "testimonials": "الشهادات",
       "contact": "تواصل"

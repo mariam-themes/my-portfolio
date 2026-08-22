@@ -148,15 +148,31 @@
     "design": "Design",
     "noProjectsInCategory": "No projects found in this category."
   },
-  "ProjectsPreview": {
-    "kicker": "Selected Work",
-    "title": "Projects with",
-    "titleAccent": "consequence.",
-    "seeAll": "See All Work",
-    "noProjects": "No projects published yet.",
-    "noImage": "No Image Available",
-    "design": "Design"
-  },
+    "ProjectsPreview":  {
+                            "kicker":  "Selected Work",
+                            "title":  "Projects with",
+                            "titleAccent":  "consequence.",
+                            "seeAll":  "See All Work",
+                            "noProjects":  "No projects published yet.",
+                            "noImage":  "No Image Available",
+                            "design":  "Design"
+                        },
+    "OtherProjects":  {
+                           "kicker":  "The Archive",
+                           "title":  "More from the",
+                           "titleAccent":  "archive.",
+                           "seeAll":  "View Full Archive",
+                           "noImage":  "No Image Available"
+                       },
+    "Footer":  {
+                   "tagline":  "Visual identity, web & e-commerce design with obsessive attention to craft.",
+                   "navigate":  "Navigate",
+                   "connect":  "Connect",
+                   "startProject":  "Start a Project",
+                   "designedBy":  "Designed & built with care.",
+                   "noSocials":  "Social links will appear here once added.",
+                   "usefulLinks":  "Useful Links"
+               },
   "Admin": {
     "shell": {
       "dashboard": "Dashboard",
@@ -412,8 +428,9 @@
       "failed": "Failed to save layout",
       "hero": "Hero",
       "services": "Services",
-      "projectsPreview": "Projects preview",
-      "blog": "Blog / Journal",
+                                       "projectsPreview":  "Projects preview",
+                                       "otherProjects":  "Other projects",
+                                       "blog":  "Blog / Journal",
       "testimonials": "Testimonials",
       "contact": "Contact"
     }

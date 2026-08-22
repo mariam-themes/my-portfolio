@@ -23,8 +23,8 @@ export default function ServicesSection() {
   if (!services || services.length === 0) return null;
 
   return (
-    <section id="services" className="py-24 md:py-32 bg-[#0A0507] text-white">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+    <section id="services" className="py-24 md:py-32 text-white relative">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
           <div className="flex items-center gap-6">
