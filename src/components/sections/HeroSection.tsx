@@ -3,46 +3,45 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
-/**
- * Toggle between the reference site's silk photograph background
- * and a pure-CSS burgundy gradient fallback:
- *   HERO_BG_MODE = 'silk'      → uses /arcana-hero.jpg
- *   HERO_BG_MODE = 'gradient'  → uses a layered burgundy gradient (no image)
- */
-const HERO_BG_MODE = 'gradient' as const;
 
 export default function HeroSection() {
   const t = useTranslations('Hero');
 
+  // Mouse tracking values
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const glowOpacity = useSpring(0, { damping: 30, stiffness: 200 });
+
+  // Smooth the tracking slightly
+  const smoothX = useSpring(mouseX, { damping: 40, stiffness: 150 });
+  const smoothY = useSpring(mouseY, { damping: 40, stiffness: 150 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const { left, top } = e.currentTarget.getBoundingClientRect();
+    mouseX.set(e.clientX - left);
+    mouseY.set(e.clientY - top);
+  };
+
   return (
-    <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-      {/* Background */}
-      {HERO_BG_MODE === 'silk' ? (
-        <div className="absolute inset-0">
-          <Image
-            src="/arcana-hero.jpg"
-            alt=""
-            aria-hidden
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-[#0a0507]/60" />
-        </div>
-      ) : (
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(circle at 88% 4%, rgba(125,15,46,0.5), transparent 28rem),' +
-              'radial-gradient(circle at 8% 38%, rgba(81,8,29,0.4), transparent 32rem),' +
-              'linear-gradient(180deg, #160509 0%, #0a0507 100%)',
-          }}
-        />
-      )}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(10,5,7,0.65)_100%)] pointer-events-none" />
+    <section
+      className="relative flex min-h-[100svh] items-center justify-center"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => glowOpacity.set(1)}
+      onMouseLeave={() => glowOpacity.set(0)}
+    >
+
+
+      {/* Interactive Mouse Glow */}
+      <motion.div
+        className="pointer-events-none absolute z-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86] blur-[150px] mix-blend-screen"
+        style={{
+          left: smoothX,
+          top: smoothY,
+          opacity: glowOpacity,
+        }}
+      />
 
       {/* Content */}
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center sm:px-12 lg:px-16">
@@ -83,13 +82,6 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll hint */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40">
-        <span className="text-[11px] uppercase tracking-[0.3em] text-white/35">
-          {t('scrollHint')}
-        </span>
-        <span className="block h-10 w-px bg-gradient-to-b from-white/40 to-transparent animate-pulse" />
-      </div>
     </section>
   );
 }

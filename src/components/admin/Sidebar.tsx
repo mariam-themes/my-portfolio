@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Home, Folder, FileText, Settings, Star, Inbox, LayoutDashboard } from 'lucide-react';
+import { Home, Folder, FileText, Settings, Star, Inbox, LayoutDashboard, Briefcase, Image as ImageIcon } from 'lucide-react';
 
 export default function Sidebar() {
   const t = useTranslations('Admin.shell');
@@ -14,6 +14,8 @@ export default function Sidebar() {
     { name: t('dashboard'), href: '/admin', icon: Home },
     { name: t('sections'), href: '/admin/sections', icon: LayoutDashboard },
     { name: t('projects'), href: '/admin/projects', icon: Folder },
+    { name: 'Services', href: '/admin/services', icon: Briefcase },
+    { name: 'Gallery', href: '/admin/gallery', icon: ImageIcon },
     { name: t('blog'), href: '/admin/blogs', icon: FileText },
     { name: t('testimonials'), href: '/admin/testimonials', icon: Star },
     { name: t('inquiries'), href: '/admin/inquiries', icon: Inbox },
@@ -36,7 +38,7 @@ export default function Sidebar() {
         </div>
       </div>
       
-      <nav className="flex-1 px-4 space-y-2 mt-4">
+      <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto pb-4">
         {links.map((link) => {
           const Icon = link.icon;
           const active = isActive(link.href);

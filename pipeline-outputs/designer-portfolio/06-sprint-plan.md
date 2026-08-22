@@ -52,12 +52,12 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 *All homepage section UI designs + their dynamic data controls. (9 tasks)*
 - [✓] **Task 3.C.1 (Naira - DB/API):** Create Schema and API for `GlobalSettings` (section visibility toggles, Hero text, Footer content, "Other Projects" gallery).
 - [✓] **Task 3.C.2 (Naira - Dashboard UI):** Build "Site Settings" panel to toggle sections on/off and edit Hero & Footer text content.
-- [ ] **Task 3.C.3 (Naira - DB/API):** Create Schema and API for `Services` (Title, description, icon, order).
-- [ ] **Task 3.C.4 (Naira - Dashboard UI):** Build "Services Manager" in the Admin Dashboard (CRUD for services + "Other Projects" image uploader).
+- [✓] **Task 3.C.3 (Naira - DB/API):** Create Schema and API for `Services` (Title, description, icon, order).
+- [✓] **Task 3.C.4 (Naira - Dashboard UI):** Build "Services Manager" in the Admin Dashboard (CRUD for services + "Other Projects" image uploader).
 - [✓] **Task 3.C.5 (Naira - Public UI):** Build the 3D Interactive Hero section (using Three.js / React Three Fiber).
-- [ ] **Task 3.C.6 (Naira - Public UI):** Design and build the **Services section** on the public homepage (animated cards, icons, dynamic data from API).
-- [ ] **Task 3.C.7 (Naira - Public UI):** Design and build the **"Other Projects" gallery section** on the public homepage (image grid, dynamic from DB).
-- [ ] **Task 3.C.8 (Naira - Public UI):** Design and build the **Footer** on the public site (links, social icons, dynamic content from `GlobalSettings`).
+- [✓] **Task 3.C.6 (Naira - Public UI):** Design and build the **Services section** on the public homepage (animated cards, icons, dynamic data from API).
+- [✓] **Task 3.C.7 (Naira - Public UI):** Design and build the **"Other Projects" gallery section** on the public homepage (image grid, dynamic from DB).
+- [✓] **Task 3.C.8 (Naira - Public UI):** Design and build the **Footer** on the public site (links, social icons, dynamic content from `GlobalSettings`).
 - [✓] **Task 3.C.9 (Naira - Public UI):** Wire the complete Homepage to respect section visibility toggles from `GlobalSettings`.
 - [ ] **Task 3.C.10 (Naira - Full Stack):** **SEO Retrofit:** Add `seoTitle` and `seoDescription` fields to the `Blog` and `GlobalSettings` models. Update the Admin panels to let the client edit them, and implement Next.js Metadata in the Blog and Homepage to read these values (following Menna's pattern in Projects).
 

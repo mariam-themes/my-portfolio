@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react';
 import HeroSection from '@/components/sections/HeroSection';
+import ServicesSection from '@/components/sections/ServicesSection';
 import ProjectsPreviewSection from '@/components/sections/ProjectsPreviewSection';
+import OtherProjectsSection from '@/components/sections/OtherProjectsSection';
 import BlogSection from '@/components/sections/BlogSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import ContactSection from '@/components/sections/ContactSection';
@@ -31,9 +33,21 @@ export const HOME_SECTIONS: HomeSection[] = [
     defaultVisible: true,
   },
   {
+    id: 'services',
+    labelKey: 'services', // Can add to Admin.homeSections.services
+    component: ServicesSection,
+    defaultVisible: true,
+  },
+  {
     id: 'projectsPreview',
     labelKey: 'projectsPreview', // We'll add this to i18n later if needed, or it can reuse a key
     component: ProjectsPreviewSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'other-projects',
+    labelKey: 'otherProjects',
+    component: OtherProjectsSection,
     defaultVisible: true,
   },
   {

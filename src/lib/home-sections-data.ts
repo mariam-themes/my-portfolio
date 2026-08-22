@@ -6,6 +6,7 @@
 export const HOME_SECTIONS_DATA = [
   { id: 'hero',            labelKey: 'hero',            defaultVisible: true  },
   { id: 'projectsPreview', labelKey: 'projectsPreview', defaultVisible: true  },
+  { id: 'other-projects',  labelKey: 'otherProjects',   defaultVisible: true  },
   { id: 'blog',            labelKey: 'blog',            defaultVisible: true  },
   { id: 'testimonials',    labelKey: 'testimonials',    defaultVisible: true  },
   { id: 'contact',         labelKey: 'contact',         defaultVisible: true  },

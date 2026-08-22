@@ -1,4 +1,8 @@
 {
+  "Services": {
+    "title": "SERVICES",
+    "description": "Five disciplines, one continuous system — from the first mark to the shipped storefront."
+  },
   "Navbar": {
     "home": "HOME",
     "about": "ABOUT",
