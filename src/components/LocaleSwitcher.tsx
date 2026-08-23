@@ -3,6 +3,8 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
 
+import { Globe } from 'lucide-react';
+
 export default function LocaleSwitcher() {
   const t = useTranslations('LocaleSwitcher');
   const locale = useLocale();
@@ -13,9 +15,10 @@ export default function LocaleSwitcher() {
   return (
     <button
       onClick={() => router.replace(pathname, { locale: nextLocale })}
-      className="inline-flex items-center gap-2 rounded-full border border-rose-900/50 bg-rose-50 px-4 py-2 text-sm font-bold tracking-widest text-rose-900 transition-colors hover:border-rose-500 hover:bg-rose-100 dark:bg-slate-900 dark:text-rose-200"
+      className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-rose-100/70 backdrop-blur-md transition-all duration-300 hover:border-[#951C30] hover:bg-[#951C30] hover:text-white"
     >
-      {t('label')}
+      <Globe className="h-3.5 w-3.5 text-rose-100/50 transition-colors group-hover:text-white" />
+      <span>{t('label')}</span>
     </button>
   );
 }

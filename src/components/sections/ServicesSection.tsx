@@ -1,15 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 
 export default function ServicesSection() {
   const [services, setServices] = useState<any[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0); // First item expanded by default
   const locale = useLocale();
   const t = useTranslations('Services');
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch('/api/services')
@@ -20,13 +25,59 @@ export default function ServicesSection() {
       .catch((err) => console.error('Failed to fetch services:', err));
   }, []);
 
+  useGSAP(
+    () => {
+      if (!services || services.length === 0) return;
+
+      let mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // Parallax for the header
+        gsap.fromTo(headerRef.current, 
+          { y: 50, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 80%',
+              end: 'top 30%',
+              scrub: 1,
+            }
+          }
+        );
+
+        // Staggered reveal for service items based on scroll
+        const items = gsap.utils.toArray('.service-item');
+        items.forEach((item: any, i) => {
+          gsap.fromTo(item,
+            { y: 50, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              scrollTrigger: {
+                trigger: item,
+                start: 'top 95%',
+                end: 'top 65%',
+                scrub: 1,
+              }
+            }
+          );
+        });
+      });
+
+      return () => mm.revert();
+    },
+    { scope: sectionRef, dependencies: [services] }
+  );
+
   if (!services || services.length === 0) return null;
 
   return (
-    <section id="services" className="py-24 md:py-32 text-white relative">
+    <section ref={sectionRef} id="services" className="py-24 md:py-32 text-white relative">
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
+        <div ref={headerRef} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
           <div className="flex items-center gap-6">
             <div className="w-12 h-[1px] bg-rose-900/50" />
             <h2 className="text-sm tracking-[0.3em] uppercase text-rose-100/60 font-medium">
@@ -51,12 +102,12 @@ export default function ServicesSection() {
             return (
               <div 
                 key={service._id} 
-                className="border-b border-rose-900/30 group"
+                className="service-item border-b border-rose-900/30 group"
               >
                 {/* Header Row */}
                 <button
                   onClick={() => setExpandedIndex(isExpanded ? null : index)}
-                  className="w-full py-8 md:py-12 flex items-center justify-between text-left focus:outline-none"
+                  className="w-full py-8 md:py-12 flex items-center justify-between text-start focus:outline-none"
                 >
                   <div className="flex items-center gap-8 md:gap-16 w-full">
                     <span className="text-sm font-mono text-rose-500/50 w-8">

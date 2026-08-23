@@ -50,8 +50,21 @@ html {
   /* Use data-scroll-behavior attribute per Next.js docs */
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Global focus state for accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
 body {
-  background: var(--bg-primary);
+  background: linear-gradient(to bottom right, #21060e, #120407, #0d0507);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -66,7 +79,7 @@ h1, h2, h3, h4, h5, h6 {
 /* ── Arabic / RTL Typography ── */
 :root[dir="rtl"] body,
 [dir="rtl"] body {
-  font-family: var(--font-arabic), 'Cairo', 'Noto Sans Arabic', sans-serif;
+  font-family: var(--font-arabic), 'El Messiri', 'Noto Sans Arabic', sans-serif;
   font-size: 1.125rem; /* Arabic text needs noticeably larger base */
   line-height: 1.95;   /* Arabic needs more line spacing */
   letter-spacing: 0;  /* Arabic doesn't use letter-spacing */
@@ -80,7 +93,7 @@ h1, h2, h3, h4, h5, h6 {
 [dir="rtl"] h4,
 [dir="rtl"] h5,
 [dir="rtl"] h6 {
-  font-family: var(--font-arabic), 'Cairo', sans-serif;
+  font-family: var(--font-arabic), 'El Messiri', sans-serif;
   font-weight: 800;
   line-height: 1.45;
   letter-spacing: 0;
@@ -95,7 +108,7 @@ h1, h2, h3, h4, h5, h6 {
 [dir="rtl"] textarea,
 [dir="rtl"] select,
 [dir="rtl"] label {
-  font-family: var(--font-arabic), 'Cairo', sans-serif;
+  font-family: var(--font-arabic), 'El Messiri', sans-serif;
   letter-spacing: 0;
 }
 
@@ -304,5 +317,315 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
 
   .case-study-narrative [data-parallax] {
     transform: none !important;
+  }
+}
+
+/* ── Projects Narrative (scroll-driven showcase) ─────────────────────────── */
+
+.projects-narrative {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Each project chapter occupies enough height to feel cinematic */
+.projects-chapter {
+  padding: 5vh 0;
+  will-change: contents;
+}
+
+.projects-chapter__inner {
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* The clickable link wrapper: full block, no text decoration */
+.projects-chapter__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.015);
+  transition: border-color 0.5s ease, background 0.5s ease;
+}
+.projects-chapter__link:hover {
+  border-color: rgba(149, 28, 48, 0.35);
+  background: rgba(255, 255, 255, 0.03);
+}
+.projects-chapter__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Two-column grid: image 58% / copy 42% */
+.projects-chapter__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+}
+
+@media (min-width: 1024px) {
+  .projects-chapter__grid {
+    grid-template-columns: 58fr 42fr;
+    grid-template-rows: 1fr;
+  }
+  .projects-chapter__grid--flipped {
+    grid-template-columns: 42fr 58fr;
+    direction: rtl; /* flip column order */
+  }
+  /* Restore LTR inside flipped grid children */
+  .projects-chapter__grid--flipped > * {
+    direction: ltr;
+  }
+  [dir='rtl'] .projects-chapter__grid--flipped > * {
+    direction: rtl;
+  }
+}
+
+/* RTL: flipping logic for Arabic — even items flipped, odd normal */
+[dir='rtl'] .projects-chapter__grid {
+  direction: rtl;
+}
+
+/* ── Image pane ── */
+.projects-chapter__image-wrap {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #111;
+}
+
+@media (min-width: 1024px) {
+  .projects-chapter__image-wrap {
+    aspect-ratio: unset;
+    min-height: 520px;
+  }
+}
+
+.projects-chapter__image-inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Parallax wrapper — taller than its container so motion has headroom */
+.projects-chapter__img-parallax {
+  position: absolute;
+  inset: -10% 0;
+  height: 120%;
+}
+
+.projects-chapter__img-parallax img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1s ease;
+}
+.projects-chapter__link:hover .projects-chapter__img-parallax img {
+  transform: scale(1.04);
+}
+
+.projects-chapter__no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.15);
+  font-weight: 300;
+}
+
+/* Dark overlay that lifts on hover */
+.projects-chapter__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  transition: background 0.6s ease;
+  pointer-events: none;
+}
+.projects-chapter__link:hover .projects-chapter__overlay {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Accent corner line */
+.projects-chapter__corner-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: #951C30;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.projects-chapter__link:hover .projects-chapter__corner-line {
+  width: 100%;
+}
+
+/* ── Copy pane ── */
+.projects-chapter__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  position: relative;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .projects-chapter__copy {
+    padding: 4rem 3.5rem;
+  }
+}
+
+/* Ghost project number in background */
+.projects-chapter__num {
+  position: absolute;
+  top: -0.05em;
+  right: -0.02em;
+  font-size: clamp(5rem, 14vw, 11rem);
+  font-weight: 800;
+  font-family: var(--font-serif);
+  color: rgba(255, 255, 255, 0.03);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  pointer-events: none;
+  user-select: none;
+  transition: color 0.6s ease;
+}
+.projects-chapter__link:hover .projects-chapter__num {
+  color: rgba(149, 28, 48, 0.07);
+}
+
+/* Meta row: category · year */
+.projects-chapter__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.4);
+}
+[dir='rtl'] .projects-chapter__meta {
+  letter-spacing: 0;
+  font-size: 0.75rem;
+}
+
+.projects-chapter__meta-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(149, 28, 48, 0.7);
+  flex-shrink: 0;
+}
+
+/* Project title */
+.projects-chapter__title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.4s ease;
+  margin: 0;
+}
+[dir='rtl'] .projects-chapter__title {
+  letter-spacing: 0;
+}
+.projects-chapter__link:hover .projects-chapter__title {
+  color: #fff;
+}
+
+/* "View project" CTA row */
+.projects-chapter__cta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.4s ease 0.05s, transform 0.4s ease 0.05s;
+}
+[dir='rtl'] .projects-chapter__cta {
+  transform: translateX(8px);
+}
+.projects-chapter__link:hover .projects-chapter__cta {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.projects-chapter__cta-line {
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background: #951C30;
+  flex-shrink: 0;
+  transition: width 0.4s ease;
+}
+.projects-chapter__link:hover .projects-chapter__cta-line {
+  width: 3rem;
+}
+
+.projects-chapter__cta-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.6);
+}
+[dir='rtl'] .projects-chapter__cta-text {
+  letter-spacing: 0;
+  font-size: 0.8rem;
+}
+
+.projects-chapter__cta-arrow {
+  font-size: 1rem;
+  color: #951C30;
+  transition: transform 0.3s ease;
+}
+.projects-chapter__link:hover .projects-chapter__cta-arrow {
+  transform: translateX(4px);
+}
+[dir='rtl'] .projects-chapter__link:hover .projects-chapter__cta-arrow {
+  transform: translateX(-4px);
+}
+
+/* Progress dots (project index indicator) */
+.projects-chapter__progress {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+.projects-chapter__progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.projects-chapter__progress-dot--active {
+  background: #951C30;
+  transform: scale(1.4);
+}
+
+/* ── Reduced motion: disable all transforms ── */
+@media (prefers-reduced-motion: reduce) {
+  .projects-chapter__inner {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .projects-chapter__img-parallax {
+    inset: 0;
+    height: 100%;
+  }
+  .projects-chapter__cta {
+    opacity: 1;
+    transform: none;
   }
 }

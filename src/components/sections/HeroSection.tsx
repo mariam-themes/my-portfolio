@@ -1,13 +1,17 @@
 'use client';
 
+import { useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
-
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 
 export default function HeroSection() {
   const t = useTranslations('Hero');
+  const heroRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Mouse tracking values
   const mouseX = useMotionValue(0);
@@ -24,15 +28,33 @@ export default function HeroSection() {
     mouseY.set(e.clientY - top);
   };
 
+  useGSAP(
+    () => {
+      // Parallax and depth effect for Hero content
+      gsap.to(contentRef.current, {
+        y: '30vh', // translate down visually as we scroll down (creates a slower parallax)
+        scale: 0.85, // scale down to create depth
+        opacity: 0, // fade out
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top', // when top of hero hits top of viewport
+          end: 'bottom top', // when bottom of hero hits top of viewport
+          scrub: true, // tie directly to scroll progress
+        },
+      });
+    },
+    { scope: heroRef }
+  );
+
   return (
     <section
-      className="relative flex min-h-[100svh] items-center justify-center"
+      ref={heroRef}
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => glowOpacity.set(1)}
       onMouseLeave={() => glowOpacity.set(0)}
     >
-
-
       {/* Interactive Mouse Glow */}
       <motion.div
         className="pointer-events-none absolute z-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86] blur-[150px] mix-blend-screen"
@@ -44,7 +66,7 @@ export default function HeroSection() {
       />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center sm:px-12 lg:px-16">
+      <div ref={contentRef} className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center sm:px-12 lg:px-16 transform-gpu">
         <p className="mb-8 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/70 sm:text-xs">
           {t('kicker')}
         </p>
@@ -55,7 +77,7 @@ export default function HeroSection() {
 
         <div
           aria-hidden
-          className="font-display text-[clamp(2.6rem,10.5vw,9rem)] font-black uppercase leading-[0.92] tracking-[-0.02em] text-[#f5f2f3]"
+          className="font-serif text-[clamp(2.6rem,10.5vw,9rem)] font-medium uppercase leading-[0.92] tracking-[-0.02em] text-[#f5f2f3]"
         >
           {t('nameTop')}
           <br />
@@ -81,7 +103,6 @@ export default function HeroSection() {
           </Link>
         </div>
       </div>
-
     </section>
   );
 }

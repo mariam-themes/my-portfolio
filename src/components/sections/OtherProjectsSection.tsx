@@ -81,7 +81,7 @@ export default function OtherProjectsSection() {
       <div className="container mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
-          <div className="max-w-4xl text-left">
+          <div className="max-w-4xl text-start">
             <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
               <span className="w-12 h-[1px] bg-accent/50" />
               {t('kicker')}

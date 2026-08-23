@@ -64,7 +64,7 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
   }, [reducedMotion, project.title]);
 
   return (
-    <section ref={heroRef} className="relative flex min-h-[100svh] flex-col items-start justify-center px-6 py-28 text-left sm:px-12 lg:px-16 perspective-[1000px]">
+    <section ref={heroRef} className="relative flex min-h-[100svh] flex-col items-start justify-center px-6 py-28 text-start sm:px-12 lg:px-16 perspective-[1000px]">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         {ambientDots.map((dot) => (
           <i key={dot.id} data-ambient-particle className="absolute rounded-full bg-white/70 shadow-[0_0_8px_rgba(255,255,255,0.6)]" style={{ left: `${dot.left}%`, top: `${dot.top}%`, width: dot.size, height: dot.size }} aria-hidden="true" />

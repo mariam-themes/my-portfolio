@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useTranslations } from 'next-intl';
-import { Loader2, Send, ChevronDown, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, ChevronDown, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const SERVICE_OPTIONS = [
@@ -37,11 +37,60 @@ const TIMELINE_OPTIONS = [
 
 const EMAIL_REGEX = /^[\w.+-]+@[\w-]+\.[\w.-]+$/;
 
-const fieldClasses =
-  'w-full rounded-lg border border-rose-200/15 bg-white/[0.03] px-4 py-3 text-sm text-rose-50 placeholder:text-rose-100/40 transition focus:border-rose-400/60 focus:outline-none focus:ring-2 focus:ring-rose-400/30';
+// ── Floating-label field wrapper ──────────────────────────────────────────── //
+function FieldWrap({
+  id,
+  label,
+  error,
+  children,
+  optional,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+  optional?: boolean;
+}) {
+  return (
+    <div className="group/field relative flex flex-col gap-1.5">
+      <label
+        htmlFor={id}
+        className={cn(
+          'text-[10px] font-semibold uppercase tracking-[0.2em] rtl:tracking-normal transition-colors duration-200',
+          error ? 'text-red-400' : 'text-rose-100/70 group-focus-within/field:text-rose-200/90'
+        )}
+      >
+        {label}
+        {optional && (
+          <span className="ml-1 rtl:mr-1 rtl:ml-0 normal-case tracking-normal font-normal text-rose-100/50">
+            (opt.)
+          </span>
+        )}
+      </label>
+      {children}
+      <AnimatePresence>
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="text-[11px] text-red-400 flex items-center gap-1"
+          >
+            <AlertCircle className="h-3 w-3 shrink-0" />
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
-const errorClasses =
-  'border-red-400/60 focus:border-red-400/70 focus:ring-red-400/40';
+const inputBase =
+  'w-full rounded-none border-0 border-b bg-transparent px-0 py-3 text-sm text-rose-50 placeholder:text-rose-100/45 transition-all duration-300 outline-none focus:outline-none';
+
+const inputNormal = 'border-rose-100/30 focus:border-[#951C30]';
+const inputError = 'border-red-400/60 focus:border-red-400';
 
 export default function ContactForm() {
   const t = useTranslations('Contact');
@@ -126,214 +175,256 @@ export default function ContactForm() {
     })();
   };
 
+  // ── Success state ─────────────────────────────────────────────────────── //
   if (status === 'success') {
     return (
-      <div className="rounded-2xl border border-rose-200/15 bg-[#160308] p-10 text-center">
-        <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-emerald-400" />
-        <p className="text-lg font-semibold text-white">{t('successTitle')}</p>
-        <p className="mt-2 text-sm text-rose-100/70">{t('successMessage')}</p>
-        <Button
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="flex flex-col items-center justify-center gap-6 min-h-[420px] text-center px-8"
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 14, delay: 0.1 }}
+          className="relative"
+        >
+          <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-2xl scale-150" />
+          <CheckCircle2 className="relative h-16 w-16 text-emerald-400" />
+        </motion.div>
+        <div>
+          <p className="text-2xl font-serif font-normal text-white">{t('successTitle')}</p>
+          <p className="mt-2 text-sm text-rose-100/60 max-w-xs mx-auto">{t('successMessage')}</p>
+        </div>
+        <button
           type="button"
-          variant="outline"
-          className="mt-6 border-rose-200/20 bg-transparent text-rose-50 hover:bg-white/5"
           onClick={() => setStatus('idle')}
+          className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-rose-100/40 hover:text-rose-100/80 transition-colors duration-300 underline underline-offset-4"
         >
           {t('sendAnother')}
-        </Button>
-      </div>
+        </button>
+      </motion.div>
     );
   }
 
+  // ── Form ──────────────────────────────────────────────────────────────── //
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
       }}
-      className="space-y-6 rounded-2xl border border-rose-200/15 bg-[#160308]/80 p-6 sm:p-10 backdrop-blur"
+      className="space-y-8"
     >
-      <div className="grid gap-6 sm:grid-cols-3">
-        <div className="space-y-2">
-          <label htmlFor="name" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-            {t('nameLabel')}
-          </label>
+      {/* Row 1: Name · Email · Phone */}
+      <div className="grid gap-8 sm:grid-cols-3">
+        <FieldWrap id="name" label={t('nameLabel')} error={errors.name?.message}>
           <input
             id="name"
             type="text"
             placeholder={t('namePlaceholder')}
-            className={cn(fieldClasses, errors.name && errorClasses)}
+            className={cn(inputBase, errors.name ? inputError : inputNormal)}
             {...register('name')}
           />
-          {errors.name && (
-            <p className="text-xs text-red-400">{errors.name.message}</p>
-          )}
-        </div>
+        </FieldWrap>
 
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-            {t('emailLabel')}
-          </label>
+        <FieldWrap id="email" label={t('emailLabel')} error={errors.email?.message}>
           <input
             id="email"
             type="email"
             placeholder={t('emailPlaceholder')}
-            className={cn(fieldClasses, errors.email && errorClasses)}
+            className={cn(inputBase, errors.email ? inputError : inputNormal)}
             {...register('email')}
           />
-          {errors.email && (
-            <p className="text-xs text-red-400">{errors.email.message}</p>
-          )}
-        </div>
+        </FieldWrap>
 
-        <div className="space-y-2">
-          <label htmlFor="phone" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-            {t('phoneLabel')}
-          </label>
+        <FieldWrap id="phone" label={t('phoneLabel')} optional>
           <input
             id="phone"
             type="tel"
             placeholder={t('phonePlaceholder')}
-            className={cn(fieldClasses)}
+            className={cn(inputBase, inputNormal)}
             {...register('phone')}
           />
-        </div>
+        </FieldWrap>
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="service" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-          {t('serviceLabel')}
-        </label>
+      {/* Service */}
+      <FieldWrap id="service" label={t('serviceLabel')} error={errors.service?.message}>
         <div className="relative">
           <select
             id="service"
             className={cn(
-              fieldClasses,
-              'appearance-none pr-10 rtl:pl-10 rtl:pr-4',
-              errors.service && errorClasses
+              inputBase,
+              'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+              errors.service ? inputError : inputNormal,
+              // dim the placeholder option
+              watchedService === '' ? 'text-rose-100/25' : 'text-rose-50'
             )}
             defaultValue=""
             {...register('service')}
           >
-            <option value="" disabled className="bg-[#160308] text-rose-100/60">
+            <option value="" disabled className="bg-[#160308] text-rose-100/40">
               {t('servicePlaceholder')}
             </option>
             {SERVICE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value} className="bg-[#160308]">
+              <option key={option.value} value={option.value} className="bg-[#160308] text-rose-50">
                 {t(option.labelKey)}
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50 rtl:left-3 rtl:right-auto" />
+          <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60 transition-colors group-focus-within/field:text-rose-200/90" />
         </div>
-        {errors.service && (
-          <p className="text-xs text-red-400">{errors.service.message}</p>
-        )}
 
-        {watchedService === OTHER_SERVICE && (
-          <div className="space-y-2 pt-2">
-            <label htmlFor="serviceOther" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-              {t('serviceOtherLabel')}
-            </label>
-            <input
-              id="serviceOther"
-              type="text"
-              placeholder={t('serviceOtherPlaceholder')}
-              className={cn(fieldClasses, errors.serviceOther && errorClasses)}
-              {...register('serviceOther')}
-            />
-            {errors.serviceOther && (
-              <p className="text-xs text-red-400">{errors.serviceOther.message}</p>
-            )}
-          </div>
-        )}
-      </div>
+        <AnimatePresence>
+          {watchedService === OTHER_SERVICE && (
+            <motion.div
+              key="serviceOther"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="overflow-hidden pt-4"
+            >
+              <FieldWrap
+                id="serviceOther"
+                label={t('serviceOtherLabel')}
+                error={errors.serviceOther?.message}
+              >
+                <input
+                  id="serviceOther"
+                  type="text"
+                  placeholder={t('serviceOtherPlaceholder')}
+                  className={cn(inputBase, errors.serviceOther ? inputError : inputNormal)}
+                  {...register('serviceOther')}
+                />
+              </FieldWrap>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </FieldWrap>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="space-y-2">
-          <label htmlFor="budget" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-            {t('budgetLabel')}
-          </label>
+      {/* Budget · Timeline */}
+      <div className="grid gap-8 sm:grid-cols-2">
+        <FieldWrap id="budget" label={t('budgetLabel')} optional>
           <div className="relative">
             <select
               id="budget"
-              className={cn(fieldClasses, 'appearance-none pr-10 rtl:pl-10 rtl:pr-4')}
+              className={cn(
+                inputBase,
+                inputNormal,
+                'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+                watch('budget') === '' ? 'text-rose-100/25' : 'text-rose-50'
+              )}
               defaultValue=""
               {...register('budget')}
             >
-              <option value="" className="bg-[#160308] text-rose-100/60">
+              <option value="" className="bg-[#160308] text-rose-100/40">
                 {t('budgetPlaceholder')}
               </option>
               {BUDGET_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-[#160308]">
+                <option key={option.value} value={option.value} className="bg-[#160308] text-rose-50">
                   {t(option.labelKey)}
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50 rtl:left-3 rtl:right-auto" />
+            <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
           </div>
-        </div>
+        </FieldWrap>
 
-        <div className="space-y-2">
-          <label htmlFor="timeline" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-            {t('timelineLabel')}
-          </label>
+        <FieldWrap id="timeline" label={t('timelineLabel')} optional>
           <div className="relative">
             <select
               id="timeline"
-              className={cn(fieldClasses, 'appearance-none pr-10 rtl:pl-10 rtl:pr-4')}
+              className={cn(
+                inputBase,
+                inputNormal,
+                'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+                watch('timeline') === '' ? 'text-rose-100/25' : 'text-rose-50'
+              )}
               defaultValue=""
               {...register('timeline')}
             >
-              <option value="" className="bg-[#160308] text-rose-100/60">
+              <option value="" className="bg-[#160308] text-rose-100/40">
                 {t('timelinePlaceholder')}
               </option>
               {TIMELINE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-[#160308]">
+                <option key={option.value} value={option.value} className="bg-[#160308] text-rose-50">
                   {t(option.labelKey)}
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/50 rtl:left-3 rtl:right-auto" />
+            <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
           </div>
-        </div>
+        </FieldWrap>
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="message" className="text-xs font-medium uppercase tracking-widest text-rose-100/70">
-          {t('messageLabel')}
-        </label>
+      {/* Message */}
+      <FieldWrap id="message" label={t('messageLabel')} error={errors.message?.message}>
         <textarea
           id="message"
           rows={5}
           placeholder={t('messagePlaceholder')}
-          className={cn(fieldClasses, 'resize-none', errors.message && errorClasses)}
+          className={cn(inputBase, 'resize-none', errors.message ? inputError : inputNormal)}
           {...register('message')}
         />
-        {errors.message && (
-          <p className="text-xs text-red-400">{errors.message.message}</p>
+      </FieldWrap>
+
+      {/* Error banner */}
+      <AnimatePresence>
+        {status === 'error' && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            className="flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+          >
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span className="font-medium">{t('errorTitle')}</span>
+            <span className="text-red-300/70">{t('errorMessage')}</span>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
 
-      {status === 'error' && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span className="font-medium">{t('errorTitle')}</span>
-          <span className="text-red-300/80">{t('errorMessage')}</span>
-        </div>
-      )}
+      {/* Divider */}
+      <div className="h-px w-full bg-rose-100/10" />
 
-      <Button
+      {/* Submit CTA */}
+      <motion.button
         type="submit"
         disabled={status === 'submitting'}
-        className="w-full gap-2 bg-[#951C30] py-6 text-white hover:bg-[#b3223a] disabled:opacity-60"
-      >
-        {status === 'submitting' ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Send className="h-4 w-4" />
+        whileHover={{ x: 4 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+        className={cn(
+          'group/btn relative flex w-full items-center justify-between gap-4 overflow-hidden',
+          'rounded-full border border-[#951C30]/60 bg-[#951C30]/10 px-7 py-4',
+          'text-sm font-semibold tracking-wider rtl:tracking-normal text-white',
+          'hover:bg-[#951C30] hover:border-[#951C30]',
+          'transition-colors duration-500 ease-out',
+          'disabled:pointer-events-none disabled:opacity-50',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#951C30]/60'
         )}
-        {status === 'submitting' ? t('submitting') : t('submit')}
-      </Button>
+      >
+        {/* Glow sweep on hover */}
+        <span
+          aria-hidden
+          className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transition-transform duration-700 ease-out"
+        />
+
+        <span>
+          {status === 'submitting' ? t('submitting') : t('submit')}
+        </span>
+
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 group-hover/btn:bg-white/20 transition-colors duration-300">
+          {status === 'submitting' ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+          )}
+        </span>
+      </motion.button>
     </form>
   );
 }

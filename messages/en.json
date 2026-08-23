@@ -3,6 +3,20 @@
     "title": "SERVICES",
     "description": "Five disciplines, one continuous system — from the first mark to the shipped storefront."
   },
+  "Footer": {
+    "tagline": "Bespoke digital experiences for luxury brands.",
+    "startProject": "Start a Project",
+    "navigate": "Navigate",
+    "connect": "Connect",
+    "noSocials": "No social links configured.",
+    "usefulLinks": "Useful Links",
+    "designedBy": "Designed with precision."
+  },
+  "OtherProjects": {
+    "kicker": "Portfolio",
+    "title": "Explore",
+    "titleAccent": "more work"
+  },
   "Navbar": {
     "home": "HOME",
     "about": "ABOUT",
@@ -157,7 +171,8 @@
     "seeAll": "See All Work",
     "noProjects": "No projects published yet.",
     "noImage": "No Image Available",
-    "design": "Design"
+    "design": "Design",
+    "viewProject": "View Project"
   },
   "BlogPreview": {
     "kicker": "JOURNAL",
