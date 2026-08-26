@@ -9,6 +9,8 @@ export interface IBlog extends Document {
   tags: string[];
   isPublished: boolean;
   publishedAt?: Date;
+  seoTitle?: string;
+  seoDescription?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +50,14 @@ const BlogSchema: Schema = new Schema(
     },
     publishedAt: {
       type: Date,
+    },
+    seoTitle: {
+      type: String,
+      trim: true,
+    },
+    seoDescription: {
+      type: String,
+      trim: true,
     },
   },
   {

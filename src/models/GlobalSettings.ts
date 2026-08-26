@@ -19,6 +19,8 @@ export interface IGlobalSettings extends Document {
   copyright: string;
   socials: ISocialLink[];
   usefulLinks: IUsefulLink[];
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 const SocialLinkSchema = new Schema<ISocialLink>(
@@ -50,6 +52,8 @@ const GlobalSettingsSchema = new Schema<IGlobalSettings>(
     },
     socials: { type: [SocialLinkSchema], default: [] },
     usefulLinks: { type: [UsefulLinkSchema], default: [] },
+    seoTitle: { type: String, default: '', trim: true },
+    seoDescription: { type: String, default: '', trim: true },
   },
   { timestamps: true }
 );
@@ -62,6 +66,8 @@ export const DEFAULT_GLOBAL_SETTINGS = {
   copyright: `© ${new Date().getFullYear()} Mariam Aljumaiah. All rights reserved.`,
   socials: [] as ISocialLink[],
   usefulLinks: [] as IUsefulLink[],
+  seoTitle: '',
+  seoDescription: '',
 };
 
 // Delete cached model in development to avoid stale schema after HMR.

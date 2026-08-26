@@ -340,7 +340,8 @@
       "noCover": "No Cover",
       "published": "Published",
       "draft": "Draft",
-      "view": "View"
+      "view": "View",
+      "edit": "Edit"
     },
     "deleteBlog": {
       "confirm": "Are you sure you want to delete \"{title}\"? This cannot be undone.",
@@ -363,8 +364,13 @@
       "tagsLabel": "Tags (comma separated)",
       "tagsPh": "Nextjs, React, Design",
       "contentLabel": "Content",
+      "loadingContent": "Loading article...",
       "publish": "Publish Blog Post",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "editTitle": "Edit Blog Post",
+      "editSubtitle": "Update your article.",
+      "update": "Update Blog Post",
+      "updating": "Updating..."
     },
     "testimonialsList": {
       "title": "Testimonials",
@@ -427,8 +433,28 @@
     "editor": {
       "bold": "Bold",
       "italic": "Italic",
+      "underline": "Underline",
+      "strike": "Strikethrough",
+      "paragraph": "Paragraph",
       "heading": "Heading",
-      "bulletList": "Bullet List"
+      "heading1": "Heading 1",
+      "heading2": "Heading 2",
+      "heading3": "Heading 3",
+      "bulletList": "Bullet List",
+      "orderedList": "Numbered List",
+      "alignLeft": "Align Left",
+      "alignCenter": "Align Center",
+      "alignRight": "Align Right",
+      "alignJustify": "Justify",
+      "color": "Text Color",
+      "customColor": "Custom color",
+      "removeColor": "Remove color",
+      "link": "Link",
+      "linkUrl": "URL",
+      "apply": "Apply",
+      "remove": "Remove",
+      "undo": "Undo",
+      "redo": "Redo"
     },
     "homeSections": {
       "title": "Homepage Sections",
@@ -441,7 +467,10 @@
       "saved": "Homepage layout saved!",
       "failed": "Failed to save layout",
       "hero": "Hero / 3D Intro",
+      "about": "About Me",
+      "services": "Services",
       "projectsPreview": "Projects Preview",
+      "otherProjects": "Other Projects",
       "blog": "Blog / Journal",
       "testimonials": "Testimonials",
       "contact": "Contact Section"

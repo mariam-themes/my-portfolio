@@ -6,6 +6,7 @@ import OtherProjectsSection from '@/components/sections/OtherProjectsSection';
 import BlogSection from '@/components/sections/BlogSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import ContactSection from '@/components/sections/ContactSection';
+import AboutMeSection from '@/components/sections/AboutMeSection';
 
 /**
  * Homepage section registry — the SINGLE source of truth for which sections
@@ -30,6 +31,12 @@ export const HOME_SECTIONS: HomeSection[] = [
     id: 'hero',
     labelKey: 'hero',
     component: HeroSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'about',
+    labelKey: 'about',
+    component: AboutMeSection,
     defaultVisible: true,
   },
   {

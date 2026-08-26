@@ -1,7 +1,29 @@
 import { getVisibleHomeSections } from '@/lib/home-layout';
 import ScrollMotionWrapper from '@/components/public/ScrollMotionWrapper';
+import connectToDatabase from '@/lib/mongodb';
+import GlobalSettings, { DEFAULT_GLOBAL_SETTINGS } from '@/models/GlobalSettings';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata(): Promise<Metadata> {
+  await connectToDatabase();
+  const settings = await GlobalSettings.findOne().lean();
+  const data = { ...DEFAULT_GLOBAL_SETTINGS, ...(settings || {}) };
+
+  const title = data.seoTitle || data.siteName || 'Mariam Aljumaiah';
+  const description = data.seoDescription || '';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+  };
+}
 
 export default async function Home() {
   const sections = await getVisibleHomeSections();

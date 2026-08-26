@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import { Blog } from '@/models/Blog';
+import { slugify } from '@/lib/slugify';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -26,6 +27,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     await connectToDatabase();
     const body = await request.json();
+
+    if (body.slug) {
+      body.slug = slugify(body.slug);
+    }
+
     const blog = await Blog.findByIdAndUpdate(id, body, {
       returnDocument: 'after',
       runValidators: true,

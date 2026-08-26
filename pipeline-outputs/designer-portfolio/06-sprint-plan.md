@@ -71,9 +71,9 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 
 ### Epic F: About Me (Assigned to Naira)
 *Full ownership of the About Me feature — DB to Public Page. (4 tasks)*
-- [ ] **Task 3.F.1 (Naira - DB/API):** Create Schema and API for `AboutMe` (bio, photo, skills, experience, CV link).
-- [ ] **Task 3.F.2 (Naira - Dashboard UI):** Build "About Me Editor" in the Admin Dashboard to update bio, upload photo, add/remove skills.
-- [ ] **Task 3.F.3 (Naira - Public UI):** Design and build the **About Me Section** on the homepage — animated, cinematic layout pulling dynamic data from the API.
+- [✓] **Task 3.F.1 (Naira - DB/API):** Create Schema and API for `AboutMe` (bio, photo, skills, experience, CV link).
+- [✓] **Task 3.F.2 (Naira - Dashboard UI):** Build "About Me Editor" in the Admin Dashboard to update bio, upload photo, add/remove skills.
+- [✓] **Task 3.F.3 (Naira - Public UI):** Design and build the **About Me Section** on the homepage — animated, cinematic layout pulling dynamic data from the API.
 
 ### Epic E: i18n (Assigned to Menna)
 *(1 task — already done)*
