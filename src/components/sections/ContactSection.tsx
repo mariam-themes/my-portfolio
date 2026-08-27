@@ -31,7 +31,7 @@ export default async function ContactSection() {
         className="pointer-events-none absolute bottom-0 right-0 rtl:right-auto rtl:left-0 h-[30rem] w-[30rem] rounded-full bg-rose-900/8 blur-[120px]"
       />
 
-      <div className="relative mx-auto w-full max-w-7xl px-6 py-24 md:py-32 lg:px-12">
+      <div className="relative mx-auto w-full max-w-7xl px-6 py-24 md:py-32 md:px-12 lg:px-20">
 
         {/* ── Top kicker line ── */}
         <ContactSectionClient>

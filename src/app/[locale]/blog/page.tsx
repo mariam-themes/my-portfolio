@@ -1,10 +1,19 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 
-export const metadata: Metadata = {
-  title: 'Journal | Mariam Portfolio',
-  description: 'Stories, insights, and perspectives on design and luxury experiences.',
-};
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'BlogPage' });
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+  };
+}
 
 async function getBlogs() {
   const base = process.env.NEXTAUTH_URL || 'http://localhost:3000';
@@ -14,36 +23,39 @@ async function getBlogs() {
   return json.success ? json.data : [];
 }
 
-export default async function BlogIndexPage() {
+export default async function BlogIndexPage({ params }: PageProps) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'BlogPage' });
   const blogs = await getBlogs();
 
   return (
-    <div className="min-h-screen pb-32 text-white overflow-hidden relative"
-         style={{
-           background:
-             'radial-gradient(circle at 90% 8%, rgba(125,15,46,0.28), transparent 30rem),' +
-             'radial-gradient(circle at 12% 92%, rgba(93,12,36,0.22), transparent 34rem),' +
-             '#0a0507',
-         }}>
+    <div
+      className="min-h-screen pb-32 text-white overflow-hidden relative"
+      style={{
+        background:
+          'radial-gradient(circle at 90% 8%, rgba(125,15,46,0.28), transparent 30rem),' +
+          'radial-gradient(circle at 12% 92%, rgba(93,12,36,0.22), transparent 34rem),' +
+          '#0a0507',
+      }}
+    >
       <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 pt-32 pb-16">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-24 gap-12">
           <div className="lg:w-1/2">
             <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-normal tracking-tight leading-[0.95] mb-6 text-[#fff]">
-              Stories with
-              <span className="block italic mt-2" style={{ color: '#951C30' }}>substance.</span>
+              {t('title')}
+              <span className="block italic mt-2" style={{ color: '#951C30' }}>{t('titleAccent')}</span>
             </h1>
           </div>
           <div className="lg:w-1/2">
             <p className="max-w-md text-white/55 font-sans text-lg leading-relaxed lg:ml-auto">
-              Journal entries on design, architecture, and creating
-              timeless digital experiences.
+              {t('subtitle')}
             </p>
           </div>
         </div>
 
         {blogs.length === 0 ? (
           <div className="text-center py-40 text-white/30 font-light text-xl">
-            No stories published yet. Check back soon.
+            {t('empty')}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 lg:gap-16 items-start">
@@ -65,7 +77,7 @@ export default async function BlogIndexPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/30 font-light">
-                        No Image Available
+                        {t('noImage')}
                       </div>
                     )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-700" />

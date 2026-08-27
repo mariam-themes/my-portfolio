@@ -8,6 +8,7 @@ import Footer from '@/components/public/Footer';
 import SmoothScroller from '@/components/public/SmoothScroller';
 import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Providers } from '@/components/Providers';
+import HtmlLangDir from '@/components/HtmlLangDir';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -51,25 +52,17 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html
-      lang={locale}
-      dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      className={`${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} antialiased`}
-      suppressHydrationWarning
-    >
-      <body className="min-h-screen flex flex-col bg-[#0a0507]" suppressHydrationWarning>
-        <Providers>
-          <SmoothScroller>
-            <NextIntlClientProvider messages={messages}>
-
-              
-              <Navbar />
-              {children}
-              <Footer />
-            </NextIntlClientProvider>
-          </SmoothScroller>
-        </Providers>
-      </body>
-    </html>
+    <div className={`min-h-screen flex flex-col bg-[#0a0507] ${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} antialiased`}>
+      <Providers>
+        <SmoothScroller>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <HtmlLangDir locale={locale} />
+            <Navbar />
+            {children}
+            <Footer />
+          </NextIntlClientProvider>
+        </SmoothScroller>
+      </Providers>
+    </div>
   );
 }

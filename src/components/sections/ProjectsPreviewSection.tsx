@@ -95,13 +95,14 @@ export default function ProjectsPreviewSection() {
     return () => mm.revert();
   }, { scope: containerRef, dependencies: [projects, prefersReduced, loading] });
 
-  // Handle language switch gracefully
+  // Handle language switch gracefully and fix Lenis height calculation
   useEffect(() => {
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 200);
+      window.dispatchEvent(new Event('resize')); // Force Lenis to recalculate document height
+    }, 300);
     return () => clearTimeout(timer);
-  }, [locale]);
+  }, [locale, loading, projects.length]);
 
   // Calculate total height for the sticky wrapper. 
   // Each project gets 100vh of scroll distance.
@@ -117,7 +118,7 @@ export default function ProjectsPreviewSection() {
         className="sticky top-0 z-10 bg-[#0a0507] h-screen flex flex-col overflow-hidden"
       >
         {/* ── Section header ── */}
-        <div className="container relative z-10 mx-auto px-8 md:px-16 lg:px-24 xl:px-32 pt-24 md:pt-32 pb-6 shrink-0">
+        <div className="container relative z-10 mx-auto px-6 md:px-12 lg:px-20 pt-24 md:pt-32 pb-6 shrink-0">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="max-w-4xl text-start">
               <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
@@ -145,7 +146,7 @@ export default function ProjectsPreviewSection() {
           </div>
         ) : projects.length === 0 ? (
           /* ── Empty ── */
-          <div className="flex-1 container mx-auto px-8 md:px-16 lg:px-24 xl:px-32 pb-24">
+          <div className="flex-1 container mx-auto px-6 md:px-12 lg:px-20 pb-24">
             <div className="text-center text-slate-500 py-12 border border-white/10 rounded-xl">
               {t('noProjects')}
             </div>

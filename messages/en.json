@@ -54,7 +54,15 @@
   },
   "Work": {
     "metaTitle": "Selected Works | Portfolio",
-    "metaDescription": "Explore my latest design projects and case studies."
+    "metaDescription": "Explore my latest design projects and case studies.",
+    "loading": "Loading projects...",
+    "viewProject": "View",
+    "headingTop": "Projects with",
+    "headingBottom": "consequence.",
+    "all": "All",
+    "noImage": "No Image Available",
+    "design": "Design",
+    "noProjectsInCategory": "No projects found in this category."
   },
   "LocaleSwitcher": {
     "label": "AR"
@@ -151,18 +159,6 @@
     "fallbackDigital": "Digital",
     "fallbackStrategy": "Strategy",
     "fallbackDesign": "Design"
-  },
-  "Work": {
-    "metaTitle": "Selected Works | Portfolio",
-    "metaDescription": "Explore my latest design projects and case studies.",
-    "loading": "Loading projects...",
-    "viewProject": "View",
-    "headingTop": "Projects with",
-    "headingBottom": "consequence.",
-    "all": "All",
-    "noImage": "No Image Available",
-    "design": "Design",
-    "noProjectsInCategory": "No projects found in this category."
   },
   "ProjectsPreview": {
     "kicker": "Selected Work",
@@ -482,5 +478,48 @@
       "testimonials": "Testimonials",
       "contact": "Contact Section"
     }
+  },
+  "FeaturedProjects": {
+    "kicker": "Selected Works",
+    "title": "Featured",
+    "titleAccent": "Projects",
+    "subtitle": "A curated selection of luxury digital experiences crafted with precision.",
+    "viewAll": "View All Projects",
+    "design": "Design",
+    "badge": "Featured",
+    "noImage": "No Image",
+    "viewProject": "View Project"
+  },
+  "PlatformsSection": {
+    "kicker": "Tools & Platforms",
+    "title": "Built on the Best",
+    "titleAccent": "Platforms",
+    "description": "Every project is powered by the most trusted tools in the industry — ensuring quality, performance, and results that last.",
+    "values": {
+      "premium": {
+        "title": "Premium Quality",
+        "desc": "Every pixel crafted to the highest standard of design excellence."
+      },
+      "convert": {
+        "title": "Built to Convert",
+        "desc": "Strategy-driven design that turns visitors into loyal customers."
+      },
+      "craft": {
+        "title": "Reliable Craft",
+        "desc": "Proven platforms that deliver consistent, dependable performance."
+      }
+    }
+  },
+  "BlogPage": {
+    "title": "Stories with",
+    "titleAccent": "substance.",
+    "subtitle": "Journal entries on design, architecture, and creating timeless digital experiences.",
+    "empty": "No stories published yet. Check back soon.",
+    "noImage": "No Image Available",
+    "metaTitle": "Journal | Mariam Portfolio",
+    "metaDescription": "Stories, insights, and perspectives on design and luxury experiences.",
+    "backToStories": "Back to Stories",
+    "endOfArticle": "End of article",
+    "readMore": "Read more stories"
   }
 }

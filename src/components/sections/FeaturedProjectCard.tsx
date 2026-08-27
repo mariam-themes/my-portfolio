@@ -96,8 +96,9 @@ export default function FeaturedProjectCard({
   }
 
   return (
-    <div className="group flex h-full min-h-[500px] flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#111]/80 backdrop-blur-sm transition-all duration-500 hover:border-[#951C30]/30 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] md:min-h-[520px]">
-      <div className="relative h-[220px] w-full shrink-0 overflow-hidden md:h-[240px]">
+    <div className="group flex h-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#111]/80 backdrop-blur-sm transition-all duration-500 hover:border-[#951C30]/30 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+      {/* Fixed-height image area — always fills regardless of source image size */}
+      <div className="relative w-full shrink-0 overflow-hidden" style={{ height: '320px' }}>
         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         <span className="absolute left-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-full bg-[#951C30] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white shadow-lg">
           <Star className="h-3 w-3 fill-white" />
@@ -112,7 +113,7 @@ export default function FeaturedProjectCard({
             unoptimized
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#0a0a0a] text-sm text-white/20">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a0a14] to-[#0d0507] text-sm text-white/20">
             {t('noImage')}
           </div>
         )}

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import connectToDatabase from '@/lib/mongodb';
 import { Blog } from '@/models/Blog';
-import { localizeText } from '@/lib/translate';
 import { slugify } from '@/lib/slugify';
 
 export async function GET(request: Request) {
@@ -20,17 +19,9 @@ export async function GET(request: Request) {
     
     const blogs = await Blog.find({}).sort({ createdAt: -1 }).lean();
     
-    // Translate fields on the fly
-    const localizedBlogs = await Promise.all(
-      blogs.map(async (blog) => {
-        return {
-          ...blog,
-          title: await localizeText(blog.title, locale),
-          content: await localizeText(blog.content, locale),
-          excerpt: blog.excerpt ? await localizeText(blog.excerpt, locale) : blog.excerpt,
-        };
-      })
-    );
+    // The user requested: "الحل البسيط — يعرض المحتوى كما كتبه العميل"
+    // So we don't use auto-translation on blogs to avoid massive performance penalties
+    const localizedBlogs = blogs;
     
     return NextResponse.json({ success: true, data: localizedBlogs });
   } catch (error: any) {

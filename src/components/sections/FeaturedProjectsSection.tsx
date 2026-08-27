@@ -31,6 +31,7 @@ export default function FeaturedProjectsSection() {
         console.error('Failed to fetch featured projects:', err);
       } finally {
         setLoading(false);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
       }
     }
     fetchFeatured();
@@ -40,7 +41,7 @@ export default function FeaturedProjectsSection() {
 
   return (
     <section className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
-      <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20">
         {/* Header */}
         <div className="mx-auto max-w-4xl mb-16 md:mb-20 text-center">
           <div className="flex items-center justify-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
@@ -112,18 +113,19 @@ export default function FeaturedProjectsSection() {
                           delay: isMiddle ? 0.18 : i === 0 ? 0 : 0.12,
                         }
                   }
-                  className={`flex flex-1 max-w-[320px] lg:max-w-[340px] xl:max-w-[360px] mx-auto w-full md:mx-0 min-w-0 will-change-transform ${
+                  style={{ minHeight: '620px' }}
+                  className={`flex flex-1 w-full min-w-0 will-change-transform self-stretch ${
                     isMiddle ? 'md:z-10' : 'md:z-0'
                   }`}
                 >
                   <div
-                    className={`h-full ${
+                    className={`h-full w-full flex flex-col ${
                       isMiddle
                         ? 'md:shadow-[0_30px_80px_rgba(0,0,0,0.45)] md:ring-1 md:ring-[#951C30]/20'
                         : ''
                     }`}
                   >
-                    <FeaturedProjectCard project={project} index={i} variant={isMiddle ? 'overlay' : 'default'} />
+                    <FeaturedProjectCard project={project} index={i} variant="default" />
                   </div>
                 </motion.div>
               );

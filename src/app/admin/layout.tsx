@@ -6,6 +6,7 @@ import ParticlesBackground from '@/components/admin/ParticlesBackground';
 import DashboardEntry from '@/components/admin/DashboardEntry';
 import { Toaster } from 'react-hot-toast';
 import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
+import HtmlLangDir from '@/components/HtmlLangDir';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -38,29 +39,24 @@ export default async function AdminLayout({
   const messages = await getMessages();
 
   return (
-    <html
-      lang={locale}
-      dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      className={`${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} h-full antialiased`}
-    >
-      <body className="min-h-full">
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <DashboardEntry>
-            <Toaster position="top-right" toastOptions={{ className: 'bg-[#1A050C] text-rose-200 border border-rose-900/50 rounded-xl' }} />
-            <div className="flex h-screen bg-[#2A0813] overflow-hidden font-sans selection:bg-rose-500/30 relative">
-              <ParticlesBackground />
+    <div className={`min-h-full ${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} antialiased`}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        <HtmlLangDir locale={locale} />
+        <DashboardEntry>
+          <Toaster position="top-right" toastOptions={{ className: 'bg-[#1A050C] text-rose-200 border border-rose-900/50 rounded-xl' }} />
+          <div className="flex h-screen bg-[#2A0813] overflow-hidden font-sans selection:bg-rose-500/30 relative">
+            <ParticlesBackground />
 
-          <Sidebar />
-          <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-            {/* Luxury Background Glow */}
-            <div className="absolute top-0 left-0 w-full h-96 bg-rose-600/10 blur-[120px] pointer-events-none" />
-            <Header />
-            <main className="flex-1 overflow-y-auto p-10 relative z-20">{children}</main>
-          </div>
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden relative z-10">
+          {/* Luxury Background Glow */}
+          <div className="absolute top-0 left-0 w-full h-96 bg-rose-600/10 blur-[120px] pointer-events-none" />
+          <Header />
+          <main className="flex-1 overflow-y-auto p-10 relative z-20">{children}</main>
         </div>
-      </DashboardEntry>
-    </NextIntlClientProvider>
-      </body>
-    </html>
+      </div>
+    </DashboardEntry>
+  </NextIntlClientProvider>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
@@ -37,7 +37,7 @@ export default function PlatformsSection() {
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32 mb-14">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20 mb-14">
           <div className="flex items-center gap-4 mb-5">
             <span className="w-10 h-[1px] bg-[#951C30]/60" />
             <span className="text-xs tracking-[0.3em] rtl:tracking-normal uppercase text-[#951C30] font-semibold">
@@ -56,7 +56,7 @@ export default function PlatformsSection() {
         </div>
 
         {/* Concept statement */}
-        <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32 mb-16">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20 mb-16">
           <p className="max-w-4xl text-2xl md:text-4xl font-serif leading-[1.25] text-white/90">
             {locale === 'ar' ? (
               <>
@@ -75,7 +75,7 @@ export default function PlatformsSection() {
         </div>
 
         {/* Value pillars — why the work matters */}
-        <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32 mb-20">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20 mb-20">
           <div className="grid sm:grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03]">
             {VALUES.map(({ key, Icon }) => (
               <div

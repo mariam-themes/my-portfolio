@@ -25,7 +25,7 @@ export default function SelectedProjectsSection() {
 
   return (
     <div className="relative w-full bg-[#0a0507] py-24 md:py-32 overflow-hidden border-t border-white/5">
-      <div className="container mx-auto px-6 md:px-12 lg:px-24 xl:px-32 mb-16">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20 mb-16">
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50" />

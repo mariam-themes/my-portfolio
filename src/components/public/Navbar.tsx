@@ -9,12 +9,12 @@ import { ArrowUpRight, Menu, X } from 'lucide-react';
 import Image from 'next/image';
 
 const NAV_LINKS = [
-  { key: 'home', target: '#hero' },
-  { key: 'work', target: '#projectsPreview' },
-  { key: 'about', target: '#about' },
-  { key: 'services', target: '#services' },
-  { key: 'blog', target: '#blog' },
-  { key: 'contact', target: '#contact' },
+  { key: 'home',         target: '#hero' },
+  { key: 'work',         target: '#projectsPreview' },
+  { key: 'about',       target: '#about' },
+  { key: 'services',    target: '#services' },
+  { key: 'blog',        target: '#blog' },
+  { key: 'contact',     target: '#contact' },
 ];
 
 export default function Navbar() {

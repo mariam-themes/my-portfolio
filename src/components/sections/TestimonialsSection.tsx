@@ -5,13 +5,6 @@ import TestimonialCard from '@/components/ui/TestimonialCard';
 import LeaveReviewModal from '@/components/ui/LeaveReviewModal';
 import { useTranslations } from 'next-intl';
 import { MessageSquarePlus } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 export default function TestimonialsSection() {
   const t = useTranslations('TestimonialsPreview');
@@ -42,37 +35,15 @@ export default function TestimonialsSection() {
         console.error('Failed to fetch testimonials:', error);
       } finally {
         setLoading(false);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
       }
     }
 
     fetchTestimonials();
   }, []);
 
-  // Reveal the cards on scroll (wrapper element, so it never fights the card's
-  // own hover transform). Reduced-motion safe.
-  useGSAP(
-    () => {
-      if (loading || testimonials.length === 0) return;
-
-      const mm = gsap.matchMedia();
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
-        gsap.from('.tcard-reveal', {
-          opacity: 0,
-          y: 28,
-          duration: 0.7,
-          ease: 'power3.out',
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 82%',
-            toggleActions: 'play none none none',
-          },
-        });
-      });
-      return () => mm.revert();
-    },
-    { scope: sectionRef, dependencies: [loading, testimonials] }
-  );
+  // Cards are visible by default; no GSAP hide/show to avoid Lenis conflicts.
+  // Use CSS @keyframes fadeInUp instead (no ScrollTrigger dependency).
 
   const primary = testimonials[0];
   const rest = testimonials.slice(1);
@@ -85,7 +56,7 @@ export default function TestimonialsSection() {
         className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 h-[32rem] w-[42rem] rounded-full bg-[radial-gradient(circle,rgba(149,28,48,0.10),transparent_60%)] blur-3xl"
       />
 
-      <div className="container mx-auto px-6 lg:px-12 relative">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 relative">
         
         <div className="max-w-4xl mx-auto mb-16 md:mb-20 text-start">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">

@@ -75,18 +75,20 @@ This document splits the entire project into equal, end-to-end tasks (Vertical S
 - [✓] **Task 3.F.2 (Naira - Dashboard UI):** Build "About Me Editor" in the Admin Dashboard to update bio, upload photo, add/remove skills.
 - [✓] **Task 3.F.3 (Naira - Public UI):** Design and build the **About Me Section** on the homepage — animated, cinematic layout pulling dynamic data from the API.
 
-### Epic E: i18n (Assigned to Menna)
-*(1 task — already done)*
+### Epic E: Homepage Extras & i18n (Assigned to Menna)
+*(3 tasks)*
 - [✓] **Task 3.E.1 (Menna - Infra):** Setup Next.js `[locale]` routing, `next-intl` configuration, and Middleware for language detection.
 - [✓] **Task 3.E.2 (Menna - Public UI):** Build the public **Navbar (Header) component** (logo, links: About / Work / Contact / Blog, locale switcher button) and wire it with smooth-scroll anchor navigation — links scroll to their corresponding section on the homepage if already there, or navigate to homepage then scroll if coming from another page. Add it to the public layout so it appears on all public pages.
+- [✓] **Task 3.E.3 (Menna - Public UI):** Design and build the **Platforms / Partners section** (شركاؤنا) on the public homepage (Animated logo showcase, value pillars).
+- [✓] **Task 3.E.4 (Menna - Public UI):** Perform complete Site Alignment & Responsive Audit — Standardize all container paddings, spacing, and fix Arabic RTL issues across all homepage sections.
 
 ---
 
 > **Workload Summary:**
-> - **Menna:** 3 (Sprint 1) + 7 (Epic A) + 5 (Epic D) + 1 (Epic E) + 2 (Sprint 3.5 Vercel) + 3 (Sprint 4 Testing/Shared) + 1 (Transferred UI task) = **22 tasks**
-> - **Naira:** 2 (Sprint 1) + 7 (Epic B) + 9 (Epic C) + 4 (Epic F) + 0 (Sprint 3.5) + 2 (Sprint 4 Testing/Shared) = **23 tasks**
+> - **Menna:** 3 (Sprint 1) + 7 (Epic A) + 5 (Epic D) + 3 (Epic E) + 2 (Sprint 3.5 Vercel) + 3 (Sprint 4 Testing/Shared) + 1 (Transferred UI task) = **24 tasks**
+> - **Naira:** 2 (Sprint 1) + 7 (Epic B) + 9 (Epic C) + 4 (Epic F) + 0 (Sprint 3.5) + 2 (Sprint 4 Testing/Shared) = **24 tasks**
 >
-> *(Note: Menna takes ownership of overarching homepage routing/layout tasks (3.F.4) to perfectly balance the total count, while keeping Vercel deployment exclusively hers. Naira has an extra SEO task added.)*
+> *(Note: Menna and Naira now have exactly 24 tasks each, achieving a perfect 50/50 split for the entire project!)*
 
 ---
 

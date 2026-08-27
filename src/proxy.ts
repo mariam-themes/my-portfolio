@@ -86,16 +86,6 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // Blog & Testimonials are standalone (non-localized) routes served directly
-  // at /blog and /testimonials. The i18n Link still prefixes them with the
-  // locale (e.g. /en/blog/yuyy), which has no matching route, so strip the
-  // locale prefix and redirect to the working standalone URL.
-  const localizedStandalone = pathname.match(/^\/(en|ar)\/(blog|testimonials)(\/.*)?$/);
-  if (localizedStandalone) {
-    const rest = localizedStandalone[3] || '';
-    return NextResponse.redirect(new URL(`/${localizedStandalone[2]}${rest}`, request.url));
-  }
-
   // Public routes: negotiate the locale and redirect `/` → `/{locale}`.
   return handleI18nRouting(request);
 }
@@ -104,7 +94,7 @@ export const config = {
   // Run on public pages (locale negotiation), /admin (auth guard + admin
   // locale) and the admin-only APIs (session token check).
   matcher: [
-    '/((?!api|login|blog|testimonials|_next|_vercel|.*\\..*).*)',
+    '/((?!api|login|_next|_vercel|.*\\..*).*)',
     '/api/admin/:path*',
     '/api/upload',
     '/api/blogs/:path*',

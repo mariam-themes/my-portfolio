@@ -1,14 +1,16 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
-import Link from 'next/link';
+import { ar as arLocale, enUS } from 'date-fns/locale';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
 import connectToDatabase from '@/lib/mongodb';
 import { Blog } from '@/models/Blog';
 import { slugify } from '@/lib/slugify';
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }
 
 export const dynamic = 'force-dynamic';
@@ -50,14 +52,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const blog = await getBlog(slug);
+  const t = await getTranslations({ locale, namespace: 'BlogPage' });
 
   if (!blog) {
     notFound();
   }
 
-  const formattedDate = format(new Date(blog.createdAt), 'MMMM d, yyyy');
+  const dateLocale = locale === 'ar' ? arLocale : enUS;
+  const formattedDate = format(new Date(blog.createdAt), 'MMMM d, yyyy', { locale: dateLocale });
 
   return (
     <div className="min-h-screen bg-[#0a0507] text-white relative">
@@ -80,8 +84,8 @@ export default async function BlogPostPage({ params }: PageProps) {
             href="/blog"
             className="inline-flex items-center text-sm font-semibold tracking-wide text-rose-400 hover:text-rose-300 transition-colors uppercase mb-12 group"
           >
-            <ArrowLeft className="mr-2 w-4 h-4 transform group-hover:-translate-x-1 transition-transform duration-300" />
-            Back to Stories
+            <ArrowLeft className="mr-2 rtl:mr-0 rtl:ml-2 w-4 h-4 transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1 transition-transform duration-300" />
+            {t('backToStories')}
           </Link>
 
           <div className="flex flex-wrap items-center gap-4 text-sm font-medium uppercase tracking-widest text-white/40 mb-6">
@@ -98,8 +102,10 @@ export default async function BlogPostPage({ params }: PageProps) {
             {blog.title}
           </h1>
 
-          <p className="text-xl md:text-2xl text-white/60 font-light leading-relaxed max-w-3xl border-l-2 px-6 ml-1"
-             style={{ borderColor: '#951C30' }}>
+          <p
+            className="text-xl md:text-2xl text-white/60 font-light leading-relaxed max-w-3xl border-l-2 rtl:border-l-0 rtl:border-r-2 px-6 ml-1 rtl:ml-0 rtl:mr-1"
+            style={{ borderColor: '#951C30' }}
+          >
             {blog.excerpt}
           </p>
         </div>
@@ -127,11 +133,9 @@ export default async function BlogPostPage({ params }: PageProps) {
         />
 
         <div className="mt-20 pt-10 border-t border-rose-950/30 flex justify-between items-center">
-          <p className="text-white/40 italic">
-            End of article
-          </p>
+          <p className="text-white/40 italic">{t('endOfArticle')}</p>
           <Link href="/blog" className="text-rose-400 font-semibold hover:underline">
-            Read more stories
+            {t('readMore')}
           </Link>
         </div>
       </div>

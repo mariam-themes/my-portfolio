@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
-import { localizeText } from '@/lib/translate';
 
 export async function GET(request: Request) {
   try {
@@ -30,16 +29,20 @@ export async function GET(request: Request) {
       .sort(sortAsc ? { year: 1, createdAt: 1 } : { year: -1, createdAt: -1 })
       .lean();
     
-    // Translate fields on the fly
-    const localizedProjects = await Promise.all(
-      projects.map(async (project) => {
-        return {
-          ...project,
-          title: await localizeText(project.title, locale),
-          description: await localizeText(project.description, locale),
-        };
-      })
-    );
+    // Use cached translations from database instead of calling external API on the fly
+    const localizedProjects = projects.map((project) => {
+      const trans = project.translations?.[locale] || {};
+      
+      // If the target locale is the same as the sourceLang, use the original fields,
+      // otherwise use the translated fields (fallback to original if missing).
+      const isTargetSource = project.sourceLang === locale;
+      
+      return {
+        ...project,
+        title: isTargetSource ? project.title : (trans.title || project.title),
+        description: isTargetSource ? project.description : (trans.description || project.description),
+      };
+    });
     
     return NextResponse.json({ success: true, data: localizedProjects }, { status: 200 });
   } catch (error) {

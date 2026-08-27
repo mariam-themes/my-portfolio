@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { format } from 'date-fns';
@@ -43,6 +43,7 @@ export default function BlogSection() {
         console.error('Failed to fetch blogs:', error);
       } finally {
         setLoading(false);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
       }
     }
     fetchBlogs();
@@ -160,7 +161,7 @@ export default function BlogSection() {
   if (!loading && blogs.length === 0) {
     return (
       <section ref={sectionRef} className="py-24 md:py-32 relative z-10">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
           <div ref={headerRef} className="mb-14 md:mb-20">
             <span className="block text-[11px] tracking-[0.32em] uppercase text-white/40 mb-5">
               {t('kicker')}
@@ -179,7 +180,7 @@ export default function BlogSection() {
 
   return (
     <section ref={sectionRef} className="py-24 md:py-32 relative z-10">
-      <div className="max-w-6xl mx-auto px-6 md:px-12">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
         {/* Header */}
         <div ref={headerRef} className="mb-14 md:mb-20">
           <span className="block text-[11px] tracking-[0.32em] uppercase text-white/40 mb-5">
@@ -223,7 +224,7 @@ export default function BlogSection() {
               return (
                 <Link
                   key={blog._id}
-                  href={`/blog/${blog.slug}`}
+                  href={`/blog/${blog.slug}` as any}
                   className={`journal-row group flex items-center gap-4 md:gap-7 py-5 md:py-6 px-4 md:px-6 rounded-xl transition-colors duration-500 ${
                     isActive ? 'bg-white/[0.04]' : 'hover:bg-white/[0.03]'
                   }`}

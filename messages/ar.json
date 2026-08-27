@@ -54,7 +54,15 @@
   },
   "Work": {
     "metaTitle": "أعمال مختارة | بورتفوليو",
-    "metaDescription": "استكشف أحدث مشاريع التصميم ودراسات الحالة."
+    "metaDescription": "استكشف أحدث مشاريع التصميم ودراسات الحالة.",
+    "loading": "جارٍ تحميل المشاريع...",
+    "viewProject": "عرض",
+    "headingTop": "مشاريع",
+    "headingBottom": "لها أثر.",
+    "all": "الكل",
+    "noImage": "لا توجد صورة",
+    "design": "تصميم",
+    "noProjectsInCategory": "لا توجد مشاريع في هذه الفئة."
   },
   "LocaleSwitcher": {
     "label": "EN"
@@ -151,18 +159,6 @@
     "fallbackDigital": "رقمي",
     "fallbackStrategy": "استراتيجية",
     "fallbackDesign": "تصميم"
-  },
-  "Work": {
-    "metaTitle": "أعمال مختارة | بورتفوليو",
-    "metaDescription": "استكشف أحدث مشاريع التصميم ودراسات الحالة.",
-    "loading": "جارٍ تحميل المشاريع...",
-    "viewProject": "عرض",
-    "headingTop": "مشاريع",
-    "headingBottom": "لها أثر.",
-    "all": "الكل",
-    "noImage": "لا توجد صورة",
-    "design": "تصميم",
-    "noProjectsInCategory": "لا توجد مشاريع في هذه الفئة."
   },
   "ProjectsPreview": {
     "kicker": "أعمال مختارة",
@@ -482,5 +478,48 @@
       "testimonials": "الشهادات",
       "contact": "قسم التواصل"
     }
+  },
+  "FeaturedProjects": {
+    "kicker": "أعمال مختارة",
+    "title": "مشاريع",
+    "titleAccent": "مميزة",
+    "subtitle": "مجموعة مختارة من التجارب الرقمية الفاخرة المصمَّمة بدقة عالية.",
+    "viewAll": "عرض جميع المشاريع",
+    "design": "تصميم",
+    "badge": "مميز",
+    "noImage": "لا توجد صورة",
+    "viewProject": "عرض المشروع"
+  },
+  "PlatformsSection": {
+    "kicker": "أدوات ومنصات",
+    "title": "مبني على أفضل",
+    "titleAccent": "المنصات",
+    "description": "كل مشروع يعمل بأكثر الأدوات موثوقية في الصناعة — لضمان الجودة والأداء ونتائج تدوم.",
+    "values": {
+      "premium": {
+        "title": "جودة فائقة",
+        "desc": "كل بكسل مصمَّم بأعلى معايير التميز في التصميم."
+      },
+      "convert": {
+        "title": "مصمَّم للتحويل",
+        "desc": "تصميم مدفوع بالاستراتيجية يحول الزوار إلى عملاء مخلصين."
+      },
+      "craft": {
+        "title": "حرفية موثوقة",
+        "desc": "منصات مجرَّبة تقدم أداءً ثابتاً وموثوقاً به."
+      }
+    }
+  },
+  "BlogPage": {
+    "title": "قصص بـ",
+    "titleAccent": "عمق.",
+    "subtitle": "مقالات في التصميم والعمارة وصناعة تجارب رقمية خالدة.",
+    "empty": "لا مقالات منشورة حتى الآن. تابعنا قريباً.",
+    "noImage": "لا توجد صورة",
+    "metaTitle": "المجلة | بورتفوليو مريم",
+    "metaDescription": "قصص ورؤى حول التصميم والتجارب الفاخرة.",
+    "backToStories": "العودة إلى القصص",
+    "endOfArticle": "نهاية المقال",
+    "readMore": "اقرأ المزيد"
   }
 }

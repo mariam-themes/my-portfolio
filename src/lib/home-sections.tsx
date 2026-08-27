@@ -1,13 +1,14 @@
 import type { ComponentType } from 'react';
 import HeroSection from '@/components/sections/HeroSection';
-import SelectedProjectsSection from '@/components/sections/SelectedProjectsSection';
-import AboutSection from '@/components/sections/AboutSection';
-import ServicesSection from '@/components/sections/ServicesSection';
 import ProjectsPreviewSection from '@/components/sections/ProjectsPreviewSection';
+import AboutMeSection from '@/components/sections/AboutMeSection';
+import ServicesSection from '@/components/sections/ServicesSection';
+import PlatformsSection from '@/components/sections/PlatformsSection';
+import FeaturedProjectsSection from '@/components/sections/FeaturedProjectsSection';
 import OtherProjectsSection from '@/components/sections/OtherProjectsSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
+import BlogSection from '@/components/sections/BlogSection';
 import ContactSection from '@/components/sections/ContactSection';
-import AboutMeSection from '@/components/sections/AboutMeSection';
 
 export interface HomeSection {
   id: string;
@@ -26,15 +27,15 @@ export const HOME_SECTIONS: HomeSection[] = [
     defaultVisible: true,
   },
   {
-    id: 'selected-projects',
-    labelKey: 'projectsPreview',
-    component: SelectedProjectsSection,
+    id: 'projectsPreview',
+    labelKey: 'work',
+    component: ProjectsPreviewSection,
     defaultVisible: true,
   },
   {
     id: 'about',
     labelKey: 'about',
-    component: AboutSection,
+    component: AboutMeSection,
     defaultVisible: true,
   },
   {
@@ -44,9 +45,15 @@ export const HOME_SECTIONS: HomeSection[] = [
     defaultVisible: true,
   },
   {
-    id: 'projectsPreview',
-    labelKey: 'featuredProjects', // Now maps to 'Featured Project'
-    component: ProjectsPreviewSection,
+    id: 'platforms',
+    labelKey: 'platforms',
+    component: PlatformsSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'featured-projects',
+    labelKey: 'featuredProjects',
+    component: FeaturedProjectsSection,
     defaultVisible: true,
   },
   {
@@ -59,6 +66,12 @@ export const HOME_SECTIONS: HomeSection[] = [
     id: 'testimonials',
     labelKey: 'testimonials',
     component: TestimonialsSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'blog',
+    labelKey: 'blog',
+    component: BlogSection,
     defaultVisible: true,
   },
   {

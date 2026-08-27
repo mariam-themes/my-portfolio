@@ -2,23 +2,27 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { ArrowUpRight } from 'lucide-react';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function HeroSection() {
   const t = useTranslations('Hero');
+  const locale = useLocale();
   const heroRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Mouse tracking values
+  // Mouse tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const glowOpacity = useSpring(0, { damping: 30, stiffness: 200 });
-
-  // Smooth the tracking slightly
   const smoothX = useSpring(mouseX, { damping: 40, stiffness: 150 });
   const smoothY = useSpring(mouseY, { damping: 40, stiffness: 150 });
 
@@ -30,19 +34,27 @@ export default function HeroSection() {
 
   useGSAP(
     () => {
-      // Parallax and depth effect for Hero content
+      // Scroll-out parallax
       gsap.to(contentRef.current, {
-        y: '30vh', // translate down visually as we scroll down (creates a slower parallax)
-        scale: 0.85, // scale down to create depth
-        opacity: 0, // fade out
+        y: '25vh',
+        scale: 0.88,
+        opacity: 0,
         ease: 'none',
         scrollTrigger: {
           trigger: heroRef.current,
-          start: 'top top', // when top of hero hits top of viewport
-          end: 'bottom top', // when bottom of hero hits top of viewport
-          scrub: true, // tie directly to scroll progress
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
         },
       });
+
+      // Entrance animation for each line
+      const tl = gsap.timeline({ delay: 0.15 });
+      tl.from('.hero-kicker',  { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' })
+        .from('.hero-name-line', { y: 60, opacity: 0, duration: 1, stagger: 0.12, ease: 'power4.out' }, '-=0.4')
+        .from('.hero-subtitle',  { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+        .from('.hero-ctas',      { y: 16, opacity: 0, duration: 0.7, ease: 'power3.out' }, '-=0.5')
+        .from('.hero-scroll',    { y: 10, opacity: 0, duration: 0.6, ease: 'power3.out' }, '-=0.3');
     },
     { scope: heroRef }
   );
@@ -55,52 +67,123 @@ export default function HeroSection() {
       onMouseEnter={() => glowOpacity.set(1)}
       onMouseLeave={() => glowOpacity.set(0)}
     >
+      {/* ── Hero background image ── */}
+      <img
+        src="/hero-bg.jpg"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 w-full h-full object-cover object-center select-none"
+        style={{ zIndex: 0 }}
+        fetchPriority="high"
+      />
+      {/* Dark scrim so text stays readable */}
+      <div className="pointer-events-none absolute inset-0 bg-[#0a0507]/60" style={{ zIndex: 1 }} />
+      {/* Vignette edges */}
+      <div className="pointer-events-none absolute inset-0" style={{ zIndex: 1, background: 'radial-gradient(ellipse 90% 80% at 50% 50%, transparent 30%, rgba(10,5,7,0.75) 100%)' }} />
+
+      {/* ── Deep layered background overlays ── */}
+      {/* Top radial accent */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(149,28,48,0.22),transparent)]" style={{ zIndex: 2 }} />
+      {/* Corner accents */}
+      <div className="pointer-events-none absolute -top-32 -left-32 h-[36rem] w-[36rem] rounded-full bg-[#951C30]/[0.07] blur-[120px]" style={{ zIndex: 2 }} />
+      <div className="pointer-events-none absolute -bottom-24 -right-20 h-[28rem] w-[28rem] rounded-full bg-[#6b1222]/[0.10] blur-[100px]" style={{ zIndex: 2 }} />
+
+      {/* Decorative ruled lines (pure CSS, zero weight) */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.03]" aria-hidden style={{ zIndex: 3 }}>
+        {[10, 30, 50, 70, 90].map((p) => (
+          <div key={p} className="absolute top-0 bottom-0 w-px bg-white" style={{ left: `${p}%` }} />
+        ))}
+      </div>
+
+      {/* Grain texture via SVG filter */}
+      <svg className="pointer-events-none absolute inset-0 w-full h-full opacity-[0.04]" aria-hidden style={{ zIndex: 3 }}>
+        <filter id="hero-grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#hero-grain)" />
+      </svg>
+
       {/* Interactive Mouse Glow */}
       <motion.div
-        className="pointer-events-none absolute z-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86] blur-[150px] mix-blend-screen"
-        style={{
-          left: smoothX,
-          top: smoothY,
-          opacity: glowOpacity,
-        }}
+        className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/40 blur-[180px] mix-blend-screen"
+        style={{ left: smoothX, top: smoothY, opacity: glowOpacity, zIndex: 4 }}
       />
 
-      {/* Content */}
-      <div ref={contentRef} className="relative z-10 mx-auto w-full max-w-5xl px-8 text-center md:px-16 lg:px-24 xl:px-32 transform-gpu">
-        <p className="mb-8 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/70 sm:text-xs">
-          {t('kicker')}
-        </p>
-
-        <h1 className="sr-only">
-          {t('nameTop')} {t('nameBottom')}
-        </h1>
-
-        <div
-          aria-hidden
-          className="font-serif text-[clamp(2.6rem,10.5vw,9rem)] font-medium uppercase leading-[0.92] tracking-[-0.02em] text-[#f5f2f3]"
-        >
-          {t('nameTop')}
-          <br />
-          {t('nameBottom')}
+      {/* ── Main Content ── */}
+      <div
+        ref={contentRef}
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20 transform-gpu pt-28 sm:pt-32"
+      >
+        {/* Kicker line */}
+        <div className="hero-kicker mb-8 flex items-center gap-5 justify-center">
+          <span className="block h-px w-12 bg-[#951C30]/70" />
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.4em] rtl:tracking-normal text-white/55">
+            {t('kicker')}
+          </p>
+          <span className="block h-px w-12 bg-[#951C30]/70" />
         </div>
 
-        <p className="mx-auto mt-8 max-w-2xl text-base font-light text-white/75 sm:text-lg">
+        {/* Hidden a11y h1 */}
+        <h1 className="sr-only">{t('nameTop')} {t('nameBottom')}</h1>
+
+        {/* Giant display name */}
+        <div
+          aria-hidden
+          className="text-center select-none"
+        >
+          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(3.5rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(3.2rem,12vw,10.5rem)] font-semibold leading-[0.88]'} text-[#f5f2f3]`}>
+            {t('nameTop')}
+          </div>
+          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(3.5rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(3.2rem,12vw,10.5rem)] font-semibold leading-[0.88]'}`}>
+            {/* Second line gets the accent */}
+            <span
+              className="italic"
+              style={{
+                WebkitTextStroke: '1px rgba(149,28,48,0.8)',
+                color: 'transparent',
+                background: 'linear-gradient(135deg, #951C30 0%, #e05a7a 60%, #951C30 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              {t('nameBottom')}
+            </span>
+          </div>
+        </div>
+
+        {/* Subtitle */}
+        <p className="hero-subtitle mx-auto mt-8 max-w-xl text-center text-base sm:text-lg font-light leading-relaxed text-white/60">
           {t('subtitle')}
         </p>
 
-        <div className="mt-10 flex items-center justify-center gap-4">
+        {/* CTAs */}
+        <div className="hero-ctas mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/contact"
-            className="rounded-full bg-[#951C30] px-8 py-3.5 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#ad2240]"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-[#951C30] px-8 py-4 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white shadow-[0_0_40px_rgba(149,28,48,0.4)] transition-all duration-300 hover:bg-[#b8223b] hover:shadow-[0_0_60px_rgba(149,28,48,0.6)] hover:-translate-y-0.5"
           >
             {t('ctaPrimary')}
+            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 rtl:-scale-x-100" />
           </Link>
           <Link
             href="/work"
-            className="rounded-full border border-white/25 px-8 py-3.5 text-sm font-semibold tracking-wide text-white/90 transition-colors hover:border-[#d36a86]/70 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-8 py-4 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white/80 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/[0.08] hover:text-white hover:-translate-y-0.5"
           >
             {t('ctaSecondary')}
           </Link>
+        </div>
+
+        {/* Scroll cue */}
+        <div className="hero-scroll mt-16 flex justify-center">
+          <motion.div
+            className="flex flex-col items-center gap-2 cursor-default"
+            animate={{ y: [0, 6, 0] }}
+            transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
+          >
+            <span className="text-[9px] uppercase tracking-[0.35em] text-white/25">Scroll</span>
+            <div className="h-8 w-px bg-gradient-to-b from-white/30 to-transparent" />
+          </motion.div>
         </div>
       </div>
     </section>

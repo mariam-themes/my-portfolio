@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { getGlobalSettings } from '@/lib/globalSettings';
 import SocialIcon from '@/components/public/SocialIcon';
+import FooterLocaleSwitcher from '@/components/public/FooterLocaleSwitcher';
 
 const NAV_LINKS = [
   { key: 'home', href: '/' },
@@ -46,7 +47,7 @@ export default async function Footer() {
         {settings.siteName}
       </div>
 
-      <div className="container relative mx-auto px-6 lg:px-12 py-20 md:py-24">
+      <div className="container relative mx-auto px-6 lg:px-12 py-12 md:py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Brand */}
           <div className="lg:col-span-6">
@@ -174,8 +175,9 @@ export default async function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/40 md:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/40 md:flex-row">
           <p>{settings.copyright || `© ${new Date().getFullYear()} ${settings.siteName}`}</p>
+          <FooterLocaleSwitcher />
           <p className="tracking-wide">{t('designedBy')}</p>
         </div>
       </div>
