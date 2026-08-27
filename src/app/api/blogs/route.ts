@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import connectToDatabase from '@/lib/mongodb';
 import { Blog } from '@/models/Blog';
 import { localizeText } from '@/lib/translate';
+import { slugify } from '@/lib/slugify';
 
 export async function GET(request: Request) {
   try {
@@ -41,6 +42,13 @@ export async function POST(request: Request) {
   try {
     await connectToDatabase();
     const body = await request.json();
+
+    if (!body.slug && body.title) {
+      body.slug = slugify(body.title);
+    } else if (body.slug) {
+      body.slug = slugify(body.slug);
+    }
+
     const blog = await Blog.create(body);
     return NextResponse.json({ success: true, data: blog }, { status: 201 });
   } catch (error: any) {

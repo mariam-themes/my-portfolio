@@ -3,17 +3,27 @@ import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import connectToDatabase from '@/lib/mongodb';
+import { Blog } from '@/models/Blog';
+import { slugify } from '@/lib/slugify';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+
 async function getBlog(slug: string) {
-  const base = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-  const res = await fetch(`${base}/api/blogs/${slug}`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  const json = await res.json();
-  return json.success ? json.data : null;
+  await connectToDatabase();
+  const isObjectId = slug.match(/^[0-9a-fA-F]{24}$/);
+  if (isObjectId) {
+    const blog = await Blog.findById(slug).lean();
+    return blog ? JSON.parse(JSON.stringify(blog)) : null;
+  }
+  const candidates = Array.from(new Set([slug, slugify(slug)])).filter(Boolean);
+  const blog = await Blog.findOne({ slug: { $in: candidates } }).lean();
+  if (!blog) return null;
+  return JSON.parse(JSON.stringify(blog));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -24,11 +34,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Post Not Found' };
   }
 
+  const title = blog.seoTitle || blog.title || 'Untitled Post';
+  const description = blog.seoDescription || blog.excerpt || '';
+
   return {
-    title: `${blog.title} | Mariam Portfolio`,
-    description: blog.excerpt,
+    title: `${title} | Mariam Portfolio`,
+    description,
     openGraph: {
+      title,
+      description,
       images: blog.coverImage ? [blog.coverImage] : [],
+      type: 'article',
     },
   };
 }
@@ -106,7 +122,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       {/* Article Content */}
       <div className="container mx-auto px-6 lg:px-8 max-w-3xl py-20 md:py-32">
         <article
-          className="prose prose-lg md:prose-xl prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-rose-400 hover:prose-a:text-rose-300 prose-img:rounded-2xl prose-img:shadow-lg max-w-none"
+          className="prose prose-lg md:prose-xl prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-strong:text-inherit prose-a:text-rose-400 hover:prose-a:text-rose-300 prose-img:rounded-2xl prose-img:shadow-lg max-w-none"
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
 

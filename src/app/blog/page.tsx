@@ -30,7 +30,7 @@ export default async function BlogIndexPage() {
           <div className="lg:w-1/2">
             <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-normal tracking-tight leading-[0.95] mb-6 text-[#fff]">
               Stories with
-              <span className="block italic mt-2" style={{ color: '#d36a86' }}>substance.</span>
+              <span className="block italic mt-2" style={{ color: '#951C30' }}>substance.</span>
             </h1>
           </div>
           <div className="lg:w-1/2">

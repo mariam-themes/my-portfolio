@@ -2,7 +2,7 @@ import connectToDatabase from '@/lib/mongodb';
 import { Blog } from '@/models/Blog';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { Plus, Edit2 } from 'lucide-react';
+import { Plus, Edit2, Check } from 'lucide-react';
 import DeleteItemButton from '@/components/admin/DeleteItemButton';
 import Image from 'next/image';
 
@@ -68,15 +68,11 @@ export default async function AdminBlogsPage() {
                     {t('noCover')}
                   </div>
                 )}
-                <span
-                  className={`absolute top-3 right-3 ltr:right-3 rtl:right-auto rtl:left-3 px-2 py-1 rounded text-xs font-bold shadow-lg ${
-                    blog.isPublished
-                      ? 'bg-emerald-500/90 text-emerald-50'
-                      : 'bg-amber-500/90 text-amber-50'
-                  }`}
-                >
-                  {blog.isPublished ? t('published') : t('draft')}
-                </span>
+                {blog.isPublished && (
+                  <span className="absolute top-3 right-3 ltr:right-3 rtl:right-auto rtl:left-3 px-2 py-1 rounded text-xs font-bold shadow-lg bg-emerald-500/90 text-emerald-50">
+                    {t('published')}
+                  </span>
+                )}
               </div>
 
               {/* Content */}
@@ -101,14 +97,22 @@ export default async function AdminBlogsPage() {
                   >
                     <Edit2 className="w-4 h-4 mr-1.5 rtl:mr-0 rtl:ml-1.5" /> {t('view')}
                   </Link>
-                  <DeleteItemButton
-                    itemId={blog._id}
-                    endpoint="/api/blogs"
-                    confirmText={dt('confirm', { title: blog.title })}
-                    successText={dt('success')}
-                    failedText={dt('failed')}
-                    deleteText={dt('delete')}
-                  />
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/blogs/${blog._id}`}
+                      className="inline-flex items-center text-sm font-medium text-rose-400 hover:text-rose-300 transition-colors"
+                    >
+                      <Check className="w-4 h-4 mr-1.5 rtl:mr-0 rtl:ml-1.5" /> {t('edit')}
+                    </Link>
+                    <DeleteItemButton
+                      itemId={blog._id}
+                      endpoint="/api/blogs"
+                      confirmText={dt('confirm', { title: blog.title })}
+                      successText={dt('success')}
+                      failedText={dt('failed')}
+                      deleteText={dt('delete')}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

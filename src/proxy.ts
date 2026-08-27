@@ -18,7 +18,11 @@ const ADMIN_API_PATHS = [
 const PUBLIC_API_PATHS = ['/api/section-layout', '/api/projects', '/api/inquiries'];
 
 // Content that is publicly readable but only writable by an admin.
-const CONTENT_PATHS = ['/api/blogs', '/api/testimonials'];
+const CONTRIB_PATHS = ['/api/blogs'];
+
+// Testimonials: publicly readable (GET) and publicly submittable (POST → a
+// pending review). Mutations (PUT/DELETE) still require an admin token.
+const TESTIMONIALS_PATH = '/api/testimonials';
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -37,8 +41,23 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Content APIs: GET is open for the public site, all other methods need auth.
-  if (CONTENT_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+  // Testimonials: GET (read) and POST (public review submission) are open.
+  // PUT/DELETE (approve/delete) require an admin token. Covers both the
+  // collection path and sub-paths like /api/testimonials/:id.
+  if (pathname === TESTIMONIALS_PATH || pathname.startsWith(`${TESTIMONIALS_PATH}/`)) {
+    if (request.method === 'GET' || request.method === 'POST') {
+      return NextResponse.next();
+    }
+    const token = await getToken({ req: request });
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
+  // Content APIs (e.g. blogs): GET is open for the public site, all other
+  // methods need auth.
+  if (CONTRIB_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     if (request.method === 'GET') {
       return NextResponse.next();
     }
@@ -65,6 +84,16 @@ export default async function proxy(request: NextRequest) {
     requestHeaders.set('x-next-intl-locale', adminLocale);
 
     return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+
+  // Blog & Testimonials are standalone (non-localized) routes served directly
+  // at /blog and /testimonials. The i18n Link still prefixes them with the
+  // locale (e.g. /en/blog/yuyy), which has no matching route, so strip the
+  // locale prefix and redirect to the working standalone URL.
+  const localizedStandalone = pathname.match(/^\/(en|ar)\/(blog|testimonials)(\/.*)?$/);
+  if (localizedStandalone) {
+    const rest = localizedStandalone[3] || '';
+    return NextResponse.redirect(new URL(`/${localizedStandalone[2]}${rest}`, request.url));
   }
 
   // Public routes: negotiate the locale and redirect `/` → `/{locale}`.

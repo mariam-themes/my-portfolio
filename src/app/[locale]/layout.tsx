@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { hasLocale } from 'next-intl';
@@ -50,12 +49,11 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
-  const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
     <html
       lang={locale}
-      dir={dir}
+      dir={locale === 'ar' ? 'rtl' : 'ltr'}
       className={`${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} antialiased`}
       suppressHydrationWarning
     >

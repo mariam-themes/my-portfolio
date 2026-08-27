@@ -7,6 +7,7 @@ import ProjectsPreviewSection from '@/components/sections/ProjectsPreviewSection
 import OtherProjectsSection from '@/components/sections/OtherProjectsSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import ContactSection from '@/components/sections/ContactSection';
+import AboutMeSection from '@/components/sections/AboutMeSection';
 
 export interface HomeSection {
   id: string;

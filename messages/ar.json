@@ -347,7 +347,8 @@
       "noCover": "لا توجد صورة",
       "published": "منشور",
       "draft": "مسودة",
-      "view": "عرض"
+      "view": "عرض",
+      "edit": "تعديل"
     },
     "deleteBlog": {
       "confirm": "هل أنت متأكد من حذف \"{title}\"؟ لا يمكن التراجع.",
@@ -370,8 +371,13 @@
       "tagsLabel": "الوسوم (مفصولة بفواصل)",
       "tagsPh": "Nextjs, React, Design",
       "contentLabel": "المحتوى",
+      "loadingContent": "جارٍ تحميل المقال...",
       "publish": "نشر المقال",
-      "saving": "جارٍ الحفظ..."
+      "saving": "جارٍ الحفظ...",
+      "editTitle": "تعديل المقال",
+      "editSubtitle": "حدّث مقالك.",
+      "update": "تحديث المقال",
+      "updating": "جارٍ التحديث..."
     },
     "testimonialsList": {
       "title": "الشهادات",
@@ -434,8 +440,28 @@
     "editor": {
       "bold": "عريض",
       "italic": "مائل",
+      "underline": "تسطير",
+      "strike": "يتوسطه خط",
+      "paragraph": "فقرة",
       "heading": "عنوان",
-      "bulletList": "قائمة نقطية"
+      "heading1": "عنوان 1",
+      "heading2": "عنوان 2",
+      "heading3": "عنوان 3",
+      "bulletList": "قائمة نقطية",
+      "orderedList": "قائمة مرقمة",
+      "alignLeft": "محاذاة لليسار",
+      "alignCenter": "محاذاة للوسط",
+      "alignRight": "محاذاة لليمين",
+      "alignJustify": "محاذاة على الحافتين",
+      "color": "لون النص",
+      "customColor": "لون مخصص",
+      "removeColor": "إزالة اللون",
+      "link": "رابط",
+      "linkUrl": "الرابط",
+      "apply": "تطبيق",
+      "remove": "إزالة",
+      "undo": "تراجع",
+      "redo": "إعادة"
     },
     "homeSections": {
       "title": "أقسام الصفحة الرئيسية",
@@ -448,7 +474,10 @@
       "saved": "تم حفظ تخطيط الصفحة الرئيسية!",
       "failed": "فشل حفظ التخطيط",
       "hero": "الترويسة / مقدمة ثلاثية الأبعاد",
+      "about": "نبذة عني",
+      "services": "الخدمات",
       "projectsPreview": "معرض المشاريع",
+      "otherProjects": "مشاريع أخرى",
       "blog": "المدونة",
       "testimonials": "الشهادات",
       "contact": "قسم التواصل"

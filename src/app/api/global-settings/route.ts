@@ -34,6 +34,8 @@ export async function PUT(request: Request) {
     if (typeof body.email === 'string') update.email = body.email;
     if (typeof body.whatsapp === 'string') update.whatsapp = body.whatsapp;
     if (typeof body.copyright === 'string') update.copyright = body.copyright;
+    if (typeof body.seoTitle === 'string') update.seoTitle = body.seoTitle;
+    if (typeof body.seoDescription === 'string') update.seoDescription = body.seoDescription;
 
     if (Array.isArray(body.socials)) {
       update.socials = body.socials.map((s: { platform?: string; url?: string; label?: string }) => ({

@@ -9,6 +9,8 @@ export interface ITestimonial extends Document {
   avatarUrl?: string;
   rating: number;
   isFeatured: boolean;
+  isApproved: boolean;
+  email?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +49,14 @@ const TestimonialSchema: Schema = new Schema(
     isFeatured: {
       type: Boolean,
       default: false,
+    },
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
+    email: {
+      type: String,
+      trim: true,
     },
   },
   {
