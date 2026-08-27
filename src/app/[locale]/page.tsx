@@ -7,15 +7,7 @@ export default async function Home() {
   const sections = await getVisibleHomeSections();
 
   return (
-    <main
-      className="min-h-screen text-white relative overflow-x-clip"
-      style={{
-        background:
-          'radial-gradient(circle at 88% 4%, rgba(125,15,46,0.32), transparent 26rem),' +
-          'radial-gradient(circle at 8% 38%, rgba(81,8,29,0.24), transparent 32rem),' +
-          '#0a0507',
-      }}
-    >
+    <main className="min-h-screen text-white relative overflow-x-clip bg-transparent">
       <ScrollMotionWrapper>
         {sections.length === 0 ? (
           <div className="min-h-[70vh] flex items-center justify-center">

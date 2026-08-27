@@ -5,7 +5,7 @@ import Header from '@/components/admin/Header';
 import ParticlesBackground from '@/components/admin/ParticlesBackground';
 import DashboardEntry from '@/components/admin/DashboardEntry';
 import { Toaster } from 'react-hot-toast';
-import { Inter, El_Messiri, Playfair_Display } from 'next/font/google';
+import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -17,10 +17,16 @@ const playfair = Playfair_Display({
   subsets: ['latin'],
 });
 
-const arabicFont = El_Messiri({
-  variable: '--font-arabic',
+const arabicHeadingFont = Alexandria({
+  variable: '--font-arabic-heading',
   subsets: ['arabic'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
+});
+
+const arabicBodyFont = IBM_Plex_Sans_Arabic({
+  variable: '--font-arabic-body',
+  subsets: ['arabic'],
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 export default async function AdminLayout({
@@ -35,7 +41,7 @@ export default async function AdminLayout({
     <html
       lang={locale}
       dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      className={`${inter.variable} ${playfair.variable} ${arabicFont.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <NextIntlClientProvider locale={locale} messages={messages}>

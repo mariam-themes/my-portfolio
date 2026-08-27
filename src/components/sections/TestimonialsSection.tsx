@@ -32,10 +32,10 @@ export default function TestimonialsSection() {
 
   return (
     <section className="py-24 bg-transparent relative z-10">
-      <div className="container mx-auto px-6 lg:px-12">
+      <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32">
         
-        <div className="max-w-4xl mx-auto mb-20 text-start">
-          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
+        <div className="max-w-4xl mb-20 text-start">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50"></span>
             {t('kicker')}
           </div>

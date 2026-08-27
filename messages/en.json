@@ -181,6 +181,12 @@
     "readAll": "Read all stories",
     "noBlogs": "No articles published yet."
   },
+  "SelectedProjects": {
+    "kicker": "Selected Projects",
+    "title": "Creative",
+    "titleAccent": "showcase",
+    "description": "A glimpse into a curated selection of designs and visual directions."
+  },
   "TestimonialsPreview": {
     "kicker": "KIND WORDS",
     "maison": "MAISON",
@@ -295,6 +301,7 @@
       "sTools": "Tools",
       "sMockup": "Full Experience Mockup",
       "sClosing": "Closing Image",
+      "addSection": "Available Sections",
       "featured": "Feature this project on the homepage",
       "dragToReorder": "Drag to reorder",
       "seoSettings": "SEO Settings",

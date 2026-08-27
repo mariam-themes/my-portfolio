@@ -3,6 +3,7 @@ import Project from '@/models/Project';
 import { getLocale } from 'next-intl/server';
 import ProjectsClientWrapper from '@/app/[locale]/projects/ProjectsClientWrapper';
 import type { ProjectRecord } from '@/app/[locale]/projects/ProjectListClient';
+import FeaturedProjectsGrid from '@/components/public/FeaturedProjectsGrid';
 import { resolveText, type LocalizedProject } from '@/lib/localizeProject';
 
 export const metadata = {
@@ -13,12 +14,29 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;
 
-export default async function WorkPage() {
+export default async function WorkPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ featured?: string }>;
+}) {
+  const { featured } = await searchParams;
+  const featuredOnly = featured === 'true';
+
+  // Featured view: reuse the rich Featured Projects display (all flagged projects).
+  if (featuredOnly) {
+    return (
+      <main className="min-h-screen bg-transparent">
+        <FeaturedProjectsGrid />
+      </main>
+    );
+  }
+
   const locale = await getLocale();
   await connectToDatabase();
 
+  // Oldest-first (ascending by year) so the list reads in date order.
   const projects = await Project.find()
-    .sort({ year: -1, createdAt: -1 })
+    .sort({ year: 1, createdAt: 1 })
     .select('title slug sector category heroMediaUrl year sourceLang translations')
     .lean();
 
@@ -35,7 +53,7 @@ export default async function WorkPage() {
   }));
 
   return (
-    <main className="bg-black min-h-screen">
+    <main className="min-h-screen bg-transparent">
       <ProjectsClientWrapper projects={serializedProjects} />
     </main>
   );

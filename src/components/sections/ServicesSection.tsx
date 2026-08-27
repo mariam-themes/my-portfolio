@@ -75,13 +75,13 @@ export default function ServicesSection() {
 
   return (
     <section ref={sectionRef} id="services" className="py-24 md:py-32 text-white relative">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+      <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32 relative z-10">
         {/* Header */}
         <div ref={headerRef} className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
           <div className="flex items-center gap-6">
             <div className="w-12 h-[1px] bg-rose-900/50" />
             <h2 className="text-sm tracking-[0.3em] uppercase text-rose-100/60 font-medium">
-              {t('title') || 'Services'}
+            {t('title') || 'Services'}
             </h2>
           </div>
           <p className="max-w-md text-rose-100/50 text-sm md:text-base leading-relaxed md:text-right">

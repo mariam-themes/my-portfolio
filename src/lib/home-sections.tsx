@@ -1,24 +1,16 @@
 import type { ComponentType } from 'react';
 import HeroSection from '@/components/sections/HeroSection';
+import SelectedProjectsSection from '@/components/sections/SelectedProjectsSection';
+import AboutSection from '@/components/sections/AboutSection';
 import ServicesSection from '@/components/sections/ServicesSection';
 import ProjectsPreviewSection from '@/components/sections/ProjectsPreviewSection';
 import OtherProjectsSection from '@/components/sections/OtherProjectsSection';
-import BlogSection from '@/components/sections/BlogSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import ContactSection from '@/components/sections/ContactSection';
 
-/**
- * Homepage section registry — the SINGLE source of truth for which sections
- * exist on the homepage and the FIXED order they render in (per client
- * requirement: no dashboard reordering).
- *
- * To add/remove/rework a homepage section you only edit this array — no DB,
- * API or schema changes are needed. The DB (`SectionLayout`) stores only the
- * per-section visibility toggle (and optional future content).
- */
 export interface HomeSection {
   id: string;
-  labelKey: string; // i18n key for the admin label (Admin.homeSections.*)
+  labelKey: string;
   component: ComponentType;
   defaultVisible: boolean;
 }
@@ -33,14 +25,26 @@ export const HOME_SECTIONS: HomeSection[] = [
     defaultVisible: true,
   },
   {
+    id: 'selected-projects',
+    labelKey: 'projectsPreview',
+    component: SelectedProjectsSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'about',
+    labelKey: 'about',
+    component: AboutSection,
+    defaultVisible: true,
+  },
+  {
     id: 'services',
-    labelKey: 'services', // Can add to Admin.homeSections.services
+    labelKey: 'services',
     component: ServicesSection,
     defaultVisible: true,
   },
   {
     id: 'projectsPreview',
-    labelKey: 'projectsPreview', // We'll add this to i18n later if needed, or it can reuse a key
+    labelKey: 'featuredProjects', // Now maps to 'Featured Project'
     component: ProjectsPreviewSection,
     defaultVisible: true,
   },
@@ -51,12 +55,6 @@ export const HOME_SECTIONS: HomeSection[] = [
     defaultVisible: true,
   },
   {
-    id: 'blog',
-    labelKey: 'blog',
-    component: BlogSection,
-    defaultVisible: true,
-  },
-  {
     id: 'testimonials',
     labelKey: 'testimonials',
     component: TestimonialsSection,
@@ -64,13 +62,12 @@ export const HOME_SECTIONS: HomeSection[] = [
   },
   {
     id: 'contact',
-    labelKey: 'contact', // Can add to i18n later if needed for admin panel
+    labelKey: 'contact',
     component: ContactSection,
     defaultVisible: true,
   },
 ];
 
-/** Ordered section ids (the fixed presentation order). */
 export const HOME_SECTION_ORDER = HOME_SECTIONS.map((s) => s.id);
 
 export function getHomeSectionById(id: string): HomeSection | undefined {

@@ -175,11 +175,17 @@
     "viewProject": "عرض المشروع"
   },
   "BlogPreview": {
-    "kicker": "المدونة",
+    "kicker": "يوميات",
     "title": "قصص ذات",
-    "titleAccent": "جوهر.",
-    "readAll": "اقرأ كل القصص",
-    "noBlogs": "لم تُنشر مقالات بعد."
+    "titleAccent": "مغزى.",
+    "readAll": "اقرأ جميع المقالات",
+    "noBlogs": "لا توجد مقالات منشورة بعد."
+  },
+  "SelectedProjects": {
+    "kicker": "مشاريع مختارة",
+    "title": "معرض",
+    "titleAccent": "إبداعي",
+    "description": "نظرة سريعة على مجموعة مختارة من التصاميم والاتجاهات الفنية."
   },
   "TestimonialsPreview": {
     "kicker": "كلمات طيبة",
@@ -295,6 +301,7 @@
       "sTools": "الأدوات",
       "sMockup": "التجربة الكاملة (Mockup)",
       "sClosing": "الصورة الختامية",
+      "addSection": "الأقسام المتاحة",
       "featured": "ميّز هذا المشروع في الصفحة الرئيسية",
       "dragToReorder": "اسحب لإعادة الترتيب",
       "seoSettings": "إعدادات السيو",

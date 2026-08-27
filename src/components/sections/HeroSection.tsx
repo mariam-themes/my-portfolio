@@ -66,7 +66,7 @@ export default function HeroSection() {
       />
 
       {/* Content */}
-      <div ref={contentRef} className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center sm:px-12 lg:px-16 transform-gpu">
+      <div ref={contentRef} className="relative z-10 mx-auto w-full max-w-5xl px-8 text-center md:px-16 lg:px-24 xl:px-32 transform-gpu">
         <p className="mb-8 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/70 sm:text-xs">
           {t('kicker')}
         </p>

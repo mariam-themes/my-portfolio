@@ -155,13 +155,18 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
 
-  // Fetch available categories on mount
+  // Fetch available categories on mount — hide placeholder / system categories
   useEffect(() => {
     fetch('/api/admin/categories')
       .then((res) => res.json())
       .then((json) => {
         if (json.success) {
-          setCategories(json.data.map((c: any) => c.name));
+          const hidden = new Set(['uncategorized', 'selected project', 'selected projects']);
+          setCategories(
+            json.data
+              .map((c: any) => c.name)
+              .filter((name: string) => !hidden.has(name.trim().toLowerCase()))
+          );
         }
       })
       .catch(() => {/* silently fail — form still usable */});
@@ -427,6 +432,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
             {categories.length > 0 ? (
               <select
                 {...form.register('category')}
+                autoComplete="off"
                 className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               >
                 <option value="">{t('categoryPh')}</option>
@@ -439,6 +445,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
             ) : (
               <input
                 {...form.register('category')}
+                autoComplete="off"
                 className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
                 placeholder={t('categoryPh')}
               />

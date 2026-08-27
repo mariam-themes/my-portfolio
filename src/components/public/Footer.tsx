@@ -33,7 +33,7 @@ export default async function Footer() {
     : '';
 
   return (
-    <footer className="relative z-10 overflow-hidden border-t border-white/10 bg-[#0a0507]">
+    <footer className="relative z-10 overflow-hidden border-t border-white/10 bg-transparent">
       {/* Top gradient hairline */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#951C30]/60 to-transparent" />
       {/* Ambient burgundy glow */}

@@ -10,9 +10,9 @@ import Image from 'next/image';
 
 const NAV_LINKS = [
   { key: 'home', target: '#hero' },
+  { key: 'work', target: '#projectsPreview' },
   { key: 'about', target: '#about' },
   { key: 'services', target: '#services' },
-  { key: 'work', target: '#projectsPreview' },
   { key: 'blog', target: '#blog' },
   { key: 'contact', target: '#contact' },
 ];
@@ -24,11 +24,6 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Hide the global Navbar on project details pages
-  if (pathname.startsWith('/work/') || pathname.startsWith('/projects/')) {
-    return null;
-  }
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -36,6 +31,11 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Hide the global Navbar on project details pages
+  if (pathname.startsWith('/work/') || pathname.startsWith('/projects/')) {
+    return null;
+  }
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
     e.preventDefault();
@@ -65,11 +65,11 @@ export default function Navbar() {
             : 'bg-transparent py-6'
         )}
       >
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-6">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-3 transition-opacity hover:opacity-80"
+            className="flex items-center justify-self-start gap-3 transition-opacity hover:opacity-80"
           >
             <div className="relative h-10 w-10 overflow-hidden rounded-full border border-white/10">
               <Image 
@@ -81,27 +81,28 @@ export default function Navbar() {
               />
             </div>
             <div className="hidden sm:block">
-              <p className="text-xs font-bold leading-tight tracking-widest text-white">{t('nameTop')}</p>
-              <p className="text-[10px] font-medium leading-tight tracking-widest text-rose-100/60">{t('nameBottom')}</p>
+              <p className="text-sm md:text-base font-bold leading-tight tracking-widest text-white">{t('nameTop')}</p>
+              <p className="text-xs md:text-sm font-medium leading-tight tracking-widest text-rose-100/60">{t('nameBottom')}</p>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8">
+          {/* Desktop Nav — centered at the viewport so it aligns with the hero text */}
+          <nav className="hidden lg:flex items-center justify-center gap-6">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.key}
                 href={`/${link.target}`}
                 onClick={(e) => handleNavClick(e, link.target)}
-                className="text-[11px] rtl:text-lg font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
+                className="group relative whitespace-nowrap text-[11px] rtl:text-[15px] font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
               >
                 {t(link.key)}
+                <span className="absolute -bottom-1.5 left-0 rtl:left-auto rtl:right-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-self-end gap-4">
             <LocaleSwitcher />
             
             <Link

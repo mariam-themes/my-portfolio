@@ -21,7 +21,7 @@ interface Project {
 
 export type ProjectRecord = Project;
 
-export default function ProjectListClient({ projects }: { projects: Project[] }) {
+export default function ProjectListClient({ projects, featuredOnly = false }: { projects: Project[]; featuredOnly?: boolean }) {
   const locale = useLocale();
   const t = useTranslations('Work');
   const [activeFilter, setActiveFilter] = useState<string>('');
@@ -40,8 +40,16 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Extract unique categories (use sector as fallback if category is missing)
-  const categories = Array.from(new Set(projects.map(p => p.category || p.sector).filter(Boolean))) as string[];
+  // Extract unique categories — only show user-created categories, hide system placeholders
+  const hiddenCats = new Set(['uncategorized', 'selected project', 'selected projects']);
+  const categories = Array.from(
+    new Set(
+      projects
+        .map((p) => p.category || p.sector)
+        .filter(Boolean)
+        .filter((cat) => !hiddenCats.has((cat as string).trim().toLowerCase()))
+    )
+  ) as string[];
   
   const filteredProjects = useMemo(() => {
     return activeFilter === ''
@@ -101,6 +109,12 @@ export default function ProjectListClient({ projects }: { projects: Project[] })
           
           {/* Header Typography */}
           <div className="lg:w-1/2">
+            {featuredOnly && (
+              <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
+                <span className="w-12 h-[1px] bg-accent/50" />
+                {t('featuredKicker')}
+              </div>
+            )}
             <h1 className="text-6xl sm:text-7xl md:text-8xl font-black tracking-tighter leading-[0.9]">
               <span className="text-white block">{t('headingTop')}</span>
               <span className="block mt-2" style={{ color: '#951C30' }}>{t('headingBottom')}</span>

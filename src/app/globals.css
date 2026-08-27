@@ -69,7 +69,7 @@ body {
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -79,7 +79,7 @@ h1, h2, h3, h4, h5, h6 {
 /* ── Arabic / RTL Typography ── */
 :root[dir="rtl"] body,
 [dir="rtl"] body {
-  font-family: var(--font-arabic), 'El Messiri', 'Noto Sans Arabic', sans-serif;
+  font-family: var(--font-arabic-body), 'IBM Plex Sans Arabic', 'Noto Sans Arabic', sans-serif;
   font-size: 1.125rem; /* Arabic text needs noticeably larger base */
   line-height: 1.95;   /* Arabic needs more line spacing */
   letter-spacing: 0;  /* Arabic doesn't use letter-spacing */
@@ -93,7 +93,7 @@ h1, h2, h3, h4, h5, h6 {
 [dir="rtl"] h4,
 [dir="rtl"] h5,
 [dir="rtl"] h6 {
-  font-family: var(--font-arabic), 'El Messiri', sans-serif;
+  font-family: var(--font-arabic-heading), 'Alexandria', sans-serif;
   font-weight: 800;
   line-height: 1.45;
   letter-spacing: 0;
@@ -108,7 +108,7 @@ h1, h2, h3, h4, h5, h6 {
 [dir="rtl"] textarea,
 [dir="rtl"] select,
 [dir="rtl"] label {
-  font-family: var(--font-arabic), 'El Messiri', sans-serif;
+  font-family: var(--font-arabic-body), 'IBM Plex Sans Arabic', sans-serif;
   letter-spacing: 0;
 }
 

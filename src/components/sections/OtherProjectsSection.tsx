@@ -78,21 +78,19 @@ export default function OtherProjectsSection() {
 
   return (
     <section className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
-      <div className="container mx-auto px-6 lg:px-12">
+      <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
-          <div className="max-w-4xl text-start">
-            <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
-              <span className="w-12 h-[1px] bg-accent/50" />
-              {t('kicker')}
-            </div>
-            <h2 className="text-4xl md:text-6xl font-serif font-normal text-foreground leading-tight">
-              {t('title')}{' '}
-              <span className="italic" style={{ color: '#951C30' }}>
-                {t('titleAccent')}
-              </span>
-            </h2>
+        <div className="max-w-4xl mb-16 text-start">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
+            <span className="w-12 h-[1px] bg-accent/50" />
+            {t('kicker')}
           </div>
+          <h2 className="text-4xl md:text-6xl font-serif font-normal text-foreground leading-tight">
+            {t('title')}{' '}
+            <span className="italic" style={{ color: '#951C30' }}>
+              {t('titleAccent')}
+            </span>
+          </h2>
         </div>
 
         {loading ? (

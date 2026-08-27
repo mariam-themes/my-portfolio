@@ -6,7 +6,8 @@ import { routing } from '@/i18n/routing';
 import { getMessages } from 'next-intl/server';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
-import { Inter, El_Messiri, Playfair_Display } from 'next/font/google';
+import SmoothScroller from '@/components/public/SmoothScroller';
+import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Providers } from '@/components/Providers';
 
 const inter = Inter({
@@ -19,10 +20,16 @@ const playfair = Playfair_Display({
   subsets: ['latin'],
 });
 
-const arabicFont = El_Messiri({
-  variable: '--font-arabic',
+const arabicHeadingFont = Alexandria({
+  variable: '--font-arabic-heading',
   subsets: ['arabic'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
+});
+
+const arabicBodyFont = IBM_Plex_Sans_Arabic({
+  variable: '--font-arabic-body',
+  subsets: ['arabic'],
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 
@@ -49,23 +56,20 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      data-scroll-behavior="smooth"
-      className={`${inter.variable} ${playfair.variable} ${arabicFont.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col bg-[#0a0507]" suppressHydrationWarning>
         <Providers>
-          <NextIntlClientProvider messages={messages}>
-            {/* Global Animated Background Orbs */}
-            <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
-              <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[#951C30] rounded-full mix-blend-screen filter blur-[150px] opacity-[0.12] animate-blob" />
-              <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-[#951C30] rounded-full mix-blend-screen filter blur-[130px] opacity-[0.08] animate-blob animation-delay-2000" />
-            </div>
-            
-            <Navbar />
-            {children}
-            <Footer />
-          </NextIntlClientProvider>
+          <SmoothScroller>
+            <NextIntlClientProvider messages={messages}>
+
+              
+              <Navbar />
+              {children}
+              <Footer />
+            </NextIntlClientProvider>
+          </SmoothScroller>
         </Providers>
       </body>
     </html>
