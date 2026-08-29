@@ -38,7 +38,7 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
   const heroImage = project.heroMediaUrl || project.gallery?.[0]?.url;
 
   return (
-    <section ref={heroRef} className="relative flex min-h-[100svh] flex-col justify-end px-6 pb-24 pt-32 sm:px-12 lg:px-16 overflow-hidden">
+    <section ref={heroRef} className="relative flex min-h-[70svh] sm:min-h-[100svh] flex-col justify-end px-5 pb-16 pt-24 sm:px-12 sm:pb-24 sm:pt-32 lg:px-16 overflow-hidden">
 
       {/* Background image */}
       {heroImage && (

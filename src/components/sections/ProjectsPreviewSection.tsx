@@ -23,6 +23,7 @@ export default function ProjectsPreviewSection() {
   const [projects, setProjects] = useState<LocalizedProject[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLSpanElement>(null);
@@ -31,6 +32,14 @@ export default function ProjectsPreviewSection() {
   const openProject = useCallback((slug: string) => {
     router.push(`/work/${slug}`);
   }, [router]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 860px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -103,8 +112,8 @@ export default function ProjectsPreviewSection() {
     );
   }
 
-  // reduced motion fallback — simple grid
-  if (prefersReduced) {
+  // reduced motion fallback or mobile — simple grid
+  if (prefersReduced || isMobile) {
     return (
       <section className="py-24 md:py-32 bg-[#0a0507] relative" id="work">
         <div className="container mx-auto px-6 md:px-12 lg:px-20">

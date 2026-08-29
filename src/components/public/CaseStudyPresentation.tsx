@@ -196,30 +196,30 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     const refCallback = (el: HTMLElement | null) => { sectionRefs.current[index + 1] = el; };
 
     if (secId === 'gallery') return (
-      <section key={secId} ref={refCallback} data-reveal className="px-5 py-24 sm:px-12 lg:px-16">
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-16 sm:px-12 sm:py-24 lg:px-16">
         {heading}
         <GallerySection items={gallery} projectTitle={project.title} />
       </section>
     );
 
     if (secId === 'transform') return comparison
-      ? <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<TransformSection before={comparison} title={project.title} reducedMotion={reducedMotion} /></section>
+      ? <section key={secId} ref={refCallback} data-reveal className="px-5 py-16 sm:px-12 sm:py-32 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<TransformSection before={comparison} title={project.title} reducedMotion={reducedMotion} /></section>
       : null;
 
     if (secId === 'visual') return (
-      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<VisualSection blocks={vdBlocks} /></section>
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-16 sm:px-12 sm:py-32 lg:px-24 border-t border-white/5">{heading}<VisualSection blocks={vdBlocks} /></section>
     );
 
     if (secId === 'deliverables') return (
-      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<DeliverablesSection services={services} /></section>
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-16 sm:px-12 sm:py-32 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">{heading}<DeliverablesSection services={services} /></section>
     );
 
     if (secId === 'tools') return (
-      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5">{heading}<ToolsSection tools={tools} /></section>
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-16 sm:px-12 sm:py-32 lg:px-24 border-t border-white/5">{heading}<ToolsSection tools={tools} /></section>
     );
 
     if (secId === 'mockup' && project.fullPageMockupUrl) return (
-      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-16 sm:px-12 sm:py-32 lg:px-24 border-t border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
         {heading}
         <div className="mx-auto mb-16 max-w-6xl text-center">
           <p className="text-sm tracking-wide text-white/50">{t('scrollInside')}</p>
@@ -239,7 +239,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     );
 
     if (secId === 'closing' && (closingImages || finalMedia)) return (
-      <section key={secId} ref={refCallback} data-reveal className="px-5 py-32 sm:px-12 lg:px-24 border-t border-white/5 bg-gradient-to-b from-[#1c060f]/30 to-transparent">
+      <section key={secId} ref={refCallback} data-reveal className="px-5 py-16 sm:px-12 sm:py-32 lg:px-24 border-t border-white/5 bg-gradient-to-b from-[#1c060f]/30 to-transparent">
         {heading}
         <ClosingSection
           images={closingImages}
@@ -345,7 +345,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
         {orderedSections.map((secId, i) => renderSection(secId, i))}
 
-        <section data-reveal className="relative overflow-hidden border-t border-white/5 px-5 py-36 sm:px-12 lg:px-24">
+        <section data-reveal className="relative overflow-hidden border-t border-white/5 px-5 py-20 sm:px-12 sm:py-36 lg:px-24">
           <div className="cta-glow-orb pointer-events-none absolute left-1/2 top-1/2 h-[700px] w-[700px] rounded-full [background:radial-gradient(circle,rgba(149,28,48,0.2)_0%,transparent_68%)]" />
 
           <div

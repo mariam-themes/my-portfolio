@@ -48,59 +48,61 @@ export default async function Footer() {
         {settings.siteName}
       </div>
 
-      <div className="container relative mx-auto px-6 lg:px-12 py-12 md:py-16">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
-          {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-6">
-            <Link href="/" className="group flex w-fit items-center gap-3">
-              <div className="relative h-12 w-12 overflow-hidden rounded-full border border-white/10 transition-transform duration-500 group-hover:scale-105">
-                <Image
-                  src={settings.logoUrl || '/portfolio-logo.jpeg'}
-                  alt={settings.siteName}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
-              <span className="font-serif text-xl font-semibold tracking-wide text-white">
-                {settings.siteName}
-              </span>
-            </Link>
+      <div className="relative mx-auto max-w-7xl px-5 py-10 sm:px-6 sm:py-12 lg:px-12 lg:py-16">
+        {/* Brand + CTA — always first */}
+        <div className="mb-8 sm:mb-10">
+          <Link href="/" className="group inline-flex items-center gap-3">
+            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-white/10 transition-transform duration-500 group-hover:scale-105">
+              <Image
+                src={settings.logoUrl || '/portfolio-logo.jpeg'}
+                alt={settings.siteName}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <span className="font-serif text-lg font-semibold tracking-wide text-white">
+              {settings.siteName}
+            </span>
+          </Link>
 
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/50">
-              {t('tagline')}
-            </p>
+          <p className="mt-4 max-w-sm text-xs leading-relaxed text-white/45 sm:text-sm">
+            {t('tagline')}
+          </p>
 
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             {settings.email && (
               <a
                 href={`mailto:${settings.email}`}
-                className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-4 py-2 text-sm text-white/70 transition-colors hover:border-[#951C30] hover:bg-[#951C30] hover:text-white"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-[#951C30] hover:bg-[#951C30] hover:text-white sm:px-4 sm:py-2 sm:text-sm"
               >
-                <SocialIcon platform="email" className="h-4 w-4" />
+                <SocialIcon platform="email" className="h-3.5 w-3.5" />
                 {settings.email}
               </a>
             )}
-
             <Link
               href="/contact"
-              className="group mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-[#951C30] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ad2240]"
+              className="group inline-flex items-center gap-2 rounded-full bg-[#951C30] px-5 py-2 text-[10px] font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#ad2240] sm:px-6 sm:py-3 sm:text-xs"
             >
               {t('startProject')}
               <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
           </div>
+        </div>
 
+        {/* Links grid — 2-col on mobile, 3-col on desktop */}
+        <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-3">
           {/* Navigate */}
-          <div className="lg:col-span-2">
-            <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-white/40">
+          <div>
+            <h4 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/35 sm:text-xs">
               {t('navigate')}
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {NAV_LINKS.map((l) => (
                 <li key={l.key}>
                   <Link
                     href={l.href}
-                    className="group inline-flex text-sm text-white/70 transition-colors hover:text-white"
+                    className="group inline-flex text-xs text-white/60 transition-colors hover:text-white sm:text-sm"
                   >
                     <span className="relative">
                       {tn(l.key)}
@@ -113,21 +115,21 @@ export default async function Footer() {
           </div>
 
           {/* Connect */}
-          <div className="lg:col-span-2">
-            <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-white/40">
+          <div>
+            <h4 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/35 sm:text-xs">
               {t('connect')}
             </h4>
             {socials.length > 0 || waLink ? (
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {waLink && (
                   <a
                     href={waLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="WhatsApp"
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-white/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#951C30] hover:bg-[#951C30] hover:text-white"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-white/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#951C30] hover:bg-[#951C30] hover:text-white sm:h-10 sm:w-10"
                   >
-                    <SocialIcon platform="whatsapp" className="h-[18px] w-[18px]" />
+                    <SocialIcon platform="whatsapp" className="h-4 w-4" />
                   </a>
                 )}
                 {socials.map((s) => (
@@ -137,31 +139,31 @@ export default async function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={s.label || s.platform}
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-white/70 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#951C30] hover:bg-[#951C30] hover:text-white"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-white/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#951C30] hover:bg-[#951C30] hover:text-white sm:h-10 sm:w-10"
                   >
-                    <SocialIcon platform={s.platform} url={s.url} className="h-[18px] w-[18px]" />
+                    <SocialIcon platform={s.platform} url={s.url} className="h-4 w-4" />
                   </a>
                 ))}
               </div>
-              ) : (
-              <p className="text-sm text-white/40">{t('noSocials')}</p>
+            ) : (
+              <p className="text-xs text-white/35">{t('noSocials')}</p>
             )}
           </div>
 
           {/* Useful Links */}
-          <div className="lg:col-span-2">
-            <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-white/40">
-              {t('usefulLinks')}
-            </h4>
-            {usefulLinks.length > 0 && (
-              <ul className="space-y-3">
+          {usefulLinks.length > 0 && (
+            <div className="col-span-2 sm:col-span-1">
+              <h4 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/35 sm:text-xs">
+                {t('usefulLinks')}
+              </h4>
+              <ul className="space-y-2">
                 {usefulLinks.map((l, i) => (
                   <li key={i}>
                     <a
                       href={l.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group inline-flex text-sm text-white/70 transition-colors hover:text-white"
+                      className="group inline-flex text-xs text-white/60 transition-colors hover:text-white sm:text-sm"
                     >
                       <span className="relative">
                         {l.label}
@@ -171,12 +173,12 @@ export default async function Footer() {
                   </li>
                 ))}
               </ul>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/40 md:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-[10px] text-white/30 sm:text-xs md:flex-row">
           <p>{settings.copyright || `© ${new Date().getFullYear()} ${settings.siteName}`}</p>
           <FooterLocaleSwitcher />
           <p className="tracking-wide">{t('designedBy')}</p>
