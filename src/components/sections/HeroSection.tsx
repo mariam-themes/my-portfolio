@@ -19,7 +19,6 @@ export default function HeroSection() {
   const heroRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Mouse tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const glowOpacity = useSpring(0, { damping: 30, stiffness: 200 });
@@ -62,51 +61,14 @@ export default function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => glowOpacity.set(1)}
       onMouseLeave={() => glowOpacity.set(0)}
     >
-      {/* ── Hero background image ── */}
-      <img
-        src="/hero-bg.jpg"
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute inset-0 w-full h-full object-cover object-center select-none"
-        style={{ zIndex: 0 }}
-        fetchPriority="high"
-      />
-      {/* Dark scrim so text stays readable */}
-      <div className="pointer-events-none absolute inset-0 bg-[#0a0507]/60" style={{ zIndex: 1 }} />
-      {/* Vignette edges */}
-      <div className="pointer-events-none absolute inset-0" style={{ zIndex: 1, background: 'radial-gradient(ellipse 90% 80% at 50% 50%, transparent 30%, rgba(10,5,7,0.75) 100%)' }} />
-
-      {/* ── Deep layered background overlays ── */}
-      {/* Top radial accent */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(149,28,48,0.22),transparent)]" style={{ zIndex: 2 }} />
-      {/* Corner accents */}
-      <div className="pointer-events-none absolute -top-32 -left-32 h-[36rem] w-[36rem] rounded-full bg-[#951C30]/[0.07] blur-[120px]" style={{ zIndex: 2 }} />
-      <div className="pointer-events-none absolute -bottom-24 -right-20 h-[28rem] w-[28rem] rounded-full bg-[#6b1222]/[0.10] blur-[100px]" style={{ zIndex: 2 }} />
-
-      {/* Decorative ruled lines (pure CSS, zero weight) */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.03]" aria-hidden style={{ zIndex: 3 }}>
-        {[10, 30, 50, 70, 90].map((p) => (
-          <div key={p} className="absolute top-0 bottom-0 w-px bg-white" style={{ left: `${p}%` }} />
-        ))}
-      </div>
-
-      {/* Grain texture via SVG filter */}
-      <svg className="pointer-events-none absolute inset-0 w-full h-full opacity-[0.04]" aria-hidden style={{ zIndex: 3 }}>
-        <filter id="hero-grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#hero-grain)" />
-      </svg>
-
-      {/* Interactive Mouse Glow */}
+      {/* Mouse-follow glow — light behind cursor */}
       <motion.div
-        className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/40 blur-[180px] mix-blend-screen"
+        className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/35 blur-[180px] mix-blend-screen"
         style={{ left: smoothX, top: smoothY, opacity: glowOpacity, zIndex: 4 }}
       />
 

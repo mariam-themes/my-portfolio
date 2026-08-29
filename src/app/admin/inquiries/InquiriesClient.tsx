@@ -152,9 +152,9 @@ export default function InquiriesClient({
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {inquiries.map((inquiry) => (
+          {inquiries.map((inquiry, i: number) => (
             <div
-              key={inquiry._id}
+              key={String(inquiry._id ?? inquiry.email ?? `inq-${i}`)}
               className="bg-black/40 border border-rose-900/30 rounded-xl overflow-hidden flex flex-col transition-all hover:border-rose-700/50 hover:shadow-lg hover:shadow-rose-900/10"
             >
               <div className="p-5 flex-1 flex flex-col gap-4">

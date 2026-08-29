@@ -33,11 +33,13 @@ export default function BrowserMockup({ url, imageUrl, onInteraction }: { url?: 
         role="region"
         aria-label="Scrollable full-page project preview"
         aria-describedby="browser-preview-instructions"
+        data-lenis-prevent
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
-          alt="Full Page Mockup" 
+          alt="Full Page Mockup"
+          loading="lazy"
           className="block h-auto w-full"
         />
       </div>

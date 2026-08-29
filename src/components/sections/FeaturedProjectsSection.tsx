@@ -100,10 +100,10 @@ export default function FeaturedProjectsSection() {
 
               return (
                 <motion.div
-                  key={project._id as string}
+                  key={String(project._id ?? project.slug ?? 'feat-' + i)}
                   initial={initial}
                   whileInView={animate}
-                  viewport={{ once: false, amount: 0.25, margin: '-80px' }}
+                  viewport={{ once: true, amount: 0.25, margin: '-80px' }}
                   transition={
                     shouldReduceMotion
                       ? { duration: 0.4 }

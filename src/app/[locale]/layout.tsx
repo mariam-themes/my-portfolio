@@ -6,6 +6,7 @@ import { getMessages } from 'next-intl/server';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
 import SmoothScroller from '@/components/public/SmoothScroller';
+import SplashScreen from '@/components/public/SplashScreen';
 import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { Providers } from '@/components/Providers';
 import HtmlLangDir from '@/components/HtmlLangDir';
@@ -56,6 +57,7 @@ export default async function LocaleLayout({
       <Providers>
         <SmoothScroller>
           <NextIntlClientProvider locale={locale} messages={messages}>
+            <SplashScreen />
             <HtmlLangDir locale={locale} />
             <Navbar />
             {children}

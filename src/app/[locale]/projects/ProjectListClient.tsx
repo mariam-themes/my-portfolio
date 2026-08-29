@@ -175,11 +175,12 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
             
             return (
               <Link 
-                key={project._id}
+                key={String(project._id ?? project.slug ?? `proj-${i}`)}
                 href={`/projects/${project.slug}`} 
                 className={`project-card block group ${isRightColumn ? 'md:mt-32' : ''}`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
+                onClick={() => { try { sessionStorage.setItem('caseStudyRef', '/work'); } catch {} }}
                 // We use cursor-none to hide the default pointer since we have a custom follower
                 style={{ cursor: 'none', visibility: 'hidden' }} // GSAP autoAlpha will make it visible
               >

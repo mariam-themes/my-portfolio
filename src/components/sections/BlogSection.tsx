@@ -100,6 +100,25 @@ export default function BlogSection() {
     { scope: sectionRef }
   );
 
+  // Hide preview when section leaves viewport (so it doesn't get stuck after scrolling past)
+  useEffect(() => {
+    const el = sectionRef.current;
+    const inner = innerRef.current;
+    if (!el || !inner) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          setHoveredIndex(null);
+          gsap.to(inner, { autoAlpha: 0, scale: 0.95, duration: 0.3, ease: 'power2.out' });
+          activeIndexRef.current = null;
+        }
+      },
+      { threshold: 0, rootMargin: '80px 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   // Drive the floating preview from the hovered index
   useEffect(() => {
     if (hoveredIndex === null) {
@@ -223,7 +242,7 @@ export default function BlogSection() {
 
               return (
                 <Link
-                  key={blog._id}
+                  key={String(blog._id ?? blog.slug ?? `blog-${index}`)}
                   href={`/blog/${blog.slug}` as any}
                   className={`journal-row group flex items-center gap-4 md:gap-7 py-5 md:py-6 px-4 md:px-6 rounded-xl transition-colors duration-500 ${
                     isActive ? 'bg-white/[0.04]' : 'hover:bg-white/[0.03]'
@@ -237,6 +256,7 @@ export default function BlogSection() {
                       <img
                         src={blog.coverImage}
                         alt=""
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
                     ) : (

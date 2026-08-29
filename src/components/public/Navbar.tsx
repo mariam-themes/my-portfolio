@@ -25,10 +25,15 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    let lastState = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const newState = window.scrollY > 50;
+      if (newState !== lastState) {
+        lastState = newState;
+        setIsScrolled(newState);
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

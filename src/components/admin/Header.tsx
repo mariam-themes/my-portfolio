@@ -174,9 +174,9 @@ export default function Header() {
               <div className="max-h-80 overflow-y-auto">
                 {hasNotifications ? (
                   <div className="flex flex-col">
-                    {newInquiries.map((inq: any) => (
+                    {newInquiries.map((inq: any, i: number) => (
                       <Link 
-                        key={inq._id} 
+                        key={String(inq._id ?? inq.email ?? `inq-${i}`)} 
                         href="/admin/inquiries"
                         onClick={() => setIsDropdownOpen(false)}
                         className="px-5 py-4 border-b border-white/5 hover:bg-white/5 transition-colors group block"

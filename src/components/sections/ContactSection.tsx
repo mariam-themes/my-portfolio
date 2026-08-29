@@ -49,7 +49,7 @@ export default async function ContactSection() {
           <ContactSectionClient side="left">
             <div className="space-y-12 lg:sticky lg:top-32">
               {/* Headline */}
-              <div className="space-y-5">
+              <div className="space-y-5" data-reveal-child>
                 <h2 className="font-serif text-[clamp(2.8rem,6vw,5.5rem)] font-normal leading-[1.05] text-white">
                   {t('title').split(' ').map((word, i, arr) => (
                     <span
@@ -78,6 +78,7 @@ export default async function ContactSection() {
                     href={waLink}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-reveal-child
                     className="group flex items-center justify-between py-5 text-rose-100/70 transition-colors duration-300 hover:text-white"
                   >
                     <div className="flex items-center gap-4">
@@ -95,6 +96,7 @@ export default async function ContactSection() {
                 {settings?.email && (
                   <a
                     href={`mailto:${settings.email}`}
+                    data-reveal-child
                     className="group flex items-center justify-between py-5 text-rose-100/70 transition-colors duration-300 hover:text-white"
                   >
                     <div className="flex items-center gap-4">
@@ -112,7 +114,7 @@ export default async function ContactSection() {
 
               {/* Socials */}
               {otherSocials.length > 0 && (
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4" data-reveal-child>
                   {otherSocials.map((s) => (
                     <a
                       key={s.platform}
@@ -132,7 +134,7 @@ export default async function ContactSection() {
 
           {/* ── Right: Form ── */}
           <ContactSectionClient side="right">
-            <div className="relative rounded-3xl border border-rose-100/8 bg-white/[0.02] p-8 sm:p-12 backdrop-blur-sm">
+            <div className="relative rounded-3xl border border-rose-100/8 bg-white/[0.02] p-8 sm:p-12 backdrop-blur-sm shadow-[inset_0_1px_0_0_rgba(149,28,48,0.06),inset_0_0_60px_rgba(149,28,48,0.03)]" data-reveal-child>
               {/* Corner accent */}
               <div
                 aria-hidden

@@ -66,7 +66,7 @@ export function resolveList(
   if (Array.isArray(value)) {
     if (locale === sourceLangOf(project)) return value;
     const hit = project.translations?.[locale as 'en' | 'ar']?.[field];
-    return Array.isArray(hit) ? (hit as string[]) : (value as string[]);
+    return Array.isArray(hit) && hit.some(Boolean) ? (hit as string[]) : (value as string[]);
   }
   if (value && typeof value === 'object') {
     const obj = value as { en?: string[]; ar?: string[] };

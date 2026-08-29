@@ -37,8 +37,8 @@ export default function FeaturedProjectCard({
             src={media}
             alt={title || 'Featured project'}
             fill
+            sizes="(max-width: 768px) 100vw, 380px"
             className="rounded-[1.6rem] object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-            unoptimized
           />
         ) : (
           <div className="absolute inset-3 rounded-[1.6rem] bg-[#1a0a14]" />
@@ -109,11 +109,11 @@ export default function FeaturedProjectCard({
             src={media}
             alt={title || 'Featured project'}
             fill
+            sizes="(max-width: 768px) 100vw, 380px"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            unoptimized
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#1a0a14] to-[#0d0507] text-sm text-white/20">
+          <div className="flex h-full w-full items-center justify-center bg-[#0a0a0a] text-sm text-white/20">
             {t('noImage')}
           </div>
         )}

@@ -21,9 +21,11 @@ function ScrollToTop() {
 
 export default function SmoothScroller({ children }: { children: React.ReactNode }) {
   return (
-    <ReactLenis root options={{ lerp: 0.08, duration: 1.5, smoothWheel: true }}>
+    <ReactLenis root options={{ lerp: 0.1, smoothWheel: true, duration: 1.2 }}>
       <ScrollToTop />
-      {children}
+      <div style={{ overscrollBehavior: 'contain' }}>
+        {children}
+      </div>
     </ReactLenis>
   );
 }

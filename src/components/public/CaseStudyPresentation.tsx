@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -35,11 +35,13 @@ const SECTION_LABEL_KEY: Record<string, string> = {
 
 export default function CaseStudyPresentation({ project, nextProject }: { project: Project; nextProject?: NextProject }) {
   const t = useTranslations('CaseStudy');
+  const router = useRouter();
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [cameFromWork, setCameFromWork] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const mainRef = useRef<HTMLElement>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   const gallery = project.gallery?.length ? project.gallery : project.heroMediaUrl ? [{ url: project.heroMediaUrl, type: 'desktop' }] : [];
   const comparison = project.beforeAfter?.[0];
@@ -80,6 +82,17 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     return () => query.removeEventListener('change', update);
   }, []);
 
+  // Detect if user came from /work page
+  useEffect(() => {
+    try {
+      const ref = sessionStorage.getItem('caseStudyRef');
+      if (ref === '/work') {
+        setCameFromWork(true);
+      }
+      sessionStorage.removeItem('caseStudyRef');
+    } catch {}
+  }, []);
+
   // Track active section for left sidebar indicators
   useEffect(() => {
     const sections = sectionRefs.current.filter(Boolean) as HTMLElement[];
@@ -99,12 +112,19 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     return () => observer.disconnect();
   }, [orderedSections]);
 
-  // Track scroll progress for the traveling cursor
+  // Track scroll progress for the traveling cursor — use ref to avoid re-renders
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress(docHeight > 0 ? scrollTop / docHeight : 0);
+      requestAnimationFrame(() => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+        const el = progressRef.current;
+        if (el) {
+          el.style.height = `${progress * 100}%`;
+          el.style.top = `${progress * 100}%`;
+        }
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -115,6 +135,21 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     if (!root) return;
     if (reducedMotion) return;
     const context = gsap.context(() => {
+      // Animate page-wide particles
+      const particles = Array.from(root.querySelectorAll<HTMLElement>('[data-ambient-particle]'));
+      particles.forEach((el, i) => {
+        gsap.to(el, {
+          x: () => gsap.utils.random(-100, 100),
+          y: () => gsap.utils.random(-100, 100),
+          opacity: () => gsap.utils.random(0.3, 0.8),
+          duration: 5 + ((i * 7) % 10),
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: gsap.utils.random(0, 3),
+        });
+      });
+
       const reveals = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal]'));
       reveals.forEach((el) => {
         gsap.fromTo(el,
@@ -219,57 +254,71 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
   };
 
   return (
-    <main ref={mainRef} className="case-study-narrative relative isolate min-h-screen overflow-x-clip bg-[#0b0107] text-white">
+    <main ref={mainRef} className="case-study-narrative relative isolate min-h-screen overflow-x-clip overflow-y-auto bg-[#0b0107] text-white" style={{ overscrollBehavior: 'contain' }}>
       <CSSKeyframes />
       <ImageBackground />
 
+      {/* Page-wide floating particles */}
+      <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden="true">
+        {Array.from({ length: 50 }, (_, i) => ({
+          id: i,
+          left: ((i * 37) % 101) - 1,
+          top: ((i * 61) % 101) - 1,
+          size: 1.5 + ((i * 13) % 4),
+          dur: 5 + ((i * 7) % 10),
+        })).map((dot) => (
+          <i
+            key={dot.id}
+            data-ambient-particle
+            className="absolute rounded-full bg-[#951C30]/40 shadow-[0_0_6px_rgba(149,28,48,0.4)]"
+            style={{ left: `${dot.left}%`, top: `${dot.top}%`, width: dot.size, height: dot.size }}
+          />
+        ))}
+      </div>
+
       {/* Fixed Left Sidebar — Growing Progress Line (no numbers) */}
-      {(() => {
-        const clampedProgress = Math.min(scrollProgress, 1);
-        return (
+      <div
+        className="pointer-events-none fixed left-3 sm:left-5 top-0 bottom-0 z-30 hidden md:flex flex-col items-center"
+        style={{ paddingTop: 72, paddingBottom: 72 }}
+        aria-hidden="true"
+      >
+        <div className="relative flex-1 w-[1px]">
+          {/* Background track */}
+          <div className="absolute inset-0 bg-white/[0.06]" />
+
+          {/* Burgundy fill line */}
           <div
-            className="pointer-events-none fixed left-3 sm:left-5 top-0 bottom-0 z-30 hidden md:flex flex-col items-center"
-            style={{ paddingTop: 72, paddingBottom: 72 }}
-            aria-hidden="true"
+            ref={progressRef}
+            className="absolute top-0 left-0 w-full"
+            style={{
+              height: '0%',
+              background: 'linear-gradient(to bottom, rgba(149,28,48,0.35) 0%, #951C30 100%)',
+              boxShadow: '0 0 4px rgba(149,28,48,0.55)',
+              transition: 'height 55ms linear',
+            }}
+          />
+
+          {/* Glowing tip */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+            style={{ top: '0%', transition: 'top 55ms linear' }}
           >
-            <div className="relative flex-1 w-[1px]">
-              {/* Background track */}
-              <div className="absolute inset-0 bg-white/[0.06]" />
-
-              {/* Burgundy fill line */}
-              <div
-                className="absolute top-0 left-0 w-full"
-                style={{
-                  height: `${clampedProgress * 100}%`,
-                  background: 'linear-gradient(to bottom, rgba(149,28,48,0.35) 0%, #951C30 100%)',
-                  boxShadow: '0 0 4px rgba(149,28,48,0.55)',
-                  transition: 'height 55ms linear',
-                }}
-              />
-
-              {/* Glowing tip */}
-              <div
-                className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
-                style={{ top: `${clampedProgress * 100}%`, transition: 'top 55ms linear' }}
-              >
-                <div
-                  style={{
-                    width: '4px', height: '4px', borderRadius: '50%',
-                    background: '#951C30',
-                    boxShadow: '0 0 7px 2px rgba(149,28,48,0.9), 0 0 18px 5px rgba(149,28,48,0.4)',
-                  }}
-                />
-              </div>
-            </div>
+            <div
+              style={{
+                width: '4px', height: '4px', borderRadius: '50%',
+                background: '#951C30',
+                boxShadow: '0 0 7px 2px rgba(149,28,48,0.9), 0 0 18px 5px rgba(149,28,48,0.4)',
+              }}
+            />
           </div>
-        );
-      })()}
+        </div>
+      </div>
 
 
       <header className="case-study-nav relative z-20 flex items-center justify-between px-5 py-5 sm:px-12 lg:px-16">
-        <Link href="/work" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white">
-          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{t('allProjects')}</span>
-        </Link>
+        <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white">
+          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{cameFromWork ? t('allProjects') : t('backToPortfolio')}</span>
+        </button>
         <div className="flex items-center gap-5">
           {project.platform && <span className="hidden text-xs md:text-sm font-black uppercase tracking-[.15em] text-white/80 sm:inline">{project.platform}</span>}
           {project.liveUrl && (

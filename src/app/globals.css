@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Geist+Mono&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
@@ -113,6 +112,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Uppercase tracking ruins Arabic — reset it */
+
+/* ── Case study: keep English fonts even in RTL ── */
+.case-study-narrative,
+.case-study-narrative h1,
+.case-study-narrative h2,
+.case-study-narrative h3,
+.case-study-narrative h4,
+.case-study-narrative h5,
+.case-study-narrative h6 {
+  font-family: var(--font-serif) !important;
+}
+.case-study-narrative p,
+.case-study-narrative span,
+.case-study-narrative a,
+.case-study-narrative button,
+.case-study-narrative label,
+.case-study-narrative li {
+  font-family: var(--font-sans) !important;
+  letter-spacing: normal;
+}
+.case-study-narrative h1,
+.case-study-narrative h2,
+.case-study-narrative h3,
+.case-study-narrative h4,
+.case-study-narrative h5,
+.case-study-narrative h6 {
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
 [dir="rtl"] .tracking-widest,
 [dir="rtl"] .tracking-wider,
 [dir="rtl"] .tracking-wide,
@@ -628,4 +657,16 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ── Infinite scroll marquee ── */
+@keyframes infinite-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-infinite-scroll {
+  animation: infinite-scroll 40s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-infinite-scroll { animation: none; }
 }

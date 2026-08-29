@@ -1,0 +1,10 @@
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+import mongoose from 'mongoose';
+await mongoose.connect(process.env.MONGODB_URI);
+const db = mongoose.connection;
+const cols = await db.db.listCollections().toArray();
+console.log(cols.map(c=>c.name));
+const projects = await db.collection('projects').find({}).limit(5).toArray();
+console.log(projects.map(p=>({id: String(p._id), slug: p.slug, title: p.title?.en || p.title})));
+await mongoose.disconnect();

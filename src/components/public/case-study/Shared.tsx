@@ -1,5 +1,10 @@
 import Image from 'next/image';
+import { useLayoutEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { GalleryItem } from '@/types/case-study';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function CSSKeyframes() {
   return (
@@ -66,31 +71,14 @@ export function CSSKeyframes() {
 
 export function Media({ item, alt, priority = false }: { item?: Partial<GalleryItem>; alt: string; priority?: boolean }) {
   if (!item?.url) return <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,#6a1631,transparent_45%),#16040a]" />;
-  if (item.type === 'video') return <video src={item.url} autoPlay loop muted playsInline className="h-full w-full object-cover" aria-label={alt} />;
+  if (item.type === 'video') return <video src={item.url} autoPlay loop muted playsInline controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="h-full w-full object-cover" aria-label={alt} />;
   if (item.type === 'gif') return <img src={item.url} alt={alt} className="h-full w-full object-cover" loading={priority ? 'eager' : 'lazy'} />;
   return <Image src={item.url} alt={alt} fill unoptimized priority={priority} sizes="(min-width: 1024px) 50vw, 92vw" className="object-cover" />;
 }
 
 export function ImageBackground() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 h-full w-full select-none overflow-hidden bg-[#0b0107]">
-      <div className="absolute inset-0 h-full w-full">
-        <Image
-          src="/images/satin-bg.jpg"
-          alt="Satin background"
-          fill
-          quality={100}
-          className="object-cover opacity-70"
-          priority
-        />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0107]/40 via-[#0b0107]/60 to-[#0b0107]/95" />
-      
-      {/* Continuous Ambient Background Motion (Performance Optimized without CSS blur) */}
-      <div className="absolute top-[15%] left-[5%] w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(149,28,48,0.15)_0%,transparent_60%)] animate-float-slow" />
-      <div className="absolute top-[60%] right-[5%] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(149,28,48,0.12)_0%,transparent_60%)] animate-float-delayed" />
-      <div className="absolute bottom-[10%] left-[25%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.04)_0%,transparent_60%)] animate-float-slow" style={{ animationDelay: '-12s' }} />
-    </div>
+    <div className="pointer-events-none fixed inset-0 z-0 h-full w-full select-none overflow-hidden bg-[#0b0107]" aria-hidden />
   );
 }
 

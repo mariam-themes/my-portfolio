@@ -137,9 +137,9 @@ export default function AdminTestimonialsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {displayed.map((testimonial) => (
+          {displayed.map((testimonial, i: number) => (
             <div
-              key={testimonial._id}
+              key={String(testimonial._id ?? testimonial.clientName ?? `test-${i}`)}
               className={`bg-black/40 border rounded-xl p-5 flex flex-col transition-all ${
                 testimonial.isApproved
                   ? 'border-rose-900/30 hover:border-rose-700/50'

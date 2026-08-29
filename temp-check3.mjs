@@ -1,0 +1,12 @@
+import mongoose from 'mongoose';
+const uri = "mongodb+srv://eixglow_db_user:pxmR4cqikVBUsnxO@portfoliodb.ikqmtb5.mongodb.net/?appName=portfolioDB";
+await mongoose.connect(uri);
+const projects = await mongoose.connection.db.collection('projects').find({}).limit(5).toArray();
+console.log(projects.map(p=>({id: String(p._id), slug: p.slug, hasId: !!p._id})));
+const nullIds = await mongoose.connection.db.collection('projects').countDocuments({ _id: null });
+console.log('null _id count', nullIds);
+const all = await mongoose.connection.db.collection('projects').find({}).toArray();
+const ids = all.map(p=> String(p._id));
+const dup = ids.filter((id, i) => ids.indexOf(id) !== i);
+console.log('duplicate ids', dup.slice(0,5));
+await mongoose.disconnect();

@@ -1,250 +1,226 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Link } from '@/i18n/navigation';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, memo } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { resolveText, type LocalizedProject } from '@/lib/localizeProject';
-import { useReducedMotion } from 'framer-motion'; 
+import { useReducedMotion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
+import { Link, useRouter } from '@/i18n/navigation';
+import { ArrowUpRight } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+  gsap.registerPlugin(ScrollTrigger);
 }
 
 export default function ProjectsPreviewSection() {
-  const locale        = useLocale();
-  const t             = useTranslations('ProjectsPreview');
+  const locale = useLocale();
+  const t = useTranslations('ProjectsPreview');
   const prefersReduced = useReducedMotion() ?? false;
+  const router = useRouter();
 
-  const [projects,    setProjects]    = useState<LocalizedProject[]>([]);
-  const [loading,     setLoading]     = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [projects, setProjects] = useState<LocalizedProject[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // The wrapper that will be pinned
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLSpanElement>(null);
+  const currentRef = useRef<HTMLSpanElement>(null);
+
+  const openProject = useCallback((slug: string) => {
+    router.push(`/work/${slug}`);
+  }, [router]);
 
   useEffect(() => {
+    let cancelled = false;
     async function fetchProjects() {
       try {
-        // "Selected Projects" = a curated showcase of the latest projects.
-        // (Featured projects get their own dedicated section.)
         const res = await fetch('/api/projects');
         const json = await res.json();
-        if (json.success) setProjects(json.data.slice(0, 4));
+        if (cancelled || !json.success) return;
+        setTotalCount(json.data.length);
+        setProjects(json.data.slice(0, 4));
       } catch (err) {
         console.error('Failed to fetch projects:', err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     fetchProjects();
+    return () => { cancelled = true; };
   }, []);
 
-  useGSAP(() => {
-    if (loading || !projects.length || prefersReduced) return;
+  // pinned horizontal track — like shrouksamy11 Portfolio Work.jsx
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track || loading || !projects.length) return;
+    if (prefersReduced) return;
 
-    let mm = gsap.matchMedia();
-
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const cards = gsap.utils.toArray('.project-card') as HTMLElement[];
-      const total = cards.length;
-      if (total === 0) return;
-
-      // Reset initial states
-      gsap.set(cards, { yPercent: 100, pointerEvents: 'none' });
-      gsap.set(cards[0], { yPercent: 0, pointerEvents: 'auto' });
-
-      const pauseDuration = 0.3; 
-      const totalDuration = (total - 1) + pauseDuration;
-
-      const tl = gsap.timeline({
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 861px)', () => {
+      const getDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+      gsap.to(track, {
+        x: () => -getDistance(),
+        ease: 'none',
         scrollTrigger: {
-          trigger: containerRef.current,
-          // NO GSAP PINNING! We use native CSS sticky.
+          trigger: '#workPinWrap',
           start: 'top top',
-          end: 'bottom bottom',
-          scrub: true,
+          end: () => '+=' + getDistance(),
+          pin: true,
+          scrub: 0.9,
           invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const progress = self.progress * totalDuration;
-            let current = Math.floor(progress + 0.5);
-            if (current >= total) current = total - 1;
-            setActiveIndex(current);
-          }
-        }
+          anticipatePin: 1,
+          onUpdate(self) {
+            if (fillRef.current) fillRef.current.style.transform = `scaleX(${self.progress})`;
+            const idx = Math.min(projects.length - 1, Math.floor(self.progress * projects.length));
+            if (currentRef.current) currentRef.current.textContent = String(idx + 1).padStart(2, '0');
+          },
+        },
       });
-
-      if (total > 1) {
-        cards.forEach((card: any, index) => {
-          if (index > 0) {
-            tl.to(card, { yPercent: 0, pointerEvents: 'auto', duration: 1, ease: 'none' }, `transition${index}`);
-            tl.to(cards[index - 1], { yPercent: -30, pointerEvents: 'none', duration: 1, ease: 'none' }, `transition${index}`);
-          }
-        });
-      }
-
-      tl.to({}, { duration: pauseDuration });
-
-      setTimeout(() => ScrollTrigger.refresh(), 200);
     });
-
     return () => mm.revert();
-  }, { scope: containerRef, dependencies: [projects, prefersReduced, loading] });
+  }, [loading, projects.length, prefersReduced]);
 
-  // Handle language switch gracefully and fix Lenis height calculation
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-      window.dispatchEvent(new Event('resize')); // Force Lenis to recalculate document height
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [locale, loading, projects.length]);
-
-  // Calculate total height for the sticky wrapper. 
-  // Each project gets 100vh of scroll distance.
-  const totalProjects = projects.length || 1;
-  const stickyHeight = !prefersReduced && !loading && totalProjects > 1 
-    ? `${totalProjects * 100}vh` 
-    : 'auto';
-
-  return (
-    <div ref={containerRef} className="relative w-full" style={{ height: stickyHeight }}>
-      <section 
-        ref={sectionRef} 
-        className="sticky top-0 z-10 bg-[#0a0507] h-screen flex flex-col overflow-hidden"
-      >
-        {/* ── Section header ── */}
-        <div className="container relative z-10 mx-auto px-6 md:px-12 lg:px-20 pt-24 md:pt-32 pb-6 shrink-0">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="max-w-4xl text-start">
-              <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
-                <span className="w-12 h-[1px] bg-accent/50" />
-                {t('kicker')}
-              </div>
-              <h2 className="text-5xl md:text-7xl font-serif font-normal text-foreground leading-tight">
-                {t('title')}{' '}
-                <span className="italic" style={{ color: '#951C30' }}>
-                  {t('titleAccent')}
-                </span>
-              </h2>
-            </div>
-          </div>
+  if (loading) {
+    return (
+      <section className="py-24 md:py-32 bg-[#0a0507] relative">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="h-64 animate-pulse rounded-2xl bg-white/5" />
         </div>
-
-        {/* ── Loading ── */}
-        {loading ? (
-          <div className="flex-1 flex justify-center items-center">
-            <div className="animate-pulse flex gap-2">
-              <div className="w-3 h-3 bg-[#951C30] rounded-full animate-bounce" />
-              <div className="w-3 h-3 bg-[#951C30] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-              <div className="w-3 h-3 bg-[#951C30] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-            </div>
-          </div>
-        ) : projects.length === 0 ? (
-          /* ── Empty ── */
-          <div className="flex-1 container mx-auto px-6 md:px-12 lg:px-20 pb-24">
-            <div className="text-center text-slate-500 py-12 border border-white/10 rounded-xl">
-              {t('noProjects')}
-            </div>
-          </div>
-        ) : prefersReduced ? (
-          /* ── Reduced Motion ── */
-          <div className="flex-1 flex flex-col gap-24 pb-24 overflow-y-auto">
-            {projects.map((project, index) => (
-              <div key={project._id as string} className="relative w-full min-h-[60vh]">
-                 <ProjectCard project={project} index={index} total={projects.length} activeIndex={index} locale={locale} t={t} isActive={true} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          /* ── GSAP Showcase ── */
-          <div className="flex-1 relative w-full overflow-hidden">
-            {projects.map((project, index) => (
-              <div 
-                key={project._id as string} 
-                className="project-card absolute inset-0 w-full h-full bg-[#0d0507] overflow-hidden rounded-t-[2rem] lg:rounded-t-[3rem] shadow-[0_-15px_50px_rgba(0,0,0,0.5)] border-t border-white/5"
-              >
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#21060e] via-[#0d0507] to-[#180307]" />
-                  <div 
-                    className="absolute bg-[#951C30] rounded-full mix-blend-screen filter blur-[120px] opacity-[0.15]"
-                    style={{
-                      width: '50vw', height: '50vw',
-                      top: index % 2 === 0 ? '-10%' : 'auto',
-                      bottom: index % 2 !== 0 ? '-10%' : 'auto',
-                      left: index % 2 === 0 ? '-10%' : 'auto',
-                      right: index % 2 !== 0 ? '-10%' : 'auto',
-                    }}
-                  />
-                </div>
-                <div className="relative z-10 w-full h-full">
-                  <ProjectCard project={project} index={index} total={projects.length} activeIndex={activeIndex} locale={locale} t={t} isActive={activeIndex === index} />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </section>
-    </div>
-  );
-}
+    );
+  }
 
-function ProjectCard({ project, index, total, activeIndex, locale, t, isActive }: any) {
-  const title    = resolveText(project.title,    project, 'title',    'en');
-  const category = resolveText(project.category, project, 'category', locale);
-  const sector   = resolveText(project.sector,   project, 'sector',   locale);
-  const num      = String(index + 1).padStart(2, '0');
-  const isLast   = index === total - 1;
-  const isEven   = index % 2 === 0;
+  if (projects.length === 0) {
+    return (
+      <section className="py-24 bg-[#0a0507] relative">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] py-12 text-center text-white/40">{t('noProjects')}</div>
+        </div>
+      </section>
+    );
+  }
 
-  return (
-    <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 lg:p-12 gap-8 ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
-      <div className="relative w-full h-[45vh] lg:h-full lg:w-[50%] shrink-0 flex items-center justify-center">
-        {project.heroMediaUrl ? (
-          <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_2rem_5rem_rgba(0,0,0,0.5)] border border-white/5">
-            <Image src={project.heroMediaUrl as string} alt={title || `Project ${num}`} fill className="object-cover" unoptimized priority={index === 0} />
+  // reduced motion fallback — simple grid
+  if (prefersReduced) {
+    return (
+      <section className="py-24 md:py-32 bg-[#0a0507] relative" id="work">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="max-w-3xl mb-10">
+            <div className="flex items-center gap-4 text-xs tracking-[0.22em] uppercase text-[#951C30] font-semibold mb-3">
+              <span className="w-10 h-px bg-[#951C30]/50" />
+              {t('kicker')}
+            </div>
+            <h2 className="text-4xl md:text-6xl font-serif font-normal leading-[0.9] text-white">
+              {t('title')} <span className="italic font-light" style={{ color: '#951C30' }}>{t('titleAccent')}</span>
+            </h2>
+            <p className="mt-3 max-w-xl text-sm font-light text-white/45">{t('subtitle')}</p>
           </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/20 font-light">{t('noImage')}</div>
-        )}
-        <div className="absolute inset-0 pointer-events-none hidden lg:block" style={{ background: 'linear-gradient(to right, transparent 70%, rgba(13,5,7,0.3))' }} />
-        <span aria-hidden className="absolute -bottom-4 -left-2 rtl:-left-auto rtl:-right-2 lg:-bottom-6 lg:-left-6 rtl:lg:-left-auto rtl:lg:-right-6 font-serif font-extrabold text-white/[0.04] leading-none select-none pointer-events-none drop-shadow-2xl" style={{ fontSize: 'clamp(5rem, 14vw, 12rem)' }}>
-          {num}
-        </span>
-      </div>
-
-      <div className="flex-1 flex flex-col justify-center px-4 py-8 lg:px-8 lg:py-12 gap-5 lg:gap-8 relative">
-        <div className="flex items-center gap-3 text-[10px] rtl:text-xs font-bold uppercase tracking-[0.22em] rtl:tracking-normal text-white/40">
-          <span>{category || sector || t('design')}</span>
-          <span className="w-1 h-1 rounded-full bg-[#951C30]/70 shrink-0" aria-hidden />
-          <span>{project.year as string | number}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {projects.map((p, i) => (
+              <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={i} total={projects.length} locale={locale} t={t} onOpen={openProject} />
+            ))}
+          </div>
         </div>
-        <h3 className="font-serif font-normal leading-[1.08] tracking-[-0.02em] rtl:tracking-normal text-white" style={{ fontSize: 'clamp(1.8rem, 4vw, 3.25rem)' }}>
-          {title}
-        </h3>
-        <Link href={`/work/${project.slug as string}`} className="group/cta inline-flex items-center gap-3 w-fit mt-1" tabIndex={isActive ? 0 : -1}>
-          <span className="block h-px w-8 bg-[#951C30] transition-[width] duration-500 group-hover/cta:w-14" />
-          <span className="text-[11px] rtl:text-xs font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white/55 group-hover/cta:text-white transition-colors duration-300">{t('viewProject')}</span>
-          <span className="text-[#951C30] text-sm transition-transform duration-300 group-hover/cta:translate-x-1.5 rtl:group-hover/cta:-translate-x-1.5 rtl:-scale-x-100 block">→</span>
-        </Link>
-        <div className="flex items-center gap-2 mt-2" aria-hidden>
-          {Array.from({ length: total }).map((_, i) => (
-            <span key={i} className={`block rounded-full transition-all duration-500 ${i === activeIndex ? 'w-7 h-[5px] bg-[#951C30]' : 'w-[5px] h-[5px] bg-white/15'}`} />
-          ))}
-        </div>
-        {isLast && (
-          <div className="mt-4 transition-all duration-500" style={{ opacity: isActive ? 1 : 0, transform: `translateY(${isActive ? 0 : '10px'})` }} aria-hidden={!isActive}>
-            <Link href="/work" tabIndex={isActive ? 0 : -1} className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-sm font-semibold tracking-widest uppercase text-white hover:bg-[#951C30] hover:border-[#951C30] hover:text-white transition-all duration-300">
+        {totalCount > 4 && (
+          <div className="container mx-auto px-6 md:px-12 lg:px-20 mt-12 flex justify-center">
+            <Link
+              href="/work"
+              className="group inline-flex items-center gap-3 rounded-full bg-[#951C30] px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:bg-[#b8223b] hover:shadow-rose-800/40 hover:-translate-y-0.5"
+            >
               {t('seeAll')}
-              <span aria-hidden className="rtl:-scale-x-100 block">→</span>
+              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
             </Link>
           </div>
         )}
+      </section>
+    );
+  }
+
+  return (
+    <section className="work" id="work" aria-label="Selected work">
+      <div id="workPinWrap" className="work__pin-wrap relative bg-[#0a0507]">
+        <header className="work__head container mx-auto px-6 md:px-12 lg:px-20 pt-20 md:pt-24 pb-6">
+          <h2 className="sec-title text-4xl md:text-6xl font-serif font-normal leading-[0.9] text-white">
+            <span className="block overflow-hidden"><span className="block">SELECTED</span></span>
+            <span className="block overflow-hidden">
+              <span className="block italic font-light" style={{ color: '#951C30' }}>
+                WORK<sup className="ml-2 font-mono text-sm align-super">({String(projects.length).padStart(2, '0')})</sup>
+              </span>
+            </span>
+          </h2>
+          <p className="mono mt-4 text-xs tracking-widest text-white/40">
+            SCROLL TO EXPLORE <span className="mx-2">→</span> <span className="text-[#951C30]">CLICK A PROJECT TO OPEN</span>
+          </p>
+        </header>
+
+        <div className="work__viewport overflow-hidden">
+          <div ref={trackRef} id="workTrack" className="work__track flex gap-6 md:gap-8 px-6 md:px-12 lg:px-20 will-change-transform" style={{ width: 'max-content' }}>
+            {projects.map((p, i) => (
+              <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={i} total={projects.length} locale={locale} t={t} onOpen={openProject} />
+            ))}
+          </div>
+          <footer className="work__progress container mx-auto px-6 md:px-12 lg:px-20 py-6 flex items-center gap-4 text-xs font-mono text-white/30" aria-hidden>
+            <span ref={currentRef}>01</span>
+            <div className="work__bar flex-1 h-px bg-white/10 relative overflow-hidden">
+              <span ref={fillRef} className="absolute inset-0 bg-[#951C30] origin-left" style={{ transform: 'scaleX(0)' }} />
+            </div>
+            <span>{String(projects.length).padStart(2, '0')}</span>
+          </footer>
+        </div>
       </div>
-    </div>
+
+      {totalCount > 4 && (
+        <div className="relative z-10 flex justify-center py-16 bg-[#0a0507]">
+          <Link
+            href="/work"
+            className="group inline-flex items-center gap-3 rounded-full bg-[#951C30] px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:bg-[#b8223b] hover:shadow-rose-800/40 hover:-translate-y-0.5"
+          >
+            {t('seeAll')}
+            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+          </Link>
+        </div>
+      )}
+    </section>
   );
 }
+
+const ProjectCard = memo(function ProjectCard({ project, index, total, locale, t, onOpen }: { project: LocalizedProject; index: number; total: number; locale: string; t: (key: string) => string; onOpen: (slug: string) => void }) {
+  const title = resolveText(project.title, project, 'title', locale);
+  const category = resolveText(project.category, project, 'category', locale);
+  const sector = resolveText(project.sector, project, 'sector', locale);
+  const num = String(index + 1).padStart(2, '0');
+
+  return (
+    <article data-project-card data-index={index} className="project group relative flex w-[85vw] md:w-[42vw] lg:w-[38vw] max-w-[520px] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111]/70 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-3 text-[11px] font-mono tracking-widest text-white/40 border-b border-white/5">
+        <span>
+          <b className="text-white">{num}</b> / {String(total).padStart(2, '0')}
+        </span>
+        <span className="truncate">
+          {category || sector || t('design')} {project.year ? `• ${project.year}` : ''}
+        </span>
+      </div>
+      <figure data-project-visual className="relative aspect-[4/3] w-full overflow-hidden bg-[#0a0a0a]">
+        {project.heroMediaUrl ? (
+          <Image src={project.heroMediaUrl as string} alt={title} fill sizes="38vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-sm text-white/20">{t('noImage')}</div>
+        )}
+      </figure>
+      <button
+        data-cursor="view"
+        aria-label={`Open ${title}`}
+        onClick={() => onOpen(project.slug as string)}
+        className="absolute inset-0 z-10"
+      />
+      <figcaption className="p-5">
+        <h3 className="font-serif text-xl font-normal leading-tight text-white line-clamp-1">{title}</h3>
+        <p className="mt-2 line-clamp-2 text-sm font-light leading-relaxed text-white/45">
+          {resolveText(project.description, project, 'description', locale)?.slice(0, 120)}
+        </p>
+      </figcaption>
+    </article>
+  );
+});

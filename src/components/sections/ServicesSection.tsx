@@ -82,7 +82,7 @@ export default function ServicesSection() {
 
             return (
               <div
-                key={service._id}
+                key={String(service._id ?? service.slug ?? service.title ?? `svc-${index}`)}
                 ref={(el) => { itemRefs.current[index] = el; }}
                 className="group relative cursor-pointer"
                 onClick={() => setExpandedIndex(index)}
@@ -158,6 +158,7 @@ export default function ServicesSection() {
                               <img
                                 src={service.image}
                                 alt={title}
+                                loading="lazy"
                                 className="w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0507]/80 to-transparent" />
