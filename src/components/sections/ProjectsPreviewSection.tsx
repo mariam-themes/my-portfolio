@@ -23,7 +23,6 @@ export default function ProjectsPreviewSection() {
   const [projects, setProjects] = useState<LocalizedProject[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
 
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLSpanElement>(null);
@@ -32,14 +31,6 @@ export default function ProjectsPreviewSection() {
   const openProject = useCallback((slug: string) => {
     router.push(`/work/${slug}`);
   }, [router]);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 860px)');
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,11 +51,14 @@ export default function ProjectsPreviewSection() {
     return () => { cancelled = true; };
   }, []);
 
-  // pinned horizontal track — like shrouksamy11 Portfolio Work.jsx
   useLayoutEffect(() => {
     const track = trackRef.current;
     if (!track || loading || !projects.length) return;
-    if (prefersReduced) return;
+
+    if (prefersReduced) {
+      document.body.classList.add('no-pin');
+      return;
+    }
 
     const mm = gsap.matchMedia();
     mm.add('(min-width: 861px)', () => {
@@ -77,14 +71,15 @@ export default function ProjectsPreviewSection() {
           start: 'top top',
           end: () => '+=' + getDistance(),
           pin: true,
-          scrub: 1.2,
+          scrub: 0.9,
           invalidateOnRefresh: true,
           anticipatePin: 1,
-          fastScrollEnd: true,
           onUpdate(self) {
             if (fillRef.current) fillRef.current.style.transform = `scaleX(${self.progress})`;
             const idx = Math.min(projects.length - 1, Math.floor(self.progress * projects.length));
-            if (currentRef.current) currentRef.current.textContent = String(idx + 1).padStart(2, '0');
+            if (currentRef.current && currentRef.current.textContent !== String(idx + 1).padStart(2, '0')) {
+              currentRef.current.textContent = String(idx + 1).padStart(2, '0');
+            }
           },
         },
       });
@@ -112,71 +107,36 @@ export default function ProjectsPreviewSection() {
     );
   }
 
-  // reduced motion fallback or mobile — simple grid
-  if (prefersReduced || isMobile) {
-    return (
-      <section className="py-24 md:py-32 bg-[#0a0507] relative" id="work">
-        <div className="container mx-auto px-6 md:px-12 lg:px-20">
-          <div className="max-w-3xl mb-10">
-            <div className="flex items-center gap-4 text-xs tracking-[0.22em] uppercase text-[#951C30] font-semibold mb-3">
-              <span className="w-10 h-px bg-[#951C30]/50" />
-              {t('kicker')}
-            </div>
-            <h2 className="text-4xl md:text-6xl font-serif font-normal leading-[0.9] text-white">
-              {t('title')} <span className="italic font-light" style={{ color: '#951C30' }}>{t('titleAccent')}</span>
-            </h2>
-            <p className="mt-3 max-w-xl text-sm font-light text-white/45">{t('subtitle')}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((p, i) => (
-              <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={i} total={projects.length} locale={locale} t={t} onOpen={openProject} />
-            ))}
-          </div>
-        </div>
-        {totalCount > 4 && (
-          <div className="container mx-auto px-6 md:px-12 lg:px-20 mt-12 flex justify-center">
-            <Link
-              href="/work"
-              className="group inline-flex items-center gap-3 rounded-full bg-[#951C30] px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:bg-[#b8223b] hover:shadow-rose-800/40 hover:-translate-y-0.5"
-            >
-              {t('seeAll')}
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
-            </Link>
-          </div>
-        )}
-      </section>
-    );
-  }
+  const total = projects.length;
 
   return (
     <section className="work" id="work" aria-label="Selected work">
-      <div id="workPinWrap" className="work__pin-wrap relative bg-[#0a0507]">
-        <header className="work__head container mx-auto px-6 md:px-12 lg:px-20 pt-20 md:pt-24 pb-6">
+      <div id="workPinWrap" className="work__pin-wrap">
+        <header className="work__head container mx-auto px-6 md:px-12 lg:px-20">
           <h2 className="sec-title text-4xl md:text-6xl font-serif font-normal leading-[0.9] text-white">
             <span className="block overflow-hidden"><span className="block">SELECTED</span></span>
             <span className="block overflow-hidden">
               <span className="block italic font-light" style={{ color: '#951C30' }}>
-                WORK<sup className="ml-2 font-mono text-sm align-super">({String(projects.length).padStart(2, '0')})</sup>
+                WORK<sup className="ml-2 font-mono text-sm align-super">({String(total).padStart(2, '0')})</sup>
               </span>
             </span>
           </h2>
-          <p className="mono mt-4 text-xs tracking-widest text-white/40">
+          <p className="mono work__hint mt-4 text-xs tracking-widest text-white/40">
             SCROLL TO EXPLORE <span className="mx-2">→</span> <span className="text-[#951C30]">CLICK A PROJECT TO OPEN</span>
           </p>
         </header>
 
-        <div className="work__viewport overflow-hidden">
-          <div ref={trackRef} id="workTrack" className="work__track flex gap-6 md:gap-8 px-6 md:px-12 lg:px-20 will-change-transform" style={{ width: 'max-content' }}>
+        <div className="work__viewport">
+          <div ref={trackRef} id="workTrack" className="work__track">
             {projects.map((p, i) => (
-              <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={i} total={projects.length} locale={locale} t={t} onOpen={openProject} />
+              <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={i} total={total} locale={locale} t={t} onOpen={openProject} />
             ))}
           </div>
-          <footer className="work__progress container mx-auto px-6 md:px-12 lg:px-20 py-6 flex items-center gap-4 text-xs font-mono text-white/30" aria-hidden>
-            <span ref={currentRef}>01</span>
-            <div className="work__bar flex-1 h-px bg-white/10 relative overflow-hidden">
-              <span ref={fillRef} className="absolute inset-0 bg-[#951C30] origin-left" style={{ transform: 'scaleX(0)' }} />
-            </div>
-            <span>{String(projects.length).padStart(2, '0')}</span>
+
+          <footer className="work__progress" aria-hidden="true">
+            <span className="mono" ref={currentRef}>01</span>
+            <div className="work__bar"><span ref={fillRef}></span></div>
+            <span className="mono">{String(total).padStart(2, '0')}</span>
           </footer>
         </div>
       </div>
@@ -203,31 +163,34 @@ const ProjectCard = memo(function ProjectCard({ project, index, total, locale, t
   const num = String(index + 1).padStart(2, '0');
 
   return (
-    <article data-project-card data-index={index} className="project group relative flex w-[85vw] md:w-[42vw] lg:w-[38vw] max-w-[520px] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111]/70 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-4 py-3 text-[11px] font-mono tracking-widest text-white/40 border-b border-white/5">
-        <span>
-          <b className="text-white">{num}</b> / {String(total).padStart(2, '0')}
+    <article data-project-card data-index={index} className="project">
+      <div className="project__meta-row">
+        <span className="mono">
+          <b className="text-[#951C30]">{num}</b>&nbsp;/&nbsp;{String(total).padStart(2, '0')}
         </span>
-        <span className="truncate">
-          {category || sector || t('design')} {project.year ? `• ${project.year}` : ''}
+        <span className="mono">
+          {category || sector || t('design')}{project.year ? `\u00A0\u00A0·\u00A0\u00A0${project.year}` : ''}
         </span>
       </div>
-      <figure data-project-visual className="relative aspect-[4/3] w-full overflow-hidden bg-[#0a0a0a]">
+
+      <figure data-project-visual className="project__visual">
         {project.heroMediaUrl ? (
-          <Image src={project.heroMediaUrl as string} alt={title} fill sizes="38vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+          <Image src={project.heroMediaUrl as string} alt={title} fill sizes="56vw" className="project__image" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-white/20">{t('noImage')}</div>
         )}
       </figure>
+
       <button
         data-cursor="view"
         aria-label={`Open ${title}`}
         onClick={() => onOpen(project.slug as string)}
-        className="absolute inset-0 z-10"
+        className="project__open"
       />
-      <figcaption className="p-5">
-        <h3 className="font-serif text-xl font-normal leading-tight text-white line-clamp-1">{title}</h3>
-        <p className="mt-2 line-clamp-2 text-sm font-light leading-relaxed text-white/45">
+
+      <figcaption className="project__caption">
+        <h3 className="project__name">{title}</h3>
+        <p className="project__outcome">
           {resolveText(project.description, project, 'description', locale)?.slice(0, 120)}
         </p>
       </figcaption>

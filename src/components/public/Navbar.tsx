@@ -70,7 +70,8 @@ export default function Navbar() {
             : 'bg-transparent py-6'
         )}
       >
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-6">
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 sm:gap-6">
           {/* Logo */}
           <Link
             href="/"
@@ -126,6 +127,7 @@ export default function Navbar() {
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
+          </div>
           </div>
         </div>
       </header>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
@@ -18,6 +18,11 @@ export default function HeroSection() {
   const locale = useLocale();
   const heroRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [hasPointer, setHasPointer] = useState(false);
+
+  useEffect(() => {
+    setHasPointer(window.matchMedia('(pointer: fine)').matches);
+  }, []);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -61,16 +66,18 @@ export default function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => glowOpacity.set(1)}
-      onMouseLeave={() => glowOpacity.set(0)}
+      className="relative flex min-h-[85svh] sm:min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
+      onMouseMove={hasPointer ? handleMouseMove : undefined}
+      onMouseEnter={hasPointer ? () => glowOpacity.set(1) : undefined}
+      onMouseLeave={hasPointer ? () => glowOpacity.set(0) : undefined}
     >
-      {/* Mouse-follow glow — light behind cursor */}
-      <motion.div
-        className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/35 blur-[180px] mix-blend-screen"
-        style={{ left: smoothX, top: smoothY, opacity: glowOpacity, zIndex: 4 }}
-      />
+      {/* Mouse-follow glow — only on desktop with fine pointer */}
+      {hasPointer && (
+        <motion.div
+          className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/35 blur-[180px] mix-blend-screen"
+          style={{ left: smoothX, top: smoothY, opacity: glowOpacity, zIndex: 4 }}
+        />
+      )}
 
       {/* ── Main Content ── */}
       <div

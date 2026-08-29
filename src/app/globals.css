@@ -670,3 +670,138 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
 @media (prefers-reduced-motion: reduce) {
   .animate-infinite-scroll { animation: none; }
 }
+
+/* ============================================================
+   SELECTED WORK — horizontal gallery (shrouksamy11 pattern)
+   ============================================================ */
+.work { position: relative; }
+.work__pin-wrap {
+  position: relative;
+  overflow: clip;
+  background: #0a0507;
+}
+.work__head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 2rem;
+}
+.work__hint { color: rgba(255,255,255,0.4); white-space: nowrap; }
+
+.work__viewport { position: relative; }
+.work__track {
+  display: flex;
+  gap: clamp(1.5rem, 4vw, 5rem);
+  width: max-content;
+  padding: 0 clamp(1.5rem, 4vw, 5rem);
+}
+
+.project {
+  position: relative;
+  width: min(36vw, 36rem);
+  flex-shrink: 0;
+  display: flex; flex-direction: column;
+  gap: 0.9rem;
+  padding-bottom: 2.8rem;
+}
+.project__meta-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  color: rgba(255,255,255,0.4);
+  font-family: ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+.project__meta-row b { font-weight: 500; }
+
+.project__visual {
+  position: relative;
+  height: min(50svh, 30rem);
+  background: #0a0a0a;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.project:hover .project__visual {
+  transform: translateY(-6px);
+  box-shadow: 0 2rem 3.5rem -2rem rgba(0,0,0,0.5);
+}
+.project__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: transform 1s cubic-bezier(0.16,1,0.3,1);
+}
+.project:hover .project__image { transform: scale(1.07); }
+
+.project__open { position: absolute; inset: 0; z-index: 3; }
+
+.project__caption {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.4rem 2rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 0.9rem;
+}
+.project__name {
+  font-family: ui-serif, serif;
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  font-weight: 400; letter-spacing: -0.02em;
+  color: white;
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), color 0.3s;
+}
+.project:hover .project__name { transform: translateX(0.3em); color: #951C30; }
+.project__outcome {
+  font-size: 0.88rem; line-height: 1.45; color: rgba(255,255,255,0.45);
+  max-width: 44ch;
+}
+
+.work__progress {
+  position: absolute;
+  left: 0; right: 0; bottom: 1rem;
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0 clamp(1.5rem, 4vw, 5rem);
+  color: rgba(255,255,255,0.3);
+  font-family: ui-monospace, monospace;
+  font-size: 0.6875rem;
+}
+.work__bar { flex: 1; height: 2px; background: rgba(255,255,255,0.1); position: relative; border-radius: 2px; overflow: hidden; }
+.work__bar span {
+  position: absolute; inset: 0; background: #951C30;
+  transform: scaleX(0); transform-origin: left;
+}
+
+/* desktop pin sizing */
+@media (min-width: 861px) {
+  .work__pin-wrap {
+    min-height: 100svh;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .work__head { padding-top: clamp(1.2rem, 3vh, 2.5rem); padding-bottom: 1rem; }
+}
+
+/* mobile — vertical stack */
+@media (max-width: 860px) {
+  .work__track {
+    flex-direction: column;
+    width: auto; gap: 4rem;
+    padding-bottom: 3rem;
+  }
+  .project { width: 100%; padding-bottom: 0; }
+  .project__visual { height: auto; aspect-ratio: 16 / 11; }
+  .project__caption { grid-template-columns: 1fr; }
+  .work__progress { display: none; }
+  .work__hint { display: none; }
+}
+
+/* reduced-motion fallback: vertical flow on desktop too */
+body.no-pin .work__track {
+  flex-direction: column;
+  width: auto; gap: 4rem;
+  padding-bottom: 3rem;
+}
+body.no-pin .project { width: 100%; max-width: 58rem; }
+body.no-pin .work__progress,
+body.no-pin .work__hint { display: none; }

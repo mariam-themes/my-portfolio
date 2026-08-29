@@ -260,7 +260,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
       {/* Page-wide floating particles */}
       <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden="true">
-        {Array.from({ length: 25 }, (_, i) => ({
+        {Array.from({ length: 15 }, (_, i) => ({
           id: i,
           left: ((i * 37) % 101) - 1,
           top: ((i * 61) % 101) - 1,
