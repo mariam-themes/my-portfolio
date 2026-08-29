@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 
 const SPLASH_KEY = 'm-portfolio-splash-seen';
-const BORDER_DURATION = 2000;
-const HOLD_DURATION = 600;
-const FADE_DURATION = 500;
+const BORDER_DURATION = 1200;
+const HOLD_DURATION = 400;
+const FADE_DURATION = 400;
 
 export default function SplashScreen() {
   const locale = useLocale();
@@ -39,7 +39,7 @@ export default function SplashScreen() {
 
   return (
     <div
-      className={`fixed inset-0 z-[200] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${phase === 'fade' ? 'opacity-0' : 'opacity-100'}`}
+      className={`fixed inset-0 z-[200] flex flex-col items-center justify-center transition-opacity duration-400 ease-in-out ${phase === 'fade' ? 'opacity-0' : 'opacity-100'}`}
       style={{
         background: 'radial-gradient(ellipse at 30% 20%, #3a0c18 0%, #1a0610 35%, #0a0507 70%)',
       }}
@@ -52,7 +52,7 @@ export default function SplashScreen() {
       </div>
 
       {/* Border frame that draws around the text */}
-      <div className="relative z-10 px-16 py-10">
+      <div className="relative z-10 px-12 py-8 sm:px-16 sm:py-10">
         {/* Top border */}
         <div
           className="absolute top-0 left-0 h-[1px] bg-gradient-to-r from-transparent via-[#951C30] to-transparent origin-left"
@@ -98,7 +98,7 @@ export default function SplashScreen() {
 
         {/* Text content */}
         <div className="flex flex-col items-center gap-3">
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-normal tracking-wide">
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl font-normal tracking-wide">
             <span className="text-[#951C30]">
               {locale === 'ar' ? 'مريم' : "Mariam's"}
             </span>
@@ -125,7 +125,7 @@ export default function SplashScreen() {
         }
         .splash-dot {
           opacity: 0;
-          animation: splash-dot 0.4s ease-out forwards;
+          animation: splash-dot 0.3s ease-out forwards;
         }
       `}</style>
     </div>

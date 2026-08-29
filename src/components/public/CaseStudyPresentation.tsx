@@ -260,7 +260,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
       {/* Page-wide floating particles */}
       <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden="true">
-        {Array.from({ length: 50 }, (_, i) => ({
+        {Array.from({ length: 25 }, (_, i) => ({
           id: i,
           left: ((i * 37) % 101) - 1,
           top: ((i * 61) % 101) - 1,
@@ -337,9 +337,8 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
           <section
             data-reveal
             ref={(el) => { sectionRefs.current[0] = el; }}
-            className="px-5 py-12 sm:px-12 lg:px-24"
+            className="px-5 py-6 sm:px-12 lg:px-24"
           >
-            <SectionHeading num="00" label={t('projectDetails')} />
             <MetaSection project={project} />
           </section>
         )}

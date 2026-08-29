@@ -39,18 +39,19 @@ export default async function Footer() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#951C30]/60 to-transparent" />
       {/* Ambient burgundy glow */}
       <div className="pointer-events-none absolute -bottom-24 left-1/2 h-64 w-[42rem] -translate-x-1/2 rounded-full bg-[#951C30]/10 blur-3xl" />
-      {/* Faint brand watermark */}
+      {/* Faint brand watermark — full width on all screens */}
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-0 left-1/2 w-full -translate-x-1/2 select-none text-center font-serif font-bold leading-none text-white/[0.025] text-[18vw]"
+        className="pointer-events-none absolute bottom-0 left-0 w-full select-none text-center font-serif font-bold leading-none text-white/[0.025]"
+        style={{ fontSize: '18vw' }}
       >
         {settings.siteName}
       </div>
 
       <div className="container relative mx-auto px-6 lg:px-12 py-12 md:py-16">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Brand */}
-          <div className="lg:col-span-6">
+          <div className="sm:col-span-2 lg:col-span-6">
             <Link href="/" className="group flex w-fit items-center gap-3">
               <div className="relative h-12 w-12 overflow-hidden rounded-full border border-white/10 transition-transform duration-500 group-hover:scale-105">
                 <Image

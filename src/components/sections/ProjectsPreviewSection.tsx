@@ -68,9 +68,10 @@ export default function ProjectsPreviewSection() {
           start: 'top top',
           end: () => '+=' + getDistance(),
           pin: true,
-          scrub: 0.9,
+          scrub: 1.2,
           invalidateOnRefresh: true,
           anticipatePin: 1,
+          fastScrollEnd: true,
           onUpdate(self) {
             if (fillRef.current) fillRef.current.style.transform = `scaleX(${self.progress})`;
             const idx = Math.min(projects.length - 1, Math.floor(self.progress * projects.length));
