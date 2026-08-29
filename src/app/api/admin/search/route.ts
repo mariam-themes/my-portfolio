@@ -20,10 +20,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data: [] }, { status: 200 });
     }
 
-    await connectToDatabase();
-
-    // Case-insensitive regex
-    const regex = new RegExp(q, 'i');
+    // Escape regex special characters to prevent ReDoS / Regex Injection
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'i');
 
     // 1. Search Projects
     const projectsPromise = Project.find({

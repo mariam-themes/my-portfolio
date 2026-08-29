@@ -73,7 +73,7 @@ export function Media({ item, alt, priority = false }: { item?: Partial<GalleryI
   if (!item?.url) return <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,#6a1631,transparent_45%),#16040a]" />;
   if (item.type === 'video') return <video src={item.url} autoPlay loop muted playsInline controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="h-full w-full object-cover" aria-label={alt} />;
   if (item.type === 'gif') return <img src={item.url} alt={alt} className="h-full w-full object-cover" loading={priority ? 'eager' : 'lazy'} />;
-  return <Image src={item.url} alt={alt} fill unoptimized priority={priority} sizes="(min-width: 1024px) 50vw, 92vw" className="object-cover" />;
+  return <Image src={item.url} alt={alt} fill priority={priority} sizes="(min-width: 1024px) 50vw, 92vw" className="object-cover" />;
 }
 
 export function ImageBackground() {

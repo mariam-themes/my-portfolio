@@ -14,15 +14,36 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Detect the ACTUAL device, not just viewport width.
+// Touch devices / coarse pointers (phones, tablets) should always get the
+// vertical stack — even when "Desktop Site" makes the viewport wide.
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: none), (pointer: coarse)');
+    setIsTouch(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isTouch;
+}
+
 export default function ProjectsPreviewSection() {
   const locale = useLocale();
   const t = useTranslations('ProjectsPreview');
   const prefersReduced = useReducedMotion() ?? false;
   const router = useRouter();
+  const isTouch = useIsTouchDevice();
+  const isRtl = locale === 'ar';
 
   const [projects, setProjects] = useState<LocalizedProject[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // For RTL: reverse projects so first project (index 0) appears at track start (right edge in RTL viewport)
+  const displayProjects = isRtl ? [...projects].reverse() : projects;
+  const total = displayProjects.length;
 
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLSpanElement>(null);
@@ -51,18 +72,27 @@ export default function ProjectsPreviewSection() {
     return () => { cancelled = true; };
   }, []);
 
+  // useLayoutEffect for GSAP scroll trigger - MUST be before any early returns
+  // to maintain stable hook order. The effect itself returns early if conditions aren't met.
   useLayoutEffect(() => {
     const track = trackRef.current;
-    if (!track || loading || !projects.length) return;
+    if (!track || loading || !displayProjects.length) return;
 
-    if (prefersReduced) {
+    // Touch device OR reduced motion => vertical stack, no pin.
+    if (prefersReduced || isTouch) {
       document.body.classList.add('no-pin');
       return;
     }
 
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 861px)', () => {
-      const getDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+    mm.add('(min-width: 861px) and (hover: hover) and (pointer: fine)', () => {
+      // Calculate actual scrollable distance: track content width minus viewport width
+      const getDistance = () => {
+        const trackWidth = track.scrollWidth;
+        const viewportWidth = track.parentElement?.clientWidth ?? window.innerWidth;
+        return Math.max(0, trackWidth - viewportWidth);
+      };
+
       gsap.to(track, {
         x: () => -getDistance(),
         ease: 'none',
@@ -76,7 +106,7 @@ export default function ProjectsPreviewSection() {
           anticipatePin: 1,
           onUpdate(self) {
             if (fillRef.current) fillRef.current.style.transform = `scaleX(${self.progress})`;
-            const idx = Math.min(projects.length - 1, Math.floor(self.progress * projects.length));
+            const idx = Math.min(total - 1, Math.floor(self.progress * total));
             if (currentRef.current && currentRef.current.textContent !== String(idx + 1).padStart(2, '0')) {
               currentRef.current.textContent = String(idx + 1).padStart(2, '0');
             }
@@ -85,7 +115,7 @@ export default function ProjectsPreviewSection() {
       });
     });
     return () => mm.revert();
-  }, [loading, projects.length, prefersReduced]);
+  }, [loading, displayProjects.length, prefersReduced, isTouch, total]);
 
   if (loading) {
     return (
@@ -107,28 +137,23 @@ export default function ProjectsPreviewSection() {
     );
   }
 
-  const total = projects.length;
-
   return (
     <section className="work" id="work" aria-label="Selected work">
       <div id="workPinWrap" className="work__pin-wrap">
         <header className="work__head container mx-auto px-6 md:px-12 lg:px-20">
           <h2 className="sec-title text-4xl md:text-6xl font-serif font-normal leading-[0.9] text-white">
-            <span className="block overflow-hidden"><span className="block">SELECTED</span></span>
             <span className="block overflow-hidden">
-              <span className="block italic font-light" style={{ color: '#951C30' }}>
-                WORK<sup className="ml-2 font-mono text-sm align-super">({String(total).padStart(2, '0')})</sup>
-              </span>
+              <span className="block">{t('kicker')}</span>
             </span>
           </h2>
-          <p className="mono work__hint mt-4 text-xs tracking-widest text-white/40">
-            SCROLL TO EXPLORE <span className="mx-2">→</span> <span className="text-[#951C30]">CLICK A PROJECT TO OPEN</span>
+          <p className="mono work__hint mt-4 text-xs tracking-widest text-white/40 rtl:text-right">
+            {t('scrollHint')}
           </p>
         </header>
 
         <div className="work__viewport">
-          <div ref={trackRef} id="workTrack" className="work__track">
-            {projects.map((p, i) => (
+          <div ref={trackRef} id="workTrack" className="work__track" dir="ltr">
+            {displayProjects.map((p, i) => (
               <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={i} total={total} locale={locale} t={t} onOpen={openProject} />
             ))}
           </div>

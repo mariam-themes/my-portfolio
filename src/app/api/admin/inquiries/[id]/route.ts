@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import { Inquiry } from '@/models/Inquiry';
 import type { InquiryStatus } from '@/models/Inquiry';
+import { logActivity, extractIp } from '@/lib/activity-log';
 
 const VALID_STATUSES: InquiryStatus[] = ['new', 'contacted', 'closed'];
 
@@ -36,8 +37,18 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: 'Inquiry not found' }, { status: 404 });
     }
 
+    const oldStatus = inquiry.status;
     inquiry.status = body.status;
     await inquiry.save();
+
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'INQUIRY_STATUS_UPDATE',
+      entityType: 'inquiry',
+      entityId: id,
+      details: { fromStatus: oldStatus, toStatus: body.status, name: inquiry.name, email: inquiry.email },
+      ip: extractIp(request),
+    });
 
     return NextResponse.json({ success: true, data: inquiry }, { status: 200 });
   } catch (error) {
@@ -68,6 +79,15 @@ export async function DELETE(
     if (!deletedInquiry) {
       return NextResponse.json({ success: false, error: 'Inquiry not found' }, { status: 404 });
     }
+
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'INQUIRY_DELETE',
+      entityType: 'inquiry',
+      entityId: id,
+      details: { name: deletedInquiry.name, email: deletedInquiry.email, service: deletedInquiry.service },
+      ip: extractIp(request),
+    });
 
     return NextResponse.json({ success: true, message: 'Inquiry deleted' }, { status: 200 });
   } catch (error) {

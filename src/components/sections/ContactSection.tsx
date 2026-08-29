@@ -24,18 +24,18 @@ export default async function ContactSection() {
       {/* Ambient glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 -left-32 rtl:-left-auto rtl:-right-32 h-[40rem] w-[40rem] rounded-full bg-[#951C30]/10 blur-[140px]"
+        className="pointer-events-none absolute -top-40 -left-32 rtl:-left-auto rtl:-right-32 h-[40rem] w-[40rem] max-w-[90vw] rounded-full bg-[#951C30]/10 blur-[140px]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-0 right-0 rtl:right-auto rtl:left-0 h-[30rem] w-[30rem] rounded-full bg-rose-900/8 blur-[120px]"
+        className="pointer-events-none absolute bottom-0 right-0 rtl:right-auto rtl:left-0 h-[30rem] w-[30rem] max-w-[80vw] rounded-full bg-rose-900/8 blur-[120px]"
       />
 
-      <div className="relative mx-auto w-full max-w-7xl px-6 py-24 md:py-32 md:px-12 lg:px-20">
+      <div className="relative mx-auto w-full max-w-7xl px-6 py-16 md:py-24 lg:py-32 md:px-12 lg:px-20">
 
         {/* ── Top kicker line ── */}
         <ContactSectionClient>
-          <div className="mb-20 flex items-center gap-5">
+          <div className="mb-12 md:mb-20 flex items-center gap-5">
             <div className="h-px flex-1 max-w-[4rem] bg-gradient-to-r from-[#951C30]/80 to-[#951C30]/20" />
             <span className="text-[10px] font-bold uppercase tracking-[0.35em] rtl:tracking-normal text-[#951C30]">
               {t('kicker')}
@@ -43,14 +43,14 @@ export default async function ContactSection() {
           </div>
         </ContactSectionClient>
 
-        <div className="grid gap-20 lg:grid-cols-[1fr_1.1fr] lg:gap-16 xl:gap-24 items-start">
+        <div className="grid gap-12 md:gap-16 lg:grid-cols-[1fr_1.1fr] lg:gap-16 xl:gap-24 items-start">
 
           {/* ── Left: Headline + contacts ── */}
           <ContactSectionClient side="left">
             <div className="space-y-12 lg:sticky lg:top-32">
               {/* Headline */}
               <div className="space-y-5" data-reveal-child>
-                <h2 className="font-serif text-[clamp(2.8rem,6vw,5.5rem)] font-normal leading-[1.05] text-white">
+                <h2 className="font-serif text-[clamp(2.2rem,6vw,5.5rem)] font-normal leading-[1.05] text-white">
                   {t('title').split(' ').map((word, i, arr) => (
                     <span
                       key={i}
@@ -134,7 +134,7 @@ export default async function ContactSection() {
 
           {/* ── Right: Form ── */}
           <ContactSectionClient side="right">
-            <div className="relative rounded-3xl border border-rose-100/8 bg-white/[0.02] p-8 sm:p-12 backdrop-blur-sm shadow-[inset_0_1px_0_0_rgba(149,28,48,0.06),inset_0_0_60px_rgba(149,28,48,0.03)]" data-reveal-child>
+            <div className="relative rounded-3xl border border-rose-100/8 bg-white/[0.02] p-6 sm:p-8 lg:p-12 backdrop-blur-sm shadow-[inset_0_1px_0_0_rgba(149,28,48,0.06),inset_0_0_60px_rgba(149,28,48,0.03)]" data-reveal-child>
               {/* Corner accent */}
               <div
                 aria-hidden

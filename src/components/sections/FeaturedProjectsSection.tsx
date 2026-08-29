@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { type LocalizedProject } from '@/lib/localizeProject';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -12,10 +12,15 @@ const MAX_FEATURED = 3;
 
 export default function FeaturedProjectsSection() {
   const t = useTranslations('FeaturedProjects');
+  const locale = useLocale();
   const shouldReduceMotion = useReducedMotion();
+  const isRtl = locale === 'ar';
   const [projects, setProjects] = useState<LocalizedProject[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // For RTL: reverse so first project appears on right (where RTL reading starts)
+  const displayProjects = isRtl ? [...projects].reverse() : projects;
 
   useEffect(() => {
     async function fetchFeatured() {
@@ -40,22 +45,22 @@ export default function FeaturedProjectsSection() {
   if (!loading && projects.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
+    <section className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
       <div className="container mx-auto px-6 md:px-12 lg:px-20">
         {/* Header */}
-        <div className="mx-auto max-w-4xl mb-16 md:mb-20 text-center">
-          <div className="flex items-center justify-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
+        <div className="mx-auto max-w-4xl mb-10 md:mb-16 lg:mb-20 text-center rtl:text-right">
+          <div className="flex items-center justify-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4 rtl:tracking-normal">
             <span className="w-12 h-[1px] bg-accent/50" />
             {t('kicker')}
             <span className="w-12 h-[1px] bg-accent/50" />
           </div>
-          <h2 className="text-4xl md:text-6xl font-serif font-normal text-foreground leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-serif font-normal text-foreground leading-tight">
             {t('title')}{' '}
             <span className="italic" style={{ color: '#951C30' }}>
               {t('titleAccent')}
             </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-white/50 font-light leading-relaxed">
+          <p className="mx-auto mt-5 max-w-xl text-white/50 font-light leading-relaxed rtl:text-right">
             {t('subtitle')}
           </p>
         </div>
@@ -80,11 +85,11 @@ export default function FeaturedProjectsSection() {
             ))}
           </div>
         ) : (
-          <div className="relative flex flex-col md:flex-row items-stretch justify-center gap-5 md:gap-4 lg:gap-5" dir="ltr">
+          <div className="relative flex flex-col md:flex-row items-stretch justify-center gap-5 md:gap-4 lg:gap-5">
             {/* subtle base / pedestal */}
             <div className="pointer-events-none absolute inset-x-0 -bottom-4 hidden h-8 rounded-[2rem] bg-white/[0.02] blur-2xl md:block" />
 
-            {projects.map((project, i) => {
+            {displayProjects.map((project, i) => {
               const isMiddle = i === 1;
               const initial: Record<string, number> = shouldReduceMotion
                 ? { opacity: 0 }

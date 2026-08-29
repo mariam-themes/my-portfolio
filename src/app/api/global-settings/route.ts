@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import connectToDatabase from '@/lib/mongodb';
 import GlobalSettings, {
   DEFAULT_GLOBAL_SETTINGS,
 } from '@/models/GlobalSettings';
+import { logActivity, extractIp } from '@/lib/activity-log';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +26,11 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const token = await getToken({ req: request as any });
+  if (!token || token.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     await connectToDatabase();
     const body = await request.json();
@@ -55,6 +62,24 @@ export async function PUT(request: Request) {
     const updated = await GlobalSettings.findOneAndUpdate({}, update, {
       new: true,
       upsert: true,
+    });
+
+    await logActivity({
+      adminId: token.id || 'unknown',
+      action: 'GLOBAL_SETTINGS_UPDATE',
+      entityType: 'global_settings',
+      details: {
+        siteNameUpdated: !!body.siteName,
+        logoUrlUpdated: !!body.logoUrl,
+        emailUpdated: !!body.email,
+        whatsappUpdated: !!body.whatsapp,
+        copyrightUpdated: !!body.copyright,
+        seoTitleUpdated: !!body.seoTitle,
+        seoDescriptionUpdated: !!body.seoDescription,
+        socialsUpdated: Array.isArray(body.socials),
+        usefulLinksUpdated: Array.isArray(body.usefulLinks),
+      },
+      ip: extractIp(request),
     });
 
     return NextResponse.json({ success: true, data: updated });

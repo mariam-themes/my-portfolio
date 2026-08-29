@@ -773,8 +773,9 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
   transform: scaleX(0); transform-origin: left;
 }
 
-/* desktop pin sizing */
-@media (min-width: 861px) {
+/* desktop pin sizing — only when NOT a touch device (so "Desktop Site"
+   on a phone still gets the vertical stack) */
+@media (min-width: 861px) and (hover: hover) and (pointer: fine) {
   .work__pin-wrap {
     min-height: 100svh;
     display: flex; flex-direction: column; justify-content: center;
@@ -782,26 +783,35 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
   .work__head { padding-top: clamp(1.2rem, 3vh, 2.5rem); padding-bottom: 1rem; }
 }
 
-/* mobile — vertical stack */
-@media (max-width: 860px) {
-  .work__track {
-    flex-direction: column;
-    width: auto; gap: 4rem;
-    padding-bottom: 3rem;
-  }
-  .project { width: 100%; padding-bottom: 0; }
-  .project__visual { height: auto; aspect-ratio: 16 / 11; }
-  .project__caption { grid-template-columns: 1fr; }
-  .work__progress { display: none; }
-  .work__hint { display: none; }
-}
-
-/* reduced-motion fallback: vertical flow on desktop too */
+/* vertical stack — touch devices, reduced motion, and small screens */
+.work__track,
 body.no-pin .work__track {
   flex-direction: column;
-  width: auto; gap: 4rem;
+  width: auto; gap: 2.5rem;
   padding-bottom: 3rem;
 }
-body.no-pin .project { width: 100%; max-width: 58rem; }
-body.no-pin .work__progress,
-body.no-pin .work__hint { display: none; }
+.project,
+body.no-pin .project { width: 100%; padding-bottom: 0; }
+.project__visual { height: auto; aspect-ratio: 16 / 11; }
+.project__caption { grid-template-columns: 1fr; }
+.work__progress { display: none; }
+.work__hint { display: none; }
+
+/* On wide DESKTOP (mouse) the horizontal track is re-enabled by JS pin */
+@media (min-width: 861px) and (hover: hover) and (pointer: fine) {
+  body:not(.no-pin) .work__track {
+    flex-direction: row;
+    width: max-content;
+    gap: clamp(1.5rem, 4vw, 5rem);
+  }
+  body:not(.no-pin) .project { width: min(36vw, 36rem); }
+  body:not(.no-pin) .work__progress { display: flex; }
+  body:not(.no-pin) .work__hint { display: inline; }
+}
+
+/* Splash gate: when the pre-paint script detects the splash was already seen
+   this session (or noSplash=1), it adds `splash-prehidden` to <html> so the
+   splash is hidden BEFORE first paint — a refresh shows the Portfolio directly. */
+html.splash-prehidden [data-splash] {
+  display: none !important;
+}

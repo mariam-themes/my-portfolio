@@ -58,7 +58,7 @@ export default async function Footer() {
                 alt={settings.siteName}
                 fill
                 className="object-cover"
-                unoptimized
+                sizes="40px"
               />
             </div>
             <span className="font-serif text-lg font-semibold tracking-wide text-white">

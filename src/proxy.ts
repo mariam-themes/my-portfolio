@@ -10,8 +10,6 @@ const handleI18nRouting = createMiddleware(routing);
 const ADMIN_API_PATHS = [
   '/api/admin',
   '/api/upload',
-  '/api/setup',
-  '/api/seed',
 ];
 
 // Fully public API paths — always pass through with no auth check.
@@ -19,6 +17,9 @@ const PUBLIC_API_PATHS = ['/api/section-layout', '/api/projects', '/api/inquirie
 
 // Content that is publicly readable but only writable by an admin.
 const CONTRIB_PATHS = ['/api/blogs'];
+
+// Publicly readable site content that is only mutable by an admin.
+const ADMIN_WRITE_PATHS = ['/api/about-me', '/api/global-settings'];
 
 // Testimonials: publicly readable (GET) and publicly submittable (POST → a
 // pending review). Mutations (PUT/DELETE) still require an admin token.
@@ -68,6 +69,19 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Site content settings: GET is public; mutations (PUT/POST/DELETE) require
+  // an admin token. Enforced authoritatively in the route handlers as well.
+  if (ADMIN_WRITE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    if (request.method === 'GET') {
+      return NextResponse.next();
+    }
+    const token = await getToken({ req: request });
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
   // Admin dashboard: auth guard + cookie-based language (kept outside the
   // locale prefix). We stamp `x-next-intl-locale` so next-intl and RTL work.
   if (pathname.startsWith('/admin')) {
@@ -100,7 +114,7 @@ export const config = {
     '/api/blogs/:path*',
     '/api/testimonials/:path*',
     '/api/section-layout/:path*',
-    '/api/setup',
-    '/api/seed',
+    '/api/about-me',
+    '/api/global-settings',
   ],
 };

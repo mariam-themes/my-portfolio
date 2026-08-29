@@ -53,13 +53,19 @@ export default function OtherProjectsSection() {
           );
 
           const few = urls.length <= 2;
+          const coarse =
+            typeof window !== 'undefined' &&
+            window.matchMedia('(hover: none), (pointer: coarse)').matches;
           setImages(
             urls.map((url, i) => ({
               url,
               // When there are only 1-2 images, keep them calm and centered
               // (minimal rotation, no vertical scatter). Otherwise scatter.
-              rotate: few ? (pseudo(i + 1) - 0.5) * 4 : (pseudo(i + 1) - 0.5) * 8,
-              offset: few ? 0 : Math.round((pseudo(i + 7) - 0.5) * 48),
+              // On touch devices, reduce scatter so the collage stays clean.
+              rotate: few
+                ? (pseudo(i + 1) - 0.5) * (coarse ? 2 : 4)
+                : (pseudo(i + 1) - 0.5) * (coarse ? 4 : 8),
+              offset: few ? 0 : coarse ? 0 : Math.round((pseudo(i + 7) - 0.5) * 48),
               seed: i,
             }))
           );
@@ -77,15 +83,15 @@ export default function OtherProjectsSection() {
   if (!loading && images.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
+    <section className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
       <div className="container mx-auto px-6 md:px-12 lg:px-20">
         {/* Header */}
-        <div className="max-w-4xl mb-16 text-start">
+        <div className="max-w-4xl mb-10 md:mb-16 text-start">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50" />
             {t('kicker')}
           </div>
-          <h2 className="text-4xl md:text-6xl font-serif font-normal text-foreground leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-serif font-normal text-foreground leading-tight">
             {t('title')}{' '}
             <span className="italic" style={{ color: '#951C30' }}>
               {t('titleAccent')}

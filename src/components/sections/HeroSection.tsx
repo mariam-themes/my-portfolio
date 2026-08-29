@@ -66,7 +66,7 @@ export default function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[85svh] sm:min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
+      className="relative flex min-h-[78svh] sm:min-h-[88svh] md:min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
       onMouseMove={hasPointer ? handleMouseMove : undefined}
       onMouseEnter={hasPointer ? () => glowOpacity.set(1) : undefined}
       onMouseLeave={hasPointer ? () => glowOpacity.set(0) : undefined}
@@ -82,7 +82,7 @@ export default function HeroSection() {
       {/* ── Main Content ── */}
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20 transform-gpu pt-28 sm:pt-32"
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20 transform-gpu pt-24 sm:pt-28"
       >
         {/* Kicker line */}
         <div className="hero-kicker mb-8 flex items-center gap-5 justify-center">
@@ -101,10 +101,10 @@ export default function HeroSection() {
           aria-hidden
           className="text-center select-none"
         >
-          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(3.5rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(3.2rem,12vw,10.5rem)] font-semibold leading-[0.88]'} text-[#f5f2f3]`}>
+          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(2.8rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(2.6rem,12vw,10.5rem)] font-semibold leading-[0.88]'} text-[#f5f2f3]`}>
             {t('nameTop')}
           </div>
-          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(3.5rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(3.2rem,12vw,10.5rem)] font-semibold leading-[0.88]'}`}>
+          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(2.8rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(2.6rem,12vw,10.5rem)] font-semibold leading-[0.88]'}`}>
             {/* Second line gets the accent */}
             <span
               className="italic"
@@ -122,29 +122,29 @@ export default function HeroSection() {
         </div>
 
         {/* Subtitle */}
-        <p className="hero-subtitle mx-auto mt-8 max-w-xl text-center text-base sm:text-lg font-light leading-relaxed text-white/60">
+        <p className="hero-subtitle mx-auto mt-6 max-w-xl text-center text-sm sm:text-base md:text-lg font-light leading-relaxed text-white/60">
           {t('subtitle')}
         </p>
 
         {/* CTAs */}
-        <div className="hero-ctas mt-10 flex flex-wrap items-center justify-center gap-4">
+        <div className="hero-ctas mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           <Link
             href="/contact"
-            className="group inline-flex items-center gap-2.5 rounded-full bg-[#951C30] px-8 py-4 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white shadow-[0_0_40px_rgba(149,28,48,0.4)] transition-all duration-300 hover:bg-[#b8223b] hover:shadow-[0_0_60px_rgba(149,28,48,0.6)] hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-[#951C30] px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white shadow-[0_0_40px_rgba(149,28,48,0.4)] transition-all duration-300 hover:bg-[#b8223b] hover:shadow-[0_0_60px_rgba(149,28,48,0.6)] hover:-translate-y-0.5"
           >
             {t('ctaPrimary')}
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 rtl:-scale-x-100" />
           </Link>
           <Link
             href="/work"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-8 py-4 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white/80 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/[0.08] hover:text-white hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white/80 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/[0.08] hover:text-white hover:-translate-y-0.5"
           >
             {t('ctaSecondary')}
           </Link>
         </div>
 
         {/* Scroll cue */}
-        <div className="hero-scroll mt-16 flex justify-center">
+        <div className="hero-scroll mt-12 flex justify-center sm:mt-16">
           <motion.div
             className="flex flex-col items-center gap-2 cursor-default"
             animate={{ y: [0, 6, 0] }}

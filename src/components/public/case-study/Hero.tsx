@@ -2,6 +2,7 @@ import { useLayoutEffect, useMemo, useRef } from 'react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { gsap } from 'gsap';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Project } from '@/types/case-study';
 
 export function Hero({ project, reducedMotion }: { project: Project; reducedMotion: boolean }) {
@@ -38,14 +39,17 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
   const heroImage = project.heroMediaUrl || project.gallery?.[0]?.url;
 
   return (
-    <section ref={heroRef} className="relative flex min-h-[70svh] sm:min-h-[100svh] flex-col justify-end px-5 pb-16 pt-24 sm:px-12 sm:pb-24 sm:pt-32 lg:px-16 overflow-hidden">
+    <section ref={heroRef} className="relative flex min-h-[70svh] sm:min-h-[100svh] flex-col justify-end px-5 pb-16 pt-16 sm:px-12 sm:pb-20 sm:pt-24 lg:px-16 overflow-hidden">
 
       {/* Background image */}
       {heroImage && (
         <div data-hero-image className="absolute inset-0 z-0">
-          <img
+          <Image
             src={heroImage}
             alt={project.title}
+            fill
+            priority
+            sizes="100vw"
             className="h-full w-full object-cover object-center"
           />
           {/* Multi-layer gradient overlay for depth */}

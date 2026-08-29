@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Service from '@/models/Service';
 import { autoTranslate, isArabic } from '@/lib/translate';
+import { logActivity, extractIp } from '@/lib/activity-log';
 
 export async function GET() {
   try {
@@ -56,6 +57,15 @@ export async function POST(request: Request) {
     }
 
     const service = await Service.create(body);
+
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'SERVICE_CREATE',
+      entityType: 'service',
+      entityId: service._id.toString(),
+      details: { title: service.title },
+      ip: extractIp(request),
+    });
 
     return NextResponse.json({ success: true, data: service }, { status: 201 });
   } catch (error: any) {

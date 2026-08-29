@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Service from '@/models/Service';
 import { autoTranslate, isArabic } from '@/lib/translate';
+import { logActivity, extractIp } from '@/lib/activity-log';
 
 export async function PUT(
   request: Request,
@@ -53,6 +54,15 @@ export async function PUT(
       return NextResponse.json({ success: false, error: 'Service not found' }, { status: 404 });
     }
 
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'SERVICE_UPDATE',
+      entityType: 'service',
+      entityId: id,
+      details: { title: service.title },
+      ip: extractIp(request),
+    });
+
     return NextResponse.json({ success: true, data: service }, { status: 200 });
   } catch (error: any) {
     console.error('Error updating service:', error);
@@ -81,6 +91,15 @@ export async function DELETE(
     if (!service) {
       return NextResponse.json({ success: false, error: 'Service not found' }, { status: 404 });
     }
+
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'SERVICE_DELETE',
+      entityType: 'service',
+      entityId: id,
+      details: { title: service.title },
+      ip: extractIp(request),
+    });
 
     return NextResponse.json({ success: true, data: {} }, { status: 200 });
   } catch (error: any) {

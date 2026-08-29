@@ -5,6 +5,7 @@ import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
 import cloudinary, { extractPublicId } from '@/lib/cloudinary';
 import { buildProjectTranslations } from '@/lib/translate';
+import { logActivity, extractIp } from '@/lib/activity-log';
 
 export async function GET(
   request: Request,
@@ -96,6 +97,15 @@ export async function PUT(
       console.error('Failed to clean up old images from Cloudinary during PUT:', cleanupError);
     }
 
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'PROJECT_UPDATE',
+      entityType: 'project',
+      entityId: id,
+      details: { title: updatedProject.title, slug: updatedProject.slug },
+      ip: extractIp(request),
+    });
+
     return NextResponse.json({ success: true, data: updatedProject }, { status: 200 });
   } catch (error: any) {
     console.error('Error updating project:', error);
@@ -151,6 +161,15 @@ export async function DELETE(
     } catch (cleanupError) {
       console.error('Failed to clean up images from Cloudinary, continuing anyway:', cleanupError);
     }
+
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'PROJECT_DELETE',
+      entityType: 'project',
+      entityId: id,
+      details: { title: deletedProject.title, slug: deletedProject.slug },
+      ip: extractIp(request),
+    });
 
     return NextResponse.json({ success: true, message: 'Project deleted successfully' }, { status: 200 });
   } catch (error: any) {

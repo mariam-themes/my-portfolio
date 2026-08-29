@@ -11,17 +11,24 @@ const TOTAL_MS = DRAW_MS + HOLD_MS + FADE_MS;
 
 export default function SplashScreen() {
   const locale = useLocale();
-  const [show, setShow] = useState(false);
+  // Initial state is `true` so the splash is present in the SSR HTML and is
+  // the FIRST visual state the user sees (no Portfolio flash).
+  const [show, setShow] = useState(true);
   const [fading, setFading] = useState(false);
   const timerRef = useRef<{ hold: ReturnType<typeof setTimeout>; fade: ReturnType<typeof setTimeout> } | null>(null);
 
   useEffect(() => {
     try {
-      if (window.location.search.includes('noSplash=1')) return;
-      if (sessionStorage.getItem(SPLASH_KEY)) return;
+      if (window.location.search.includes('noSplash=1')) {
+        setShow(false);
+        return;
+      }
+      // Already shown this session → skip (the pre-paint script already hid it).
+      if (sessionStorage.getItem(SPLASH_KEY)) {
+        setShow(false);
+        return;
+      }
     } catch {}
-
-    setShow(true);
 
     timerRef.current = {
       hold: setTimeout(() => setFading(true), DRAW_MS + HOLD_MS),
@@ -43,6 +50,7 @@ export default function SplashScreen() {
 
   return (
     <div
+      data-splash
       className={`fixed inset-0 z-[200] flex flex-col items-center justify-center transition-opacity ${fading ? 'opacity-0 duration-400' : 'opacity-100 duration-0'}`}
       style={{
         background: 'radial-gradient(ellipse at 30% 20%, #3a0c18 0%, #1a0610 35%, #0a0507 70%)',

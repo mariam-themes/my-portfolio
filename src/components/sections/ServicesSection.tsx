@@ -49,11 +49,11 @@ export default function ServicesSection() {
   if (!services || services.length === 0) return null;
 
   return (
-    <section id="services" className="py-24 md:py-32 text-white relative">
+    <section id="services" className="py-16 md:py-24 lg:py-32 text-white relative">
       <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-16 gap-8">
           <div className="flex items-center gap-6">
             <div className="w-12 h-[1px] bg-rose-900/50" />
             <h2 className="text-sm tracking-[0.3em] uppercase text-rose-100/60 font-medium">
@@ -94,13 +94,13 @@ export default function ServicesSection() {
                       : 'border-rose-900/20 bg-white/[0.01] hover:border-rose-500/25'}`}
                 >
                   {/* Header Row */}
-                  <div className="w-full px-6 md:px-10 py-7 md:py-9 flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-5 md:gap-10 min-w-0">
+                  <div className="w-full px-5 sm:px-6 md:px-10 py-6 md:py-9 flex items-center justify-between gap-4 sm:gap-6">
+                    <div className="flex items-center gap-4 sm:gap-5 md:gap-10 min-w-0">
                       <span className="shrink-0 text-xs md:text-sm font-mono text-rose-500/50 tracking-[0.2em]">
                         {num}
                       </span>
                       <h3
-                        className={`font-bold uppercase tracking-tight leading-none transition-colors duration-400 truncate text-2xl md:text-4xl lg:text-5xl ${
+                        className={`font-bold uppercase tracking-tight leading-none transition-colors duration-400 text-xl sm:text-2xl md:text-4xl lg:text-5xl break-words ${
                           isExpanded ? 'text-white' : 'text-rose-100/30 group-hover:text-rose-100/55'
                         }`}
                       >

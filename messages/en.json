@@ -171,7 +171,10 @@
     "noProjects": "No projects published yet.",
     "noImage": "No Image Available",
     "design": "Design",
-    "viewProject": "View Project"
+    "viewProject": "View Project",
+    "selected": "SELECTED",
+    "work": "WORK",
+    "scrollHint": "SCROLL TO EXPLORE → CLICK A PROJECT TO OPEN"
   },
   "BlogPreview": {
     "kicker": "JOURNAL",
@@ -462,7 +465,7 @@
       "undo": "Undo",
       "redo": "Redo"
     },
-    "homeSections": {
+"homeSections": {
       "title": "Homepage Sections",
       "subtitle": "Show or hide sections on the public homepage.",
       "orderNote": "The presentation order is fixed by the design and cannot be changed from the dashboard. Add, remove or rework sections in the code registry (src/lib/home-sections.tsx) — the database adapts automatically.",
@@ -476,9 +479,12 @@
       "about": "About Me",
       "services": "Services",
       "projectsPreview": "Projects Preview",
+      "work": "Selected Work",
+      "platforms": "Tools & Platforms",
+      "featuredProjects": "Featured Projects",
       "otherProjects": "Other Projects",
-      "blog": "Blog / Journal",
       "testimonials": "Testimonials",
+      "blog": "Blog / Journal",
       "contact": "Contact Section"
     }
   },

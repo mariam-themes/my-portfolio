@@ -19,7 +19,7 @@ export default function PlatformsSection() {
   const t = useTranslations('PlatformsSection');
 
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
+    <section className="relative py-16 md:py-24 lg:py-32 overflow-hidden">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-[34rem] h-[34rem] rounded-full bg-[#951C30]/10 blur-[150px]" />
@@ -28,14 +28,14 @@ export default function PlatformsSection() {
 
       <div className="relative z-10">
         {/* Header — compact */}
-        <div className="container mx-auto px-6 md:px-12 lg:px-20 mb-12">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20 mb-8 md:mb-12">
           <div className="flex items-center gap-4 mb-4">
             <span className="w-10 h-[1px] bg-[#951C30]/60" />
             <span className="text-xs tracking-[0.3em] rtl:tracking-normal uppercase text-[#951C30] font-semibold">
               {t('kicker')}
             </span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-serif font-normal text-white leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-normal text-white leading-tight">
             {t('title')}{' '}
             <span className="italic" style={{ color: '#951C30' }}>
               {t('titleAccent')}
@@ -50,11 +50,11 @@ export default function PlatformsSection() {
         <div className="relative overflow-hidden" dir="ltr">
           {/* Fade edges */}
           <div
-            className="pointer-events-none absolute inset-y-0 left-0 w-28 z-10"
+            className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 z-10"
             style={{ background: 'linear-gradient(to right, #0a0507 0%, transparent 100%)' }}
           />
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 w-28 z-10"
+            className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 z-10"
             style={{ background: 'linear-gradient(to left, #0a0507 0%, transparent 100%)' }}
           />
 
@@ -71,7 +71,6 @@ export default function PlatformsSection() {
                   width={240}
                   height={130}
                   className="object-contain h-24 sm:h-32 md:h-36 w-auto select-none relative z-10 transition-transform duration-500 ease-out group-hover:scale-105"
-                  unoptimized
                 />
                 <span className="text-xs sm:text-sm font-medium text-white/40 tracking-wide transition-colors duration-500 group-hover:text-white/70">
                   {p.name}

@@ -2,6 +2,7 @@ import "./globals.css";
 
 import type { Metadata } from 'next';
 import { Inter, El_Messiri, Playfair_Display } from 'next/font/google';
+import Script from 'next/script';
 
 const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
 const playfair = Playfair_Display({ variable: '--font-playfair', subsets: ['latin'] });
@@ -39,6 +40,19 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full" suppressHydrationWarning>
+        {/* Pre-paint gate: if the splash was already seen this session (or
+            noSplash=1), hide it before first paint so a refresh shows the
+            Portfolio directly with no Splash flash.
+            strategy="beforeInteractive" executes this inline script before
+            any hydration, ensuring the class is added before first paint. */}
+        <Script
+          id="splash-prehidden-gate"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{if(sessionStorage.getItem('m-portfolio-splash-seen')||/[?&]noSplash=1/.test(location.search)){document.documentElement.classList.add('splash-prehidden');}}catch(e){}})();",
+          }}
+        />
         {children}
       </body>
     </html>

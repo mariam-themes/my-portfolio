@@ -109,24 +109,24 @@ export default function AboutMeSection() {
   }
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
       <div className="container mx-auto px-6 md:px-12 lg:px-20" ref={containerRef}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
           
           {/* Left Column: Photo & Details */}
           <div className="lg:col-span-5 space-y-10">
-            {data.photo && (
-              <div className="relative group rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border border-white/5 bg-rose-950/20">
+{data.photo && (
+               <div className="relative group mx-auto w-full max-w-md lg:mx-0 lg:max-w-none rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border border-white/5 bg-rose-950/20">
                 <Image 
                   src={data.photo} 
                   alt="Portrait"
                   fill 
                   className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  unoptimized
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
               </div>
-            )}
+             )}
             
             {data.cvLink && (
               <div className="flex justify-start">
@@ -143,8 +143,8 @@ export default function AboutMeSection() {
             )}
           </div>
 
-          {/* Right Column: Bio, Skills & Experience */}
-          <div className="lg:col-span-7 lg:pl-10 space-y-16">
+           {/* Right Column: Bio, Skills & Experience */}
+           <div className="lg:col-span-7 lg:pl-10 space-y-10 lg:space-y-16">
             
             {/* Bio Section */}
             <div className="space-y-6">
@@ -152,7 +152,7 @@ export default function AboutMeSection() {
                 <span className="w-12 h-[1px] bg-[#951C30]/50"></span>
                 {locale === 'ar' ? 'نبذة عني' : 'About Me'}
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
+               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
                 {locale === 'ar' ? (
                   <>تصميم تجارب <span className="italic text-[#951C30]">ذات معنى</span></>
                 ) : (
