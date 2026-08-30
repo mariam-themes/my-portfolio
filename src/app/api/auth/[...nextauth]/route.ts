@@ -24,21 +24,27 @@ export const authOptions: NextAuthOptions = {
             entityType: 'auth',
             details: { reason: 'missing_credentials', username },
             ip: extractIp(req as Request | undefined),
-          });
+          }).catch(err => console.log('[AUTH DEBUG] logActivity error:', err));
           throw new Error("Invalid credentials");
         }
 
         const ip = extractIp(req as Request | undefined);
-        const rateLimit = await checkRateLimit(`login:${username}`, 5, 15 * 60 * 1000);
-        if (!rateLimit.allowed) {
-          await logActivity({
-            adminId: username,
-            action: 'LOGIN_FAILED',
-            entityType: 'auth',
-            details: { reason: 'rate_limited', username },
-            ip,
-          });
-          throw new Error("Too many login attempts. Please try again later.");
+        try {
+          const rateLimit = await checkRateLimit(`login:${username}`, 5, 15 * 60 * 1000);
+          if (!rateLimit.allowed) {
+            console.log('[AUTH DEBUG] Rate limit exceeded');
+            await logActivity({
+              adminId: username,
+              action: 'LOGIN_FAILED',
+              entityType: 'auth',
+              details: { reason: 'rate_limited', username },
+              ip,
+            }).catch(() => {});
+            throw new Error("Too many login attempts. Please try again later.");
+          }
+        } catch (error) {
+          console.error('[AUTH DEBUG] checkRateLimit Error:', error);
+          // Don't fail the login if rate limit check fails (db down etc)
         }
 
         const adminUsername = process.env.ADMIN_USERNAME || process.env.ADMIN_UserName;
@@ -52,6 +58,18 @@ export const authOptions: NextAuthOptions = {
           username === adminUsername &&
           credentials.password === adminPassword
         ) {
+          try {
+            await logActivity({
+              adminId: username,
+              action: 'LOGIN',
+              entityType: 'auth',
+              details: { status: 'success' },
+              ip,
+            });
+          } catch (err) {
+            console.error('[AUTH DEBUG] logActivity (success) Error:', err);
+          }
+
           return {
             id: "admin-1",
             email: "admin@portfolio.com",

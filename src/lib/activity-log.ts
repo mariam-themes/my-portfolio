@@ -27,9 +27,21 @@ export async function logActivity(params: LogActivityParams): Promise<void> {
   }
 }
 
-export function extractIp(request?: Request): string | undefined {
-  if (!request) return undefined;
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return request.headers.get('x-real-ip') || undefined;
+export function extractIp(request?: any): string | undefined {
+  if (!request || !request.headers) return undefined;
+  
+  let forwarded;
+  let realIp;
+
+  if (typeof request.headers.get === 'function') {
+    forwarded = request.headers.get('x-forwarded-for');
+    realIp = request.headers.get('x-real-ip');
+  } else {
+    // NextAuth passes headers as a plain object
+    forwarded = request.headers['x-forwarded-for'];
+    realIp = request.headers['x-real-ip'];
+  }
+
+  if (forwarded) return String(forwarded).split(',')[0].trim();
+  return realIp ? String(realIp) : undefined;
 }

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { Loader2, Eye, EyeOff, ChevronLeft, ShieldCheck } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ChevronLeft, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,10 +14,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMsg('');
 
     try {
       const res = await signIn('credentials', {
@@ -27,14 +29,16 @@ export default function LoginPage() {
       });
 
       if (res?.error) {
-        toast.error('Invalid username or password');
-      } else {
+        setErrorMsg('Incorrect username or password. Please try again.');
+      } else if (res?.ok) {
         toast.success('Welcome back!');
         router.push('/admin');
         router.refresh();
+      } else {
+        setErrorMsg('Login failed. Please try again.');
       }
     } catch {
-      toast.error('An error occurred during login');
+      setErrorMsg('A network error occurred. Please check your connection.');
     } finally {
       setIsLoading(false);
     }
@@ -108,6 +112,15 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+
+
+          {/* Inline error message */}
+          {errorMsg && (
+            <div className="flex items-start gap-3 rounded-xl border border-red-500/40 bg-red-950/40 px-4 py-3 text-sm text-red-300">
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
           <button
             type="submit"

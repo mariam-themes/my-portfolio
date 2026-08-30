@@ -7,6 +7,9 @@ import { Toaster } from 'react-hot-toast';
 import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import HtmlLangDir from '@/components/HtmlLangDir';
 import enMessages from '../../../messages/en.json';
+import arMessages from '../../../messages/ar.json';
+import { cookies } from 'next/headers';
+import AdminSessionProvider from '@/components/admin/AdminSessionProvider';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -30,21 +33,26 @@ const arabicBodyFont = IBM_Plex_Sans_Arabic({
   weight: ['300', '400', '500', '600', '700'],
 });
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const locale = 'en';
-  const messages = { Admin: enMessages.Admin };
+  const cookieStore = await cookies();
+  const adminLang = cookieStore.get('admin_lang')?.value;
+  const locale = adminLang === 'ar' ? 'ar' : 'en';
+  const messages = locale === 'ar'
+    ? { Admin: arMessages.Admin }
+    : { Admin: enMessages.Admin };
 
   return (
+    <AdminSessionProvider>
     <div className={`min-h-full ${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} antialiased`}>
       <NextIntlClientProvider locale={locale} messages={messages}>
         <HtmlLangDir locale={locale} />
         <DashboardEntry>
           <Toaster position="top-right" toastOptions={{ className: 'bg-[#1A050C] text-rose-200 border border-rose-900/50 rounded-xl' }} />
-          <div className="flex h-screen bg-[#2A0813] overflow-hidden font-sans selection:bg-rose-500/50 rounded-xl relative">
+          <div className={`flex h-screen bg-[#2A0813] overflow-hidden ${locale === 'ar' ? 'font-[family-name:var(--font-arabic-body)]' : 'font-sans'} selection:bg-rose-500/50 rounded-xl relative`}>
             <ParticlesBackground />
 
             <Sidebar />
@@ -58,5 +66,6 @@ export default function AdminLayout({
         </DashboardEntry>
       </NextIntlClientProvider>
     </div>
+    </AdminSessionProvider>
   );
 }
