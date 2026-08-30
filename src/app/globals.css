@@ -681,8 +681,6 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
   background: #0a0507;
 }
 .work__head {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  gap: 2rem;
 }
 .work__hint { color: rgba(255,255,255,0.4); white-space: nowrap; }
 

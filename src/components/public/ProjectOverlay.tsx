@@ -138,9 +138,11 @@ export default function ProjectOverlay({ project, lastTriggerRef, expandRef, onC
           navigatedRef.current = true;
           onClose();
         }}
-        className="fixed top-5 left-5 z-[200] inline-flex items-center gap-2 rounded-full bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/70 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
+        className="fixed top-5 start-5 z-[200] inline-flex items-center gap-2 rounded-full bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/70 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
       >
-        ← {locale === 'ar' ? 'رجوع' : 'Back'}
+        <span className="rtl:hidden">←</span>
+        <span>{locale === 'ar' ? 'رجوع' : 'Back'}</span>
+        <span className="hidden rtl:inline-block">→</span>
       </button>
 
       {/* Content — starts here, moved into animated frame, then back */}
@@ -153,7 +155,7 @@ export default function ProjectOverlay({ project, lastTriggerRef, expandRef, onC
           <ProjectPage project={fullProject} locale={locale} />
         ) : (
           <div className="flex items-center justify-center h-full text-white/40">
-            Project not found
+            {locale === 'ar' ? 'لم يتم العثور على المشروع' : 'Project not found'}
           </div>
         )}
       </div>
@@ -184,7 +186,7 @@ function ProjectPage({ project, locale }: { project: any; locale: string }) {
         )}
         <div className="relative z-10 container mx-auto px-6 md:px-12 lg:px-20">
           <p className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-4">
-            {project.sector || project.category || 'Case Study'}
+            {project.sector || project.category || (locale === 'ar' ? 'دراسة حالة' : 'Case Study')}
           </p>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl font-normal leading-[1.05]">
             {title}
@@ -220,7 +222,7 @@ function ProjectPage({ project, locale }: { project: any; locale: string }) {
           <div className="container mx-auto px-6 md:px-12 lg:px-20 grid sm:grid-cols-2 gap-12">
             {services.length > 0 && (
               <div>
-                <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-4">Services</h3>
+                <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-4">{locale === 'ar' ? 'الخدمات' : 'Services'}</h3>
                 <div className="flex flex-wrap gap-2">
                   {services.map((s: string, i: number) => (
                     <span key={i} className="px-4 py-2 rounded-full border border-white/10 text-sm text-white/70">{s}</span>
@@ -230,7 +232,7 @@ function ProjectPage({ project, locale }: { project: any; locale: string }) {
             )}
             {tools.length > 0 && (
               <div>
-                <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-4">Tools</h3>
+                <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-4">{locale === 'ar' ? 'الأدوات' : 'Tools'}</h3>
                 <div className="flex flex-wrap gap-2">
                   {tools.map((t: string, i: number) => (
                     <span key={i} className="px-4 py-2 rounded-full border border-white/10 text-sm text-white/70">{t}</span>
@@ -246,11 +248,11 @@ function ProjectPage({ project, locale }: { project: any; locale: string }) {
       {(colors.length > 0 || fonts.length > 0) && (
         <section className="py-16 md:py-24 border-t border-white/5">
           <div className="container mx-auto px-6 md:px-12 lg:px-20">
-            <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-8">Visual Direction</h3>
+            <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-8">{locale === 'ar' ? 'التوجه البصري' : 'Visual Direction'}</h3>
             <div className="grid sm:grid-cols-2 gap-8">
               {colors.length > 0 && (
                 <div>
-                  <p className="text-xs text-white/40 mb-3 uppercase tracking-widest">Colors</p>
+                  <p className="text-xs text-white/40 mb-3 uppercase tracking-widest">{locale === 'ar' ? 'الألوان' : 'Colors'}</p>
                   <div className="flex gap-3">
                     {colors.map((c: string, i: number) => (
                       <div key={i} className="w-12 h-12 rounded-lg border border-white/10" style={{ background: c }} title={c} />
@@ -260,7 +262,7 @@ function ProjectPage({ project, locale }: { project: any; locale: string }) {
               )}
               {fonts.length > 0 && (
                 <div>
-                  <p className="text-xs text-white/40 mb-3 uppercase tracking-widest">Fonts</p>
+                  <p className="text-xs text-white/40 mb-3 uppercase tracking-widest">{locale === 'ar' ? 'الخطوط' : 'Fonts'}</p>
                   <div className="flex flex-wrap gap-2">
                     {fonts.map((f: string, i: number) => (
                       <span key={i} className="px-3 py-1.5 rounded-lg border border-white/10 text-sm text-white/70">{f}</span>
@@ -277,18 +279,18 @@ function ProjectPage({ project, locale }: { project: any; locale: string }) {
       {comparison && (
         <section className="py-16 md:py-24 border-t border-white/5">
           <div className="container mx-auto px-6 md:px-12 lg:px-20">
-            <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-8">Transformation</h3>
+            <h3 className="text-xs tracking-[0.3em] uppercase text-[#951C30] font-semibold mb-8">{locale === 'ar' ? 'التحول' : 'Transformation'}</h3>
             <div className="grid sm:grid-cols-2 gap-4">
               {comparison.before && (
                 <div className="relative rounded-2xl overflow-hidden border border-white/5">
                   <img src={comparison.before} alt="Before" className="w-full" />
-                  <span className="absolute top-4 left-4 text-xs font-mono tracking-widest text-white/60 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">Before</span>
+                  <span className="absolute top-4 start-4 text-xs font-mono tracking-widest text-white/60 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">{locale === 'ar' ? 'قبل' : 'Before'}</span>
                 </div>
               )}
               {comparison.after && (
                 <div className="relative rounded-2xl overflow-hidden border border-white/5">
                   <img src={comparison.after} alt="After" className="w-full" />
-                  <span className="absolute top-4 left-4 text-xs font-mono tracking-widest text-white/60 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">After</span>
+                  <span className="absolute top-4 start-4 text-xs font-mono tracking-widest text-white/60 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm">{locale === 'ar' ? 'بعد' : 'After'}</span>
                 </div>
               )}
             </div>

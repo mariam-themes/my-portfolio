@@ -24,18 +24,18 @@ export default async function ContactSection() {
       {/* Ambient glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 -left-32 rtl:-left-auto rtl:-right-32 h-[40rem] w-[40rem] max-w-[90vw] rounded-full bg-[#951C30]/10 blur-[140px]"
+        className="pointer-events-none absolute -top-40 -start-32 h-[40rem] w-[40rem] max-w-[90vw] rounded-full bg-[#951C30]/10 blur-[140px]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-0 right-0 rtl:right-auto rtl:left-0 h-[30rem] w-[30rem] max-w-[80vw] rounded-full bg-rose-900/8 blur-[120px]"
+        className="pointer-events-none absolute bottom-0 end-0 h-[30rem] w-[30rem] max-w-[80vw] rounded-full bg-rose-900/8 blur-[120px]"
       />
 
-      <div className="relative mx-auto w-full max-w-7xl px-6 py-16 md:py-24 lg:py-32 md:px-12 lg:px-20">
+      <div className="relative container mx-auto px-6 md:px-12 lg:px-20 py-16 md:py-24 lg:py-32">
 
         {/* ── Top kicker line ── */}
         <ContactSectionClient>
-          <div className="mb-12 md:mb-20 flex items-center gap-5">
+          <div className="mb-10 md:mb-16 flex items-center gap-5">
             <div className="h-px flex-1 max-w-[4rem] bg-gradient-to-r from-[#951C30]/80 to-[#951C30]/20" />
             <span className="text-[10px] font-bold uppercase tracking-[0.35em] rtl:tracking-normal text-[#951C30]">
               {t('kicker')}
@@ -138,11 +138,11 @@ export default async function ContactSection() {
               {/* Corner accent */}
               <div
                 aria-hidden
-                className="absolute top-0 left-0 rtl:left-auto rtl:right-0 h-px w-24 bg-gradient-to-r from-[#951C30] to-transparent rtl:bg-gradient-to-l"
+                className="absolute top-0 start-0 h-px w-24 bg-gradient-to-r from-[#951C30] to-transparent rtl:bg-gradient-to-l"
               />
               <div
                 aria-hidden
-                className="absolute top-0 left-0 rtl:left-auto rtl:right-0 w-px h-24 bg-gradient-to-b from-[#951C30] to-transparent"
+                className="absolute top-0 start-0 w-px h-24 bg-gradient-to-b from-[#951C30] to-transparent"
               />
 
               <ContactForm />

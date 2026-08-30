@@ -19,8 +19,16 @@ export type LocalizedProject = {
   [key: string]: unknown;
 };
 
-export type TextFieldName = 'title' | 'description' | 'sector' | 'platform' | 'category';
+export type TextFieldName = 'description' | 'sector' | 'category' | 'metaTitle' | 'metaDescription' | 'title' | 'platform';
 export type ListFieldName = 'services' | 'tools';
+
+export function resolveBaseText(value: unknown): string {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const obj = value as { en?: string; ar?: string };
+    return obj.en || obj.ar || '';
+  }
+  return typeof value === 'string' ? value : '';
+}
 
 export function sourceLangOf(project: LocalizedProject): 'en' | 'ar' {
   if (project.sourceLang === 'en' || project.sourceLang === 'ar') return project.sourceLang;
@@ -46,6 +54,9 @@ export function resolveText(
     return obj[locale as 'en' | 'ar'] || obj.en || '';
   }
   if (typeof value === 'string') {
+    // DO NOT translate title, platform, client, etc.
+    if (field === 'title' || field === 'platform') return value;
+
     if (locale === sourceLangOf(project)) return value;
     const translated = project.translations?.[locale as 'en' | 'ar'];
     const hit = translated?.[field];

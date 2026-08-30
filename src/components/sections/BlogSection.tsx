@@ -179,8 +179,8 @@ export default function BlogSection() {
 
   if (!loading && blogs.length === 0) {
     return (
-      <section ref={sectionRef} className="py-24 md:py-32 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
+      <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 relative z-10">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
           <div ref={headerRef} className="mb-14 md:mb-20">
             <span className="block text-[11px] tracking-[0.32em] uppercase text-white/40 mb-5">
               {t('kicker')}
@@ -198,8 +198,8 @@ export default function BlogSection() {
   }
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 relative z-10">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 relative z-10">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20">
         {/* Header */}
         <div ref={headerRef} className="mb-14 md:mb-20">
           <span className="block text-[11px] tracking-[0.32em] uppercase text-white/40 mb-5">

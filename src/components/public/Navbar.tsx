@@ -134,7 +134,7 @@ export default function Navbar() {
                 className="group relative whitespace-nowrap text-[11px] rtl:text-[15px] font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
               >
                 {t(link.key)}
-                <span className="absolute -bottom-1.5 left-0 rtl:left-auto rtl:right-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1.5 start-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </nav>

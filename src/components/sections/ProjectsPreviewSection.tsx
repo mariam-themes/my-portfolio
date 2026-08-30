@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, useCallback, memo } from 
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { resolveText, type LocalizedProject } from '@/lib/localizeProject';
+import { formatPortfolioNumber } from '@/lib/formatters';
 import { useReducedMotion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -94,7 +95,7 @@ export default function ProjectsPreviewSection() {
       };
 
       gsap.to(track, {
-        x: () => -getDistance(),
+        x: () => (isRtl ? getDistance() : -getDistance()),
         ease: 'none',
         scrollTrigger: {
           trigger: '#workPinWrap',
@@ -107,19 +108,22 @@ export default function ProjectsPreviewSection() {
           onUpdate(self) {
             if (fillRef.current) fillRef.current.style.transform = `scaleX(${self.progress})`;
             const idx = Math.min(total - 1, Math.floor(self.progress * total));
-            if (currentRef.current && currentRef.current.textContent !== String(idx + 1).padStart(2, '0')) {
-              currentRef.current.textContent = String(idx + 1).padStart(2, '0');
+            const shown = idx + 1; // Logical index is the same regardless of RTL because scroll progress matches logical project order
+            
+            const shownStr = formatPortfolioNumber(shown, locale);
+            if (currentRef.current && currentRef.current.textContent !== shownStr) {
+              currentRef.current.textContent = shownStr;
             }
           },
         },
       });
     });
     return () => mm.revert();
-  }, [loading, displayProjects.length, prefersReduced, isTouch, total]);
+  }, [loading, displayProjects.length, prefersReduced, isTouch, total, isRtl]);
 
   if (loading) {
     return (
-      <section className="py-24 md:py-32 bg-[#0a0507] relative">
+      <section className="py-16 md:py-24 lg:py-32 bg-[#0a0507] relative">
         <div className="container mx-auto px-6 md:px-12 lg:px-20">
           <div className="h-64 animate-pulse rounded-2xl bg-white/5" />
         </div>
@@ -129,7 +133,7 @@ export default function ProjectsPreviewSection() {
 
   if (projects.length === 0) {
     return (
-      <section className="py-24 bg-[#0a0507] relative">
+      <section className="py-16 md:py-24 lg:py-32 bg-[#0a0507] relative">
         <div className="container mx-auto px-6 md:px-12 lg:px-20">
           <div className="rounded-2xl border border-white/10 bg-white/[0.02] py-12 text-center text-white/40">{t('noProjects')}</div>
         </div>
@@ -138,30 +142,75 @@ export default function ProjectsPreviewSection() {
   }
 
   return (
-    <section className="work" id="work" aria-label="Selected work">
+    <section className="work py-16 md:py-24 lg:py-32" id="work" aria-label="Selected work">
       <div id="workPinWrap" className="work__pin-wrap">
-        <header className="work__head container mx-auto px-6 md:px-12 lg:px-20">
-          <h2 className="sec-title text-4xl md:text-6xl font-serif font-normal leading-[0.9] text-white">
+        <header className="work__head flex flex-col items-start container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] font-semibold mb-4 rtl:tracking-normal w-fit">
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
+            {locale === 'ar' ? 'المشاريع' : 'PROJECTS'}
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
+          </div>
+          
+          <h2 className="sec-title text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-[0.9] text-white">
             <span className="block overflow-hidden">
-              <span className="block">{t('kicker')}</span>
+              <span className="block">
+                {t('title')}{' '}
+                <span className="italic" style={{ color: '#951C30' }}>
+                  {t('titleAccent')}
+                </span>
+              </span>
             </span>
           </h2>
-          <p className="mono work__hint mt-4 text-xs tracking-widest text-white/40 rtl:text-right">
-            {t('scrollHint')}
-          </p>
+          
+          {(() => {
+            const scrollHintStr = t('scrollHint');
+            const arrowChar = scrollHintStr.includes('→') ? '→' : scrollHintStr.includes('←') ? '←' : '';
+            let scrollPart = scrollHintStr;
+            let clickPart = '';
+            
+            if (arrowChar) {
+              const parts = scrollHintStr.split(arrowChar);
+              scrollPart = parts[0].trim();
+              clickPart = parts[1].trim();
+            }
+
+            return (
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <span className="mono text-xs tracking-widest text-white/40 uppercase">
+                  {scrollPart}
+                </span>
+                {arrowChar && (
+                  <span className="text-white/30">{arrowChar}</span>
+                )}
+                {clickPart && (
+                  <span className="mono text-xs tracking-widest text-white/90 font-bold uppercase relative inline-flex items-center px-4 py-2 rounded-full bg-white/[0.03] border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.03)]">
+                    <span className="absolute -inset-1 bg-[#951C30]/20 blur-md rounded-full animate-pulse"></span>
+                    <span className="relative">{clickPart}</span>
+                  </span>
+                )}
+              </div>
+            );
+          })()}
         </header>
 
         <div className="work__viewport">
           <div ref={trackRef} id="workTrack" className="work__track" dir="ltr">
-            {displayProjects.map((p, i) => (
-              <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={i} total={total} locale={locale} t={t} onOpen={openProject} />
-            ))}
+            {displayProjects.map((p, i) => {
+              const logicalIndex = isRtl ? total - 1 - i : i;
+              return (
+                <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={logicalIndex} total={total} locale={locale} t={t} onOpen={openProject} />
+              );
+            })}
           </div>
 
           <footer className="work__progress" aria-hidden="true">
-            <span className="mono" ref={currentRef}>01</span>
+            <span className="mono" ref={currentRef}>
+              {formatPortfolioNumber(1, locale)}
+            </span>
             <div className="work__bar"><span ref={fillRef}></span></div>
-            <span className="mono">{String(total).padStart(2, '0')}</span>
+            <span className="mono">
+              {formatPortfolioNumber(total, locale)}
+            </span>
           </footer>
         </div>
       </div>
@@ -185,13 +234,16 @@ const ProjectCard = memo(function ProjectCard({ project, index, total, locale, t
   const title = resolveText(project.title, project, 'title', locale);
   const category = resolveText(project.category, project, 'category', locale);
   const sector = resolveText(project.sector, project, 'sector', locale);
-  const num = String(index + 1).padStart(2, '0');
+  
+  const isRtl = locale === 'ar';
+  const num = formatPortfolioNumber(index + 1, locale);
+  const totalStr = formatPortfolioNumber(total, locale);
 
   return (
     <article data-project-card data-index={index} className="project">
       <div className="project__meta-row">
         <span className="mono">
-          <b className="text-[#951C30]">{num}</b>&nbsp;/&nbsp;{String(total).padStart(2, '0')}
+          <b className="text-[#951C30]">{num}</b>&nbsp;/&nbsp;{totalStr}
         </span>
         <span className="mono">
           {category || sector || t('design')}{project.year ? `\u00A0\u00A0·\u00A0\u00A0${project.year}` : ''}

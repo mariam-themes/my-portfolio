@@ -1,7 +1,14 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const PLATFORMS = [
   { id: 'zid',         name: 'Zid',         src: '/platforms/zid.png',         desc: { en: 'Saudi e-commerce platform for building modern online stores.',         ar: 'منصة زد السعودية لبناء متاجر إلكترونية احترافية.' } },
@@ -17,6 +24,38 @@ const TRACK = [...PLATFORMS, ...PLATFORMS];
 
 export default function PlatformsSection() {
   const t = useTranslations('PlatformsSection');
+  const locale = useLocale();
+  const mobileContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mobileContainerRef.current) return;
+    
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+      mm.add('(max-width: 767px)', () => {
+        const cards = gsap.utils.toArray('.mobile-platform-card');
+        cards.forEach((card: any) => {
+          gsap.fromTo(card,
+            { opacity: 0.65, scale: 0.96, y: 30 },
+            {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 85%',
+                end: 'top 50%',
+                scrub: true,
+              }
+            }
+          );
+        });
+      });
+    }, mobileContainerRef);
+    
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section className="relative py-16 md:py-24 lg:py-32 overflow-hidden">
@@ -29,11 +68,10 @@ export default function PlatformsSection() {
       <div className="relative z-10">
         {/* Header — compact */}
         <div className="container mx-auto px-6 md:px-12 lg:px-20 mb-8 md:mb-12">
-          <div className="flex items-center gap-4 mb-4">
-            <span className="w-10 h-[1px] bg-[#951C30]/60" />
-            <span className="text-xs tracking-[0.3em] rtl:tracking-normal uppercase text-[#951C30] font-semibold">
-              {t('kicker')}
-            </span>
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] font-semibold mb-4 rtl:tracking-normal w-fit">
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
+            {t('kicker')}
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-normal text-white leading-tight">
             {t('title')}{' '}
@@ -46,8 +84,8 @@ export default function PlatformsSection() {
           </p>
         </div>
 
-        {/* ── Infinite logo marquee — full bleed, always ltr ── */}
-        <div className="relative overflow-hidden" dir="ltr">
+        {/* ── Infinite logo marquee — Desktop only ── */}
+        <div className="relative overflow-hidden hidden md:block" dir="ltr">
           {/* Fade edges */}
           <div
             className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 z-10"
@@ -78,6 +116,27 @@ export default function PlatformsSection() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* ── Mobile Vertical Stack ── */}
+        <div className="md:hidden flex flex-col gap-4 mt-8 px-6" ref={mobileContainerRef}>
+          {PLATFORMS.map((p) => (
+            <div
+              key={`mob-${p.id}`}
+              className="mobile-platform-card flex flex-col items-center gap-4 px-6 py-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_4px_20px_rgba(0,0,0,0.15)] will-change-transform"
+            >
+              <Image
+                src={p.src}
+                alt={p.name}
+                width={240}
+                height={130}
+                className="object-contain h-24 w-auto select-none"
+              />
+              <span className="text-sm font-medium text-white/50 tracking-wide">
+                {p.name}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 

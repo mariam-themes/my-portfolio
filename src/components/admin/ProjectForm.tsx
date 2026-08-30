@@ -419,7 +419,10 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div className="space-y-4">
           {/* Title */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('projectTitle')}</label>
+            <div className="flex justify-between items-end">
+              <label className="text-xs font-medium text-rose-200">{t('projectTitle')}</label>
+              <span className="text-[10px] uppercase tracking-wider text-rose-500/50 bg-rose-950/30 px-2 py-0.5 rounded border border-rose-900/30">Universal</span>
+            </div>
             <input {...form.register('title')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('projectTitlePh')} />
@@ -462,7 +465,10 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
 
           {/* Platform */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('platform')}</label>
+            <div className="flex justify-between items-end">
+              <label className="text-xs font-medium text-rose-200">{t('platform')}</label>
+              <span className="text-[10px] uppercase tracking-wider text-rose-500/50 bg-rose-950/30 px-2 py-0.5 rounded border border-rose-900/30">Universal</span>
+            </div>
             <input {...form.register('platform')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('platformPh')} />

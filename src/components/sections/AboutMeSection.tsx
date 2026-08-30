@@ -144,7 +144,7 @@ export default function AboutMeSection() {
           </div>
 
            {/* Right Column: Bio, Skills & Experience */}
-           <div className="lg:col-span-7 lg:pl-10 space-y-10 lg:space-y-16">
+           <div className="lg:col-span-7 lg:ps-10 space-y-10 lg:space-y-16">
             
             {/* Bio Section */}
             <div className="space-y-6">
@@ -190,10 +190,10 @@ export default function AboutMeSection() {
                 <h3 className="text-xl font-semibold text-white tracking-wide">
                   {locale === 'ar' ? 'الخبرة العملية' : 'Experience'}
                 </h3>
-                <div className="space-y-8 border-l border-white/10 pl-6 ml-2 rtl:pr-6 rtl:pl-0 rtl:mr-2 rtl:ml-0 rtl:border-r rtl:border-l-0">
+                <div className="space-y-8 border-s border-white/10 ps-6 ms-2">
                   {data.experience.map((exp, idx) => (
                     <div key={idx} className="relative exp-item group">
-                      <span className="absolute -left-[31px] rtl:left-auto rtl:-right-[31px] top-1.5 w-3 h-3 rounded-full bg-black border-2 border-[#951C30] group-hover:bg-[#951C30] transition-colors shadow-[0_0_10px_rgba(149,28,48,0)] group-hover:shadow-[0_0_10px_rgba(149,28,48,0.8)]" />
+                      <span className="absolute -start-[31px] top-1.5 w-3 h-3 rounded-full bg-black border-2 border-[#951C30] group-hover:bg-[#951C30] transition-colors shadow-[0_0_10px_rgba(149,28,48,0)] group-hover:shadow-[0_0_10px_rgba(149,28,48,0.8)]" />
                       
                       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
                         <h4 className="text-xl font-bold text-white group-hover:text-rose-200 transition-colors">{exp.role}</h4>

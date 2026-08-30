@@ -267,7 +267,7 @@ export default function ContactForm() {
             id="service"
             className={cn(
               inputBase,
-              'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+              'appearance-none cursor-pointer pe-8',
               errors.service ? inputError : inputNormal,
               // dim the placeholder option
               watchedService === '' ? 'text-rose-100/25' : 'text-rose-50'
@@ -284,7 +284,7 @@ export default function ContactForm() {
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60 transition-colors group-focus-within/field:text-rose-200/90" />
+          <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60 transition-colors group-focus-within/field:text-rose-200/90" />
         </div>
 
         <AnimatePresence>
@@ -324,7 +324,7 @@ export default function ContactForm() {
               className={cn(
                 inputBase,
                 inputNormal,
-                'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+                'appearance-none cursor-pointer pe-8',
                 watch('budget') === '' ? 'text-rose-100/25' : 'text-rose-50'
               )}
               defaultValue=""
@@ -339,7 +339,7 @@ export default function ContactForm() {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
+            <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
           </div>
         </FieldWrap>
 
@@ -350,7 +350,7 @@ export default function ContactForm() {
               className={cn(
                 inputBase,
                 inputNormal,
-                'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+                'appearance-none cursor-pointer pe-8',
                 watch('timeline') === '' ? 'text-rose-100/25' : 'text-rose-50'
               )}
               defaultValue=""
@@ -365,7 +365,7 @@ export default function ContactForm() {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
+            <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
           </div>
         </FieldWrap>
       </div>

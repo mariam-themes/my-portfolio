@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
+import { formatPortfolioNumber } from '@/lib/formatters';
 
 export default function ServicesSection() {
   const [services, setServices] = useState<any[]>([]);
@@ -53,14 +54,13 @@ export default function ServicesSection() {
       <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-16 gap-8">
-          <div className="flex items-center gap-6">
-            <div className="w-12 h-[1px] bg-rose-900/50" />
-            <h2 className="text-sm tracking-[0.3em] uppercase text-rose-100/60 font-medium">
-              {t('title') || 'Services'}
-            </h2>
+        <div className="flex flex-col items-start mb-10 md:mb-16 gap-4">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] font-semibold mb-2 rtl:tracking-normal w-fit">
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
+            {t('title') || 'Services'}
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
           </div>
-          <p className="max-w-md text-rose-100/50 text-sm md:text-base leading-relaxed md:text-right rtl:md:text-left">
+          <p className="max-w-xl text-rose-100/50 text-sm md:text-base leading-relaxed">
             {t('description') || 'Five disciplines, one continuous system — from the first mark to the shipped storefront.'}
           </p>
         </div>
@@ -78,7 +78,7 @@ export default function ServicesSection() {
               locale === 'ar'
                 ? service.translations?.ar?.description || service.description
                 : service.translations?.en?.description || service.description;
-            const num = (index + 1).toString().padStart(2, '0');
+            const num = formatPortfolioNumber(index + 1, locale);
 
             return (
               <div

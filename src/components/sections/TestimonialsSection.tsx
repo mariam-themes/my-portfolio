@@ -56,9 +56,9 @@ export default function TestimonialsSection() {
         className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 h-[32rem] w-[42rem] max-w-[90vw] rounded-full bg-[radial-gradient(circle,rgba(149,28,48,0.10),transparent_60%)] blur-3xl"
       />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 relative">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20 relative">
         
-        <div className="max-w-4xl mx-auto mb-10 md:mb-16 lg:mb-20 text-start">
+        <div className="w-full mb-10 md:mb-16 lg:mb-20 text-start">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50"></span>
             {t('kicker')}
