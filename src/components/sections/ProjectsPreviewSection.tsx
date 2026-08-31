@@ -79,15 +79,57 @@ export default function ProjectsPreviewSection() {
     const track = trackRef.current;
     if (!track || loading || !displayProjects.length) return;
 
-    // Touch device OR reduced motion => vertical stack, no pin.
-    if (prefersReduced || isTouch) {
+    // Reduced motion: static vertical layout, no animation whatsoever
+    if (prefersReduced) {
       document.body.classList.add('no-pin');
       return;
     }
 
+    // ── Touch / coarse-pointer path ─────────────────────────────────────────
+    // Uses CSS sticky as structural layout + GSAP for subtle entry animations.
+    // No pin, no horizontal scroll, no wheel interception.
+    if (isTouch) {
+      const ctx = gsap.context(() => {
+        // toArray scoped to `track` to avoid targeting other sections
+        gsap.utils.toArray<HTMLElement>('.project-outer', track).forEach((outer) => {
+          const card = outer.querySelector<HTMLElement>('.project');
+          if (!card) return;
+
+          /*
+            Entry animation — scrubbed to scroll progress:
+            Card starts below-visible scale/opacity and animates to full
+            as its scroll zone (the outer wrapper) enters the viewport.
+
+            start: 'top 90%'  → trigger fires when outer's top is 90% down the viewport
+            end:   'top 10%'  → animation completes when outer's top reaches 10% from top
+            scrub: 0.5        → smoothly follows native scroll (no JS loop)
+
+            Only transform + opacity — both GPU-composited (no layout reflow).
+          */
+          gsap.fromTo(
+            card,
+            { opacity: 0.3, scale: 0.93, y: 48 },
+            {
+              opacity: 1, scale: 1, y: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: outer,
+                start: 'top 90%',
+                end: 'top 12%',
+                scrub: 0.5,
+              },
+            }
+          );
+        });
+      }, track);
+      // GSAP context reverts all created ScrollTriggers on effect cleanup
+      return () => ctx.revert();
+    }
+
+    // ── Desktop / fine-pointer path ─────────────────────────────────────────
+    // Horizontal pinned track scrolled by GSAP matchMedia.
     const mm = gsap.matchMedia();
     mm.add('(min-width: 861px) and (hover: hover) and (pointer: fine)', () => {
-      // Calculate actual scrollable distance: track content width minus viewport width
       const getDistance = () => {
         const trackWidth = track.scrollWidth;
         const viewportWidth = track.parentElement?.clientWidth ?? window.innerWidth;
@@ -102,14 +144,12 @@ export default function ProjectsPreviewSection() {
           start: 'top top',
           end: () => '+=' + getDistance(),
           pin: true,
-          scrub: 0.9,
+          scrub: 0.1,
           invalidateOnRefresh: true,
-          anticipatePin: 1,
           onUpdate(self) {
             if (fillRef.current) fillRef.current.style.transform = `scaleX(${self.progress})`;
             const idx = Math.min(total - 1, Math.floor(self.progress * total));
-            const shown = idx + 1; // Logical index is the same regardless of RTL because scroll progress matches logical project order
-            
+            const shown = idx + 1;
             const shownStr = formatPortfolioNumber(shown, locale);
             if (currentRef.current && currentRef.current.textContent !== shownStr) {
               currentRef.current.textContent = shownStr;
@@ -198,7 +238,24 @@ export default function ProjectsPreviewSection() {
             {displayProjects.map((p, i) => {
               const logicalIndex = isRtl ? total - 1 - i : i;
               return (
-                <ProjectCard key={String(p._id ?? p.slug ?? `p-${i}`)} project={p} index={logicalIndex} total={total} locale={locale} t={t} onOpen={openProject} />
+                /*
+                  .project-outer: CSS-only sticky stage on touch, display:contents on desktop.
+                  The key lives on the outer wrapper so React reconciles correctly.
+                */
+                <div
+                  key={String(p._id ?? p.slug ?? `p-${i}`)}
+                  className="project-outer"
+                  data-project-idx={i}
+                >
+                  <ProjectCard
+                    project={p}
+                    index={logicalIndex}
+                    total={total}
+                    locale={locale}
+                    t={t}
+                    onOpen={openProject}
+                  />
+                </div>
               );
             })}
           </div>

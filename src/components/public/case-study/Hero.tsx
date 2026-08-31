@@ -59,11 +59,11 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
         </div>
       )}
 
-      {/* Ambient glow blobs */}
-      <div className="pointer-events-none absolute inset-0 z-[1]">
-        <div className="absolute top-[10%] left-[5%] w-[35rem] h-[35rem] rounded-full bg-[#951C30]/10 blur-[180px]" />
-        <div className="absolute bottom-[15%] right-[10%] w-[28rem] h-[28rem] rounded-full bg-[#951C30]/8 blur-[150px]" />
-        <div className="absolute top-[40%] left-[50%] w-[20rem] h-[20rem] rounded-full bg-[#951C30]/5 blur-[120px]" />
+      {/* Ambient glow blobs - using radial gradients instead of heavy blur filters for performance */}
+      <div className="pointer-events-none absolute inset-0 z-[1] opacity-60">
+        <div className="absolute top-[10%] left-[5%] w-[45rem] h-[45rem] rounded-full [background:radial-gradient(circle,rgba(149,28,48,0.18)_0%,transparent_65%)]" />
+        <div className="absolute bottom-[15%] right-[10%] w-[38rem] h-[38rem] rounded-full [background:radial-gradient(circle,rgba(149,28,48,0.14)_0%,transparent_65%)]" />
+        <div className="absolute top-[40%] left-[50%] w-[28rem] h-[28rem] rounded-full [background:radial-gradient(circle,rgba(149,28,48,0.08)_0%,transparent_65%)]" />
       </div>
 
       {/* Content */}
