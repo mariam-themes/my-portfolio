@@ -776,76 +776,34 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
   transform: scaleX(0); transform-origin: left;
 }
 
-/* desktop pin sizing — only when NOT a touch device (so "Desktop Site"
-   on a phone still gets the vertical stack) */
-@media (min-width: 861px) and (hover: hover) and (pointer: fine) {
-  .work__pin-wrap {
-    min-height: 100svh;
-    display: flex; flex-direction: column; justify-content: center;
-  }
-  .work__head { padding-top: clamp(1.2rem, 3vh, 2.5rem); padding-bottom: 1rem; }
+/* Unified default layout for ALL devices (horizontal pinned track) */
+.work__pin-wrap {
+  min-height: 100svh;
+  display: flex; flex-direction: column; justify-content: center;
 }
+.work__head { padding-top: clamp(1.2rem, 3vh, 2.5rem); padding-bottom: 1rem; }
 
-/* vertical stack — touch devices, reduced motion, and small screens */
-.work__track,
+body:not(.no-pin) .work__track {
+  flex-direction: row;
+  width: max-content;
+  gap: clamp(1.5rem, 4vw, 5rem);
+  padding-bottom: 0;
+}
+body:not(.no-pin) .project { width: min(85vw, 36rem); }
+body:not(.no-pin) .work__progress { display: flex; }
+body:not(.no-pin) .work__hint { display: inline; }
+
+/* Fallback vertical stack for reduced motion ONLY */
 body.no-pin .work__track {
   flex-direction: column;
   width: auto; gap: 2.5rem;
   padding-bottom: 3rem;
 }
-.project,
 body.no-pin .project { width: 100%; padding-bottom: 0; }
-.project__visual { height: auto; aspect-ratio: 16 / 11; }
-.project__caption { grid-template-columns: 1fr; }
-.work__progress { display: none; }
-.work__hint { display: none; }
-
-/* ── Touch / Coarse-Pointer: sticky project stages ──────────────────────────
-   Each .project-outer becomes a scroll zone; .project sticks inside it.
-   As you scroll through each outer's padding zone the card is fixed in view
-   while GSAP animates scale/opacity/translateY based on scroll progress.
-   pointer:coarse catches phones even in "Desktop Site" mode.
-   ───────────────────────────────────────────────────────────────────────── */
-@media (hover: none), (pointer: coarse) {
-  /* outer is now a real block — provides position:relative context */
-  .project-outer {
-    display: block;
-    position: relative;
-    /* scroll real-estate: allows the sticky card to animate during scroll */
-    padding-bottom: clamp(28svh, 38svh, 48svh);
-  }
-  /* last project needs no extra scroll room */
-  .project-outer:last-child { padding-bottom: 1.5rem; }
-
-  /* track gap is now driven by outer padding-bottom, not flex gap */
-  .work__track { gap: 0; padding-bottom: 0; }
-
-  /* card sticks within its outer's scroll zone */
-  .project-outer > .project {
-    position: sticky;
-    top: 0;
-    width: 100% !important;
-    padding: 1.25rem 1rem 2rem;
-    /* GPU-composite properties only — no layout reflow during animation */
-    will-change: transform, opacity;
-    /* ensure sticky has a background so overlapping cards don't bleed */
-    background: #0a0507;
-  }
-}
-
-/* On wide DESKTOP (mouse) the horizontal track is re-enabled by JS pin */
-@media (min-width: 861px) and (hover: hover) and (pointer: fine) {
-  /* project-outer is display:contents, so .project is still the flex-item.
-     The width rule below targets .project directly (same as before). */
-  body:not(.no-pin) .work__track {
-    flex-direction: row;
-    width: max-content;
-    gap: clamp(1.5rem, 4vw, 5rem);
-  }
-  body:not(.no-pin) .project { width: min(36vw, 36rem); }
-  body:not(.no-pin) .work__progress { display: flex; }
-  body:not(.no-pin) .work__hint { display: inline; }
-}
+body.no-pin .project__visual { height: auto; aspect-ratio: 16 / 11; }
+body.no-pin .project__caption { grid-template-columns: 1fr; }
+body.no-pin .work__progress { display: none; }
+body.no-pin .work__hint { display: none; }
 
 /* Splash gate: when the pre-paint script detects the splash was already seen
    this session (or noSplash=1), it adds `splash-prehidden` to <html> so the

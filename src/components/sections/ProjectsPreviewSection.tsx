@@ -15,27 +15,12 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Detect the ACTUAL device, not just viewport width.
-// Touch devices / coarse pointers (phones, tablets) should always get the
-// vertical stack — even when "Desktop Site" makes the viewport wide.
-function useIsTouchDevice() {
-  const [isTouch, setIsTouch] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(hover: none), (pointer: coarse)');
-    setIsTouch(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return isTouch;
-}
-
 export default function ProjectsPreviewSection() {
   const locale = useLocale();
   const t = useTranslations('ProjectsPreview');
   const prefersReduced = useReducedMotion() ?? false;
   const router = useRouter();
-  const isTouch = useIsTouchDevice();
+
   const isRtl = locale === 'ar';
 
   const [projects, setProjects] = useState<LocalizedProject[]>([]);
@@ -73,8 +58,7 @@ export default function ProjectsPreviewSection() {
     return () => { cancelled = true; };
   }, []);
 
-  // useLayoutEffect for GSAP scroll trigger - MUST be before any early returns
-  // to maintain stable hook order. The effect itself returns early if conditions aren't met.
+  // useLayoutEffect for GSAP scroll trigger
   useLayoutEffect(() => {
     const track = trackRef.current;
     if (!track || loading || !displayProjects.length) return;
@@ -85,51 +69,7 @@ export default function ProjectsPreviewSection() {
       return;
     }
 
-    // ── Touch / coarse-pointer path ─────────────────────────────────────────
-    // Uses CSS sticky as structural layout + GSAP for subtle entry animations.
-    // No pin, no horizontal scroll, no wheel interception.
-    if (isTouch) {
-      const ctx = gsap.context(() => {
-        // toArray scoped to `track` to avoid targeting other sections
-        gsap.utils.toArray<HTMLElement>('.project-outer', track).forEach((outer) => {
-          const card = outer.querySelector<HTMLElement>('.project');
-          if (!card) return;
-
-          /*
-            Entry animation — scrubbed to scroll progress:
-            Card starts below-visible scale/opacity and animates to full
-            as its scroll zone (the outer wrapper) enters the viewport.
-
-            start: 'top 90%'  → trigger fires when outer's top is 90% down the viewport
-            end:   'top 10%'  → animation completes when outer's top reaches 10% from top
-            scrub: 0.5        → smoothly follows native scroll (no JS loop)
-
-            Only transform + opacity — both GPU-composited (no layout reflow).
-          */
-          gsap.fromTo(
-            card,
-            { opacity: 0.3, scale: 0.93, y: 48 },
-            {
-              opacity: 1, scale: 1, y: 0,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: outer,
-                start: 'top 90%',
-                end: 'top 12%',
-                scrub: 0.5,
-              },
-            }
-          );
-        });
-      }, track);
-      // GSAP context reverts all created ScrollTriggers on effect cleanup
-      return () => ctx.revert();
-    }
-
-    // ── Desktop / fine-pointer path ─────────────────────────────────────────
-    // Horizontal pinned track scrolled by GSAP matchMedia.
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 861px) and (hover: hover) and (pointer: fine)', () => {
+    const ctx = gsap.context(() => {
       const getDistance = () => {
         const trackWidth = track.scrollWidth;
         const viewportWidth = track.parentElement?.clientWidth ?? window.innerWidth;
@@ -158,8 +98,9 @@ export default function ProjectsPreviewSection() {
         },
       });
     });
-    return () => mm.revert();
-  }, [loading, displayProjects.length, prefersReduced, isTouch, total, isRtl]);
+
+    return () => ctx.revert();
+  }, [loading, displayProjects.length, prefersReduced, total, isRtl]);
 
   if (loading) {
     return (
@@ -238,24 +179,15 @@ export default function ProjectsPreviewSection() {
             {displayProjects.map((p, i) => {
               const logicalIndex = isRtl ? total - 1 - i : i;
               return (
-                /*
-                  .project-outer: CSS-only sticky stage on touch, display:contents on desktop.
-                  The key lives on the outer wrapper so React reconciles correctly.
-                */
-                <div
+                <ProjectCard
                   key={String(p._id ?? p.slug ?? `p-${i}`)}
-                  className="project-outer"
-                  data-project-idx={i}
-                >
-                  <ProjectCard
-                    project={p}
-                    index={logicalIndex}
-                    total={total}
-                    locale={locale}
-                    t={t}
-                    onOpen={openProject}
-                  />
-                </div>
+                  project={p}
+                  index={logicalIndex}
+                  total={total}
+                  locale={locale}
+                  t={t}
+                  onOpen={openProject}
+                />
               );
             })}
           </div>
