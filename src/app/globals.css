@@ -811,3 +811,12 @@ body.no-pin .work__hint { display: none; }
 html.splash-prehidden [data-splash] {
   display: none !important;
 }
+
+/* Autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px #1e0912 inset !important;
+    -webkit-text-fill-color: white !important;
+}

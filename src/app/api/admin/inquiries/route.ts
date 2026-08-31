@@ -15,8 +15,15 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const status = url.searchParams.get('status');
+    const isReadParam = url.searchParams.get('isRead');
 
-    const filter = status && ['new', 'contacted', 'closed'].includes(status) ? { status } : {};
+    const filter: any = {};
+    if (status && ['new', 'contacted', 'closed'].includes(status)) {
+      filter.status = status;
+    }
+    if (isReadParam !== null) {
+      filter.isRead = isReadParam === 'true';
+    }
 
     const inquiries = await Inquiry.find(filter).sort({ createdAt: -1 });
 

@@ -103,11 +103,29 @@ export default function Header() {
     window.location.reload();
   };
 
-  // Fetch new inquiries every 30 seconds
-  const { data } = useSWR('/api/admin/inquiries?status=new', fetcher, { refreshInterval: 30000 });
+  // Fetch unread inquiries every 30 seconds
+  const { data, mutate } = useSWR('/api/admin/inquiries?isRead=false', fetcher, { refreshInterval: 30000 });
   
+  const [displayInquiries, setDisplayInquiries] = useState<any[]>([]);
   const newInquiries = data?.data || [];
   const hasNotifications = newInquiries.length > 0;
+
+  useEffect(() => {
+    // Only update the displayed list if the dropdown is closed, 
+    // so it doesn't vanish while the user is reading it.
+    if (!isDropdownOpen) {
+      setDisplayInquiries(newInquiries);
+    }
+  }, [newInquiries, isDropdownOpen]);
+
+  const handleOpenDropdown = async () => {
+    const opening = !isDropdownOpen;
+    setIsDropdownOpen(opening);
+    if (opening && hasNotifications) {
+      // Mark as read in the background when opening the dropdown
+      fetch('/api/admin/inquiries/mark-read', { method: 'POST' }).then(() => mutate());
+    }
+  };
 
   return (
     <header className="h-24 border-b border-rose-900/30 bg-[#2A0813]/80 backdrop-blur-xl flex items-center justify-between px-10 sticky top-0 z-40">
@@ -181,7 +199,7 @@ export default function Header() {
         {/* Notifications */}
         <div className="relative" ref={dropdownRef}>
           <button 
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            onClick={handleOpenDropdown}
             className={`relative transition-colors ${hasNotifications || isDropdownOpen ? 'text-white' : 'text-rose-300 hover:text-white'}`}
           >
             <Bell size={22} />
@@ -196,17 +214,17 @@ export default function Header() {
                 <h3 className="text-white font-bold text-sm">
                   {locale === 'ar' ? 'الإشعارات' : 'Notifications'}
                 </h3>
-                {hasNotifications && (
+                {displayInquiries.length > 0 && (
                   <span className="bg-rose-500/20 text-rose-400 text-xs px-2 py-0.5 rounded-full font-bold">
-                    {newInquiries.length} {tInq('statusNew')}
+                    {displayInquiries.length} {tInq('statusNew')}
                   </span>
                 )}
               </div>
               
               <div className="max-h-80 overflow-y-auto">
-                {hasNotifications ? (
+                {displayInquiries.length > 0 ? (
                   <div className="flex flex-col">
-                    {newInquiries.map((inq: any, i: number) => (
+                    {displayInquiries.map((inq: any, i: number) => (
                       <Link 
                         key={String(inq._id ?? inq.email ?? `inq-${i}`)} 
                         href="/admin/inquiries"
@@ -230,7 +248,7 @@ export default function Header() {
                 )}
               </div>
               
-              {hasNotifications && (
+              {displayInquiries.length > 0 && (
                 <div className="p-3 bg-[#2A0813]/30 border-t border-rose-900/30">
                   <Link 
                     href="/admin/inquiries"

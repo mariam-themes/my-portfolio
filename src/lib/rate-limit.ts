@@ -22,7 +22,7 @@ export async function checkRateLimit(
     { key },
     {
       $inc: { count: 1 },
-      $setOnInsert: { key, count: 1, resetAt: now + windowMs },
+      $setOnInsert: { key },
       $max: { resetAt: now + windowMs },
     },
     { upsert: true, new: true }

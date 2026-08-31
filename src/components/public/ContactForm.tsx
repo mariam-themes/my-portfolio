@@ -20,10 +20,10 @@ const SERVICE_OPTIONS = [
 const OTHER_SERVICE = SERVICE_OPTIONS[SERVICE_OPTIONS.length - 1].value;
 
 const BUDGET_OPTIONS = [
-  { value: 'Under $1,000', labelKey: 'budgetOption1' },
-  { value: '$1,000 – $3,000', labelKey: 'budgetOption2' },
-  { value: '$3,000 – $5,000', labelKey: 'budgetOption3' },
-  { value: '$5,000+', labelKey: 'budgetOption4' },
+  { value: 'Under 500 SAR', labelKey: 'budgetOption1' },
+  { value: '500 – 1000 SAR', labelKey: 'budgetOption2' },
+  { value: '1000 – 2000 SAR', labelKey: 'budgetOption3' },
+  { value: '2000+ SAR', labelKey: 'budgetOption4' },
   { value: 'Flexible', labelKey: 'budgetOption5' },
 ];
 

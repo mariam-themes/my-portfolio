@@ -5,18 +5,19 @@ import { sendNewInquiryNotification } from '@/lib/email';
 import { checkRateLimit, createRateLimitHeaders } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-             request.headers.get('x-real-ip') ||
-             'unknown';
-  const rateLimit = await checkRateLimit(`contact:${ip}`, 5, 60 * 60 * 1000);
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { success: false, error: 'Too many requests. Please try again later.' },
-      { status: 429, headers: createRateLimitHeaders(rateLimit) }
-    );
-  }
-
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+               request.headers.get('x-real-ip') ||
+               'unknown';
+    const rateLimit = await checkRateLimit(`contact:${ip}`, 5, 60 * 60 * 1000);
+    
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: createRateLimitHeaders(rateLimit) }
+      );
+    }
+
     await connectToDatabase();
     const body = await request.json();
 

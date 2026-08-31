@@ -69,6 +69,12 @@ export async function PUT(
     const oldHeroMediaUrl = project.heroMediaUrl;
     const oldFullPageMockupUrl = project.fullPageMockupUrl;
 
+    // Handle sectionOrder explicitly to ensure Mongoose detects array changes
+    if (body.sectionOrder !== undefined) {
+      project.set('sectionOrder', body.sectionOrder);
+      delete body.sectionOrder;
+    }
+
     // Update fields
     Object.assign(project, body);
 
