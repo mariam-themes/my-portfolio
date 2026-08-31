@@ -175,13 +175,8 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
             
             return (
               <Link 
-<<<<<<< HEAD
-                key={project._id}
-                href={`/work/${project.slug}`} 
-=======
                 key={String(project._id ?? project.slug ?? `proj-${i}`)}
                 href={`/projects/${project.slug}`} 
->>>>>>> main
                 className={`project-card block group ${isRightColumn ? 'md:mt-32' : ''}`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}

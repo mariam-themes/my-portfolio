@@ -153,19 +153,10 @@ export default function AboutMeSection() {
                 <span className="w-12 h-[1px] bg-[#951C30]/50"></span>
                 {t('kicker')}
               </div>
-<<<<<<< HEAD
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
                 {t('heading')}{' '}
                 <span className="italic text-[#951C30]">{t('headingAccent')}</span>
                 {t('headingSuffix') ? ` ${t('headingSuffix')}` : ''}
-=======
-               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
-                {locale === 'ar' ? (
-                  <>تصميم تجارب <span className="italic text-[#951C30]">ذات معنى</span></>
-                ) : (
-                  <>Designing <span className="italic text-[#951C30]">Meaningful</span> Experiences</>
-                )}
->>>>>>> main
               </h2>
               <article
                 className="prose prose-lg md:prose-xl prose-invert prose-p:text-white/70 prose-a:text-rose-400 max-w-none font-light leading-relaxed"

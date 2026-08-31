@@ -25,17 +25,11 @@ function ScrollReset() {
 
 export default function SmoothScroller({ children }: { children: React.ReactNode }) {
   return (
-<<<<<<< HEAD
-    <ReactLenis root options={{ lerp: 0.12, duration: 1.1, smoothWheel: true }}>
-      <ScrollReset />
-      {children}
-=======
     <ReactLenis root options={{ lerp: 0.1, smoothWheel: true, duration: 1.2 }}>
-      <ScrollToTop />
+      <ScrollReset />
       <div style={{ overscrollBehavior: 'contain' }}>
         {children}
       </div>
->>>>>>> main
     </ReactLenis>
   );
 }

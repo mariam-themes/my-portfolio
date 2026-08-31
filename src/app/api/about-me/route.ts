@@ -2,12 +2,8 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import connectToDatabase from '@/lib/mongodb';
 import AboutMe, { DEFAULT_ABOUT_ME } from '@/models/AboutMe';
-<<<<<<< HEAD
 import { autoTranslate, isArabic, translateHtmlContent } from '@/lib/translate';
-=======
 import { logActivity, extractIp } from '@/lib/activity-log';
->>>>>>> main
-
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
@@ -22,7 +18,7 @@ export async function GET(request: Request) {
     }
 
     let hasChanged = false;
-    
+
     // Determine the source language if not set
     if (!doc.sourceLang) {
       doc.sourceLang = isArabic(doc.bio || '') ? 'ar' : 'en';
@@ -34,7 +30,7 @@ export async function GET(request: Request) {
     // If translations for the target language are completely missing, pre-populate them
     if (!doc.translations || !doc.translations[target]) {
       const tBio = doc.bio ? await translateHtmlContent(doc.bio, target) : '';
-      
+
       const tSkills = [];
       if (Array.isArray(doc.skills)) {
         for (const skill of doc.skills) {
@@ -68,7 +64,7 @@ export async function GET(request: Request) {
           experience: tExperience,
         }
       };
-      
+
       hasChanged = true;
     }
 
@@ -176,7 +172,7 @@ export async function PUT(request: Request) {
       adminId: token.id || 'unknown',
       action: 'ABOUT_ME_UPDATE',
       entityType: 'about_me',
-      details: { 
+      details: {
         bioUpdated: !!body.bio,
         photoUpdated: !!body.photo,
         skillsUpdated: Array.isArray(body.skills),

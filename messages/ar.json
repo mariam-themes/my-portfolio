@@ -532,7 +532,8 @@
       "moveLeft": "تحريك للأمام",
       "moveRight": "تحريك للخلف",
       "preview": "معاينة",
-      "unsavedChanges": "توجد تغييرات غير محفوظة"
+      "unsavedChanges": "توجد تغييرات غير محفوظة",
+      "saving": "جارٍ الحفظ..."
     },
     "aboutPage": {
       "title": "نبذة عني",

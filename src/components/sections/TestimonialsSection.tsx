@@ -94,12 +94,11 @@ export default function TestimonialsSection() {
             {t('noTestimonials')}
           </div>
         ) : (
-<<<<<<< HEAD
           <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {primary && (
                 <div
-                  key={primary._id}
+                  key={String(primary._id ?? primary.clientName ?? 'primary')}
                   className={`tcard-reveal ${rest.length === 0 ? 'lg:col-span-3' : 'lg:col-span-2'}`}
                 >
                   <TestimonialCard
@@ -114,8 +113,8 @@ export default function TestimonialsSection() {
                   />
                 </div>
               )}
-              {rest.map((t) => (
-                <div key={t._id} className="tcard-reveal">
+              {rest.map((t, i) => (
+                <div key={String(t._id ?? t.clientName ?? `test-${i}`)} className="tcard-reveal">
                   <TestimonialCard
                     clientName={t.clientName}
                     role={t.role}
@@ -144,40 +143,6 @@ export default function TestimonialsSection() {
               </div>
             )}
           </>
-=======
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {primary && (
-              <div
-                key={String(primary._id ?? primary.clientName ?? 'primary')}
-                className={`tcard-reveal ${rest.length === 0 ? 'lg:col-span-3' : 'lg:col-span-2'}`}
-              >
-                <TestimonialCard
-                  featured
-                  clientName={primary.clientName}
-                  role={primary.role}
-                  company={primary.company}
-                  content={primary.content}
-                  rating={primary.rating}
-                  avatarUrl={primary.avatarUrl}
-                  audioUrl={primary.audioUrl}
-                />
-              </div>
-            )}
-            {rest.map((t, i) => (
-              <div key={String(t._id ?? t.clientName ?? `test-${i}`)} className="tcard-reveal">
-                <TestimonialCard
-                  clientName={t.clientName}
-                  role={t.role}
-                  company={t.company}
-                  content={t.content}
-                  rating={t.rating}
-                  avatarUrl={t.avatarUrl}
-                  audioUrl={t.audioUrl}
-                />
-              </div>
-            ))}
-          </div>
->>>>>>> main
         )}
 
       </div>

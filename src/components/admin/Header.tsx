@@ -107,14 +107,14 @@ export default function Header() {
   const { data, mutate } = useSWR('/api/admin/inquiries?isRead=false', fetcher, { refreshInterval: 30000 });
   
   const [displayInquiries, setDisplayInquiries] = useState<any[]>([]);
-  const newInquiries = data?.data || [];
-  const hasNotifications = newInquiries.length > 0;
+  const newInquiries = data?.data;
+  const hasNotifications = newInquiries && newInquiries.length > 0;
 
   useEffect(() => {
     // Only update the displayed list if the dropdown is closed, 
     // so it doesn't vanish while the user is reading it.
     if (!isDropdownOpen) {
-      setDisplayInquiries(newInquiries);
+      setDisplayInquiries(newInquiries || []);
     }
   }, [newInquiries, isDropdownOpen]);
 
