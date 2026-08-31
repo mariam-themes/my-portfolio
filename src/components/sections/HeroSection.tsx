@@ -40,8 +40,8 @@ export default function HeroSection() {
     () => {
       // Scroll-out parallax
       gsap.to(contentRef.current, {
-        y: '25vh',
-        scale: 0.88,
+        y: 80,
+        scale: 0.92,
         opacity: 0,
         ease: 'none',
         scrollTrigger: {
@@ -66,7 +66,7 @@ export default function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[78svh] sm:min-h-[88svh] md:min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
       onMouseMove={hasPointer ? handleMouseMove : undefined}
       onMouseEnter={hasPointer ? () => glowOpacity.set(1) : undefined}
       onMouseLeave={hasPointer ? () => glowOpacity.set(0) : undefined}
