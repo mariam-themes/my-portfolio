@@ -59,6 +59,7 @@
     "viewProject": "عرض",
     "headingTop": "مشاريع",
     "headingBottom": "لها أثر.",
+    "featuredKicker": "المشاريع المميزة",
     "all": "الكل",
     "noImage": "لا توجد صورة",
     "design": "تصميم",
@@ -175,7 +176,8 @@
     "title": "قصص ذات",
     "titleAccent": "مغزى.",
     "readAll": "اقرأ جميع المقالات",
-    "noBlogs": "لا توجد مقالات منشورة بعد."
+    "noBlogs": "لا توجد مقالات منشورة بعد.",
+    "seeMore": "عرض المزيد"
   },
   "SelectedProjects": {
     "kicker": "مشاريع مختارة",
@@ -187,12 +189,16 @@
     "kicker": "كلمات طيبة",
     "maison": "الدار",
     "title": "عملاء بقوا معنا.",
-    "noTestimonials": "لا توجد شهادات بعد."
+    "noTestimonials": "لا توجد شهادات بعد.",
+    "seeMore": "عرض المزيد"
   },
   "Admin": {
     "shell": {
       "dashboard": "لوحة التحكم",
       "projects": "المشاريع",
+      "services": "الخدمات",
+      "gallery": "المعرض",
+      "about": "نبذة عني",
       "blog": "المدونة",
       "testimonials": "الشهادات",
       "inquiries": "الرسائل",
@@ -373,7 +379,17 @@
       "editTitle": "تعديل المقال",
       "editSubtitle": "حدّث مقالك.",
       "update": "تحديث المقال",
-      "updating": "جارٍ التحديث..."
+      "updating": "جارٍ التحديث...",
+      "seoSettings": "إعدادات SEO",
+      "seoSub": "اختياري: يساعد محركات البحث على فهم محتواك",
+      "metaTitleEn": "العنوان التعريفي (إنجليزي)",
+      "metaTitleEnPh": "SEO title for English pages...",
+      "metaTitleAr": "العنوان التعريفي (عربي)",
+      "metaTitleArPh": "عنوان SEO للصفحات العربية...",
+      "metaDescEn": "الوصف التعريفي (إنجليزي)",
+      "metaDescEnPh": "Brief description for search results (max 160 chars)...",
+      "metaDescAr": "الوصف التعريفي (عربي)",
+      "metaDescArPh": "وصف مختصر لنتائج البحث (حتى 160 حرف)..."
     },
     "testimonialsList": {
       "title": "الشهادات",
@@ -431,7 +447,9 @@
       "videoReady": "ملف الفيديو جاهز",
       "uploading": "جارٍ رفع الملف الضخم مباشرة...",
       "clickToUpload": "اضغط لرفع الوسائط",
-      "supports": "يدعم لقطات الشاشة والفيديوهات الضخمة"
+      "supports": "يدعم لقطات الشاشة والفيديوهات الضخمة",
+      "optimizing": "جارٍ ضغط وتحسين الصورة...",
+      "compressing": "جارٍ المعالجة الفورية..."
     },
     "editor": {
       "bold": "عريض",
@@ -470,13 +488,68 @@
       "saved": "تم حفظ تخطيط الصفحة الرئيسية!",
       "failed": "فشل حفظ التخطيط",
       "hero": "الترويسة / مقدمة ثلاثية الأبعاد",
+      "work": "الأعمال / معرض البورتفوليو",
       "about": "نبذة عني",
       "services": "الخدمات",
+      "platforms": "المنصات والأدوات",
+      "featuredProjects": "المشاريع المميزة",
       "projectsPreview": "معرض المشاريع",
       "otherProjects": "مشاريع أخرى",
       "blog": "المدونة",
       "testimonials": "الشهادات",
       "contact": "قسم التواصل"
+    },
+    "servicesPage": {
+      "title": "إدارة الخدمات",
+      "subtitle": "أدر عروض الخدمات الخاصة بك.",
+      "list": "قائمة الخدمات",
+      "addService": "إضافة خدمة",
+      "addNew": "إضافة خدمة جديدة",
+      "editTitle": "تعديل الخدمة",
+      "noServices": "لا توجد خدمات بعد.",
+      "saving": "جارٍ الحفظ..."
+    },
+    "galleryPage": {
+      "title": "إدارة المعرض",
+      "subtitle": "رفع صور لقسم 'مشاريع أخرى' في الصفحة الرئيسية مع ضغط فوري وسرعة فائقة.",
+      "images": "صور المعرض",
+      "save": "حفظ تحديثات المعرض",
+      "addImage": "إضافة صورة",
+      "dragDropMultiple": "اسحب وأفلت الصور هنا أو اضغط للاختيار",
+      "supportsMultiple": "يدعم رفع عدة صور معاً بضغط فوري فائق السرعة",
+      "uploadingCount": "جارٍ رفع {count} صورة...",
+      "allUploaded": "تم رفع جميع الصور بنجاح!",
+      "clearAll": "حذف الكل",
+      "confirmClear": "هل أنت متأكد من حذف جميع صور المعرض؟",
+      "totalImages": "إجمالي الصور",
+      "moveLeft": "تحريك للأمام",
+      "moveRight": "تحريك للخلف",
+      "preview": "معاينة",
+      "unsavedChanges": "توجد تغييرات غير محفوظة"
+    },
+    "aboutPage": {
+      "title": "نبذة عني",
+      "subtitle": "تحديث معلوماتك الشخصية والسيرة الذاتية والخبرات.",
+      "photo": "الصورة الشخصية",
+      "bioLabel": "نبذة / قصتي",
+      "cvLabel": "رابط السيرة الذاتية",
+      "cvPh": "https://...",
+      "skillsLabel": "المهارات (مفصولة بفواصل)",
+      "skillsPh": "فيجما، الهوية البصرية، تصميم المواقع",
+      "experienceLabel": "الخبرات",
+      "addExp": "إضافة خبرة",
+      "roleLabel": "المسمى الوظيفي",
+      "rolePh": "مصمم تجربة مستخدم",
+      "companyLabel": "الشركة",
+      "companyPh": "شركة الأمل",
+      "durationLabel": "المدة",
+      "durationPh": "2020 – 2023",
+      "descLabel": "الوصف",
+      "descPh": "ملخص موجز لدورك...",
+      "save": "حفظ التغييرات",
+      "saving": "جارٍ الحفظ...",
+      "saved": "تم حفظ الملف الشخصي!",
+      "failed": "فشل حفظ الملف الشخصي"
     }
   },
   "FeaturedProjects": {
@@ -521,5 +594,14 @@
     "backToStories": "العودة إلى القصص",
     "endOfArticle": "نهاية المقال",
     "readMore": "اقرأ المزيد"
+  },
+  "AboutMe": {
+    "kicker": "نبذة عني",
+    "heading": "تصميم تجارب",
+    "headingAccent": "ذات معنى",
+    "headingSuffix": "",
+    "coreExpertise": "الخبرات الأساسية",
+    "experience": "الخبرة العملية",
+    "downloadCv": "تحميل السيرة الذاتية"
   }
 }

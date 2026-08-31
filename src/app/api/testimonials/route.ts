@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import { Testimonial } from '@/models/Testimonial';
 
@@ -36,12 +37,16 @@ export async function POST(request: Request) {
     await connectToDatabase();
     const body = await request.json();
 
-    // Only an authenticated admin can publish a testimonial directly (e.g. from
-    // the dashboard). Public submissions are always forced to pending so they
-    // can't bypass moderation by spoofing `isApproved` in the body.
-    const token = await getToken({ req: request as never });
-    const isAdmin = !!token;
-    const isApproved = isAdmin ? body.isApproved === true : false;
+    // Check if request is made by an authenticated admin
+    const session = await getServerSession(authOptions);
+    const isAdmin = !!session;
+
+    // When an admin adds a testimonial from the dashboard, publish directly (isApproved: true)
+    // by default unless explicitly specified otherwise.
+    // Public user reviews submitted from the website remain pending (isApproved: false).
+    const isApproved = isAdmin
+      ? (body.isApproved !== undefined ? Boolean(body.isApproved) : true)
+      : false;
 
     const testimonial = await Testimonial.create({ ...body, isApproved });
     return NextResponse.json({ success: true, data: testimonial }, { status: 201 });

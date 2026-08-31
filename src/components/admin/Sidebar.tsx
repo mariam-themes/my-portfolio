@@ -14,9 +14,9 @@ export default function Sidebar() {
     { name: t('dashboard'), href: '/admin', icon: Home },
     { name: t('sections'), href: '/admin/sections', icon: LayoutDashboard },
     { name: t('projects'), href: '/admin/projects', icon: Folder },
-    { name: 'Services', href: '/admin/services', icon: Briefcase },
-    { name: 'Gallery', href: '/admin/gallery', icon: ImageIcon },
-    { name: 'About Me', href: '/admin/about', icon: User },
+    { name: t('services'), href: '/admin/services', icon: Briefcase },
+    { name: t('gallery'), href: '/admin/gallery', icon: ImageIcon },
+    { name: t('about'), href: '/admin/about', icon: User },
     { name: t('blog'), href: '/admin/blogs', icon: FileText },
     { name: t('testimonials'), href: '/admin/testimonials', icon: Star },
     { name: t('inquiries'), href: '/admin/inquiries', icon: Inbox },
@@ -34,6 +34,7 @@ export default function Sidebar() {
             src="/portfolio-logo.jpeg" 
             alt="Mariam Logo" 
             fill
+            sizes="112px"
             className="object-cover"
           />
         </div>

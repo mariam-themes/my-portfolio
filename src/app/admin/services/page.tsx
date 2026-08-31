@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, ArrowUp, ArrowDown, Briefcase, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, ArrowUp, ArrowDown, Briefcase, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import ServiceForm from '@/components/admin/ServiceForm';
-import ImageUpload from '@/components/admin/ImageUpload';
 import DeleteItemButton from '@/components/admin/DeleteItemButton';
 
 export default function ServicesPage() {
+  const t = useTranslations('Admin.servicesPage');
   const router = useRouter();
   const [services, setServices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -93,30 +94,30 @@ export default function ServicesPage() {
       <div>
         <h1 className="text-3xl font-light text-white mb-2 font-serif flex items-center gap-3">
           <Briefcase className="text-rose-500" />
-          Services Manager
+          {t('title')}
         </h1>
-        <p className="text-rose-200/60">Manage your service offerings.</p>
+        <p className="text-rose-200/60">{t('subtitle')}</p>
       </div>
 
       {/* Services List */}
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-rose-100 flex items-center gap-2">
-            Services List
+            {t('list')}
           </h2>
           {(!isCreating && !isEditing) && (
             <button
               onClick={() => setIsCreating(true)}
               className="flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-lg text-sm transition-colors"
             >
-              <Plus className="w-4 h-4" /> Add Service
+              <Plus className="w-4 h-4" /> {t('addService')}
             </button>
           )}
         </div>
 
         {isCreating && (
           <div className="mb-8">
-            <h3 className="text-lg font-medium text-rose-200 mb-4">Add New Service</h3>
+            <h3 className="text-lg font-medium text-rose-200 mb-4">{t('addNew')}</h3>
             <ServiceForm
               initialData={{ order: services.length }}
               onCancel={() => setIsCreating(false)}
@@ -130,7 +131,7 @@ export default function ServicesPage() {
 
         {isEditing && (
           <div className="mb-8">
-            <h3 className="text-lg font-medium text-rose-200 mb-4">Edit Service</h3>
+            <h3 className="text-lg font-medium text-rose-200 mb-4">{t('editTitle')}</h3>
             <ServiceForm
               initialData={isEditing}
               onCancel={() => setIsEditing(null)}
@@ -146,7 +147,7 @@ export default function ServicesPage() {
           <div className="grid grid-cols-1 gap-4">
             {services.length === 0 ? (
               <div className="p-8 text-center bg-black/20 rounded-2xl border border-rose-900/30 text-rose-300">
-                No services added yet.
+                {t('noServices')}
               </div>
             ) : (
               services.map((service, index) => (

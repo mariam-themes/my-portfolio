@@ -7,12 +7,23 @@ export interface IExperience {
   description?: string;
 }
 
+export interface IAboutMeTranslationSet {
+  bio?: string;
+  skills?: string[];
+  experience?: IExperience[];
+}
+
 export interface IAboutMe extends Document {
   bio: string;
   photo: string;
   skills: string[];
   experience: IExperience[];
   cvLink: string;
+  sourceLang?: 'en' | 'ar';
+  translations?: {
+    en?: IAboutMeTranslationSet;
+    ar?: IAboutMeTranslationSet;
+  };
 }
 
 const ExperienceSchema = new Schema<IExperience>(
@@ -25,6 +36,15 @@ const ExperienceSchema = new Schema<IExperience>(
   { _id: true }
 );
 
+const AboutMeTranslationSetSchema = new Schema<IAboutMeTranslationSet>(
+  {
+    bio: { type: String, default: '' },
+    skills: { type: [String], default: [] },
+    experience: { type: [ExperienceSchema], default: [] },
+  },
+  { _id: false }
+);
+
 const AboutMeSchema = new Schema<IAboutMe>(
   {
     bio: { type: String, default: '' },
@@ -32,6 +52,11 @@ const AboutMeSchema = new Schema<IAboutMe>(
     skills: { type: [String], default: [] },
     experience: { type: [ExperienceSchema], default: [] },
     cvLink: { type: String, default: '' },
+    sourceLang: { type: String, enum: ['en', 'ar'] },
+    translations: {
+      en: { type: AboutMeTranslationSetSchema },
+      ar: { type: AboutMeTranslationSetSchema },
+    },
   },
   { timestamps: true }
 );

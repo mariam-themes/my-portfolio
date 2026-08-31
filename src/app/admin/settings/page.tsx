@@ -67,7 +67,17 @@ export default function SettingsPage() {
       const res = await fetch('/api/global-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ siteName, logoUrl, email, whatsapp, copyright, seoTitle, seoDescription, socials, usefulLinks }),
+        body: JSON.stringify({
+          siteName,
+          logoUrl,
+          email,
+          whatsapp,
+          copyright,
+          seoTitle,
+          seoDescription,
+          socials,
+          usefulLinks,
+        }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Failed to save');
@@ -106,10 +116,6 @@ export default function SettingsPage() {
             <input className={inputClass} value={siteName} onChange={(e) => setSiteName(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">Logo URL</label>
-            <input className={inputClass} value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="/portfolio-logo.jpeg" />
-          </div>
-          <div>
             <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">Contact Email</label>
             <input className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="studio@example.com" />
           </div>
@@ -120,14 +126,6 @@ export default function SettingsPage() {
           <div>
             <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">Copyright Text</label>
             <input className={inputClass} value={copyright} onChange={(e) => setCopyright(e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">SEO Title</label>
-            <input className={inputClass} value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} placeholder="Default site title for search engines" />
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">SEO Description</label>
-            <textarea className={`${inputClass} min-h-[80px] resize-y`} value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} placeholder="Default site description for search engines" />
           </div>
         </div>
       </section>

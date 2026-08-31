@@ -4,16 +4,20 @@ import { ReactLenis, useLenis } from 'lenis/react';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-function ScrollToTop() {
+function ScrollReset() {
   const pathname = usePathname();
   const lenis = useLenis();
 
   useEffect(() => {
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true, force: true });
-    } else {
+    if (!lenis) {
       window.scrollTo(0, 0);
+      return;
     }
+    // Immediately jump to top on navigation
+    lenis.scrollTo(0, { immediate: true, force: true });
+    // Recalculate page height after content renders (important for dynamic pages)
+    const id = setTimeout(() => lenis.resize(), 150);
+    return () => clearTimeout(id);
   }, [pathname, lenis]);
 
   return null;
@@ -21,8 +25,8 @@ function ScrollToTop() {
 
 export default function SmoothScroller({ children }: { children: React.ReactNode }) {
   return (
-    <ReactLenis root options={{ lerp: 0.08, duration: 1.5, smoothWheel: true }}>
-      <ScrollToTop />
+    <ReactLenis root options={{ lerp: 0.12, duration: 1.1, smoothWheel: true }}>
+      <ScrollReset />
       {children}
     </ReactLenis>
   );

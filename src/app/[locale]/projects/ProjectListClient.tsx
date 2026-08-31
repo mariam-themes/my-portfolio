@@ -176,12 +176,12 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
             return (
               <Link 
                 key={project._id}
-                href={`/projects/${project.slug}`} 
+                href={`/work/${project.slug}`} 
                 className={`project-card block group ${isRightColumn ? 'md:mt-32' : ''}`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
                 // We use cursor-none to hide the default pointer since we have a custom follower
-                style={{ cursor: 'none', visibility: 'hidden' }} // GSAP autoAlpha will make it visible
+                style={{ cursor: 'none' }}
               >
                 {/* Image Container */}
                 <div className="relative w-full aspect-[4/3] sm:aspect-[3/2] overflow-hidden bg-[#111]">

@@ -1,68 +1,82 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// ─── TypeScript interfaces ─────────────────────────────────────────────────
+
+export interface IBlogTranslationSet {
+  title?: string;
+  excerpt?: string;
+  content?: string;
+}
+
 export interface IBlog extends Document {
   title: string;
   slug: string;
   excerpt?: string;
-  content: string; // HTML or Markdown from Rich Text Editor
-  coverImage?: string; // Cloudinary URL
+  content: string;
+  coverImage?: string;
   tags: string[];
   isPublished: boolean;
   publishedAt?: Date;
-  seoTitle?: string;
-  seoDescription?: string;
+  seoTitle?: { en?: string; ar?: string };
+  seoDescription?: { en?: string; ar?: string };
+  sourceLang?: 'en' | 'ar';
+  translations?: {
+    en?: IBlogTranslationSet;
+    ar?: IBlogTranslationSet;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
 
-const BlogSchema: Schema = new Schema(
+// ─── Sub-schemas ─────────────────────────────────────────────────────────────
+
+const TranslationSetSchema = new Schema<IBlogTranslationSet>(
+  { title: String, excerpt: String, content: String },
+  { _id: false }
+);
+
+// ─── Main schema ──────────────────────────────────────────────────────────────
+
+const BlogSchema = new Schema<IBlog>(
   {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    excerpt: {
-      type: String,
-      trim: true,
-    },
-    content: {
-      type: String,
-      required: true, // Full content for the blog post
-    },
-    coverImage: {
-      type: String, // Cloudinary URL
-    },
-    tags: {
-      type: [String],
-      default: [],
-    },
-    isPublished: {
-      type: Boolean,
-      default: false,
-    },
-    publishedAt: {
-      type: Date,
-    },
+    title: { type: String, required: true, trim: true },
+    slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    excerpt: { type: String, trim: true },
+    content: { type: String, required: true },
+    coverImage: String,
+    tags: { type: [String], default: [] },
+    isPublished: { type: Boolean, default: false },
+    publishedAt: Date,
     seoTitle: {
-      type: String,
-      trim: true,
+      type: new Schema<{ en?: string; ar?: string }>(
+        { en: { type: String, trim: true }, ar: { type: String, trim: true } },
+        { _id: false }
+      ),
+      default: undefined,
     },
     seoDescription: {
-      type: String,
-      trim: true,
+      type: new Schema<{ en?: string; ar?: string }>(
+        { en: { type: String, trim: true }, ar: { type: String, trim: true } },
+        { _id: false }
+      ),
+      default: undefined,
+    },
+    sourceLang: { type: String, enum: ['en', 'ar'] },
+    translations: {
+      type: new Schema<{ en?: IBlogTranslationSet; ar?: IBlogTranslationSet }>(
+        { en: { type: TranslationSetSchema }, ar: { type: TranslationSetSchema } },
+        { _id: false }
+      ),
+      default: undefined,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
+// ─── Avoid stale schema in dev hot-reload ────────────────────────────────────
+
+if (process.env.NODE_ENV === 'development' && mongoose.models.Blog) {
+  delete mongoose.models['Blog'];
+}
 
 export const Blog = mongoose.models.Blog || mongoose.model<IBlog>('Blog', BlogSchema);
