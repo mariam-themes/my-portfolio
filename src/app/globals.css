@@ -778,8 +778,8 @@ body:has(.case-study-narrative)::-webkit-scrollbar-thumb {
 
 /* Unified default layout for ALL devices (horizontal pinned track) */
 .work__pin-wrap {
-  min-height: 100svh;
   display: flex; flex-direction: column; justify-content: center;
+  padding-bottom: 2rem;
 }
 .work__head { padding-top: clamp(1.2rem, 3vh, 2.5rem); padding-bottom: 1rem; }
 

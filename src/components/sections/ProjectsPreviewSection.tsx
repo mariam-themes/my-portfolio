@@ -81,7 +81,7 @@ export default function ProjectsPreviewSection() {
         ease: 'none',
         scrollTrigger: {
           trigger: '#workPinWrap',
-          start: 'top top',
+          start: 'center center',
           end: () => '+=' + getDistance(),
           pin: true,
           scrub: 0.1,
@@ -123,7 +123,7 @@ export default function ProjectsPreviewSection() {
   }
 
   return (
-    <section className="work py-16 md:py-24 lg:py-32" id="work" aria-label="Selected work">
+    <section className="work py-12 md:py-16 lg:py-20 bg-[#0a0507]" id="work" aria-label="Selected work">
       <div id="workPinWrap" className="work__pin-wrap">
         <header className="work__head flex flex-col items-start container mx-auto px-6 md:px-12 lg:px-20">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] font-semibold mb-4 rtl:tracking-normal w-fit">
@@ -205,7 +205,7 @@ export default function ProjectsPreviewSection() {
       </div>
 
       {totalCount > 4 && (
-        <div className="relative z-10 flex justify-center py-16 bg-[#0a0507]">
+        <div className="relative z-10 flex justify-center pb-12 md:pb-16 pt-4">
           <Link
             href="/work"
             className="group inline-flex items-center gap-3 rounded-full bg-[#951C30] px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:bg-[#b8223b] hover:shadow-rose-800/40 hover:-translate-y-0.5"
