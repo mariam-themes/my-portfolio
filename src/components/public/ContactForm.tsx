@@ -20,10 +20,10 @@ const SERVICE_OPTIONS = [
 const OTHER_SERVICE = SERVICE_OPTIONS[SERVICE_OPTIONS.length - 1].value;
 
 const BUDGET_OPTIONS = [
-  { value: 'Under $1,000', labelKey: 'budgetOption1' },
-  { value: '$1,000 – $3,000', labelKey: 'budgetOption2' },
-  { value: '$3,000 – $5,000', labelKey: 'budgetOption3' },
-  { value: '$5,000+', labelKey: 'budgetOption4' },
+  { value: 'Under 500 SAR', labelKey: 'budgetOption1' },
+  { value: '500 – 1000 SAR', labelKey: 'budgetOption2' },
+  { value: '1000 – 2000 SAR', labelKey: 'budgetOption3' },
+  { value: '2000+ SAR', labelKey: 'budgetOption4' },
   { value: 'Flexible', labelKey: 'budgetOption5' },
 ];
 
@@ -52,7 +52,7 @@ function FieldWrap({
   optional?: boolean;
 }) {
   return (
-    <div className="group/field relative flex flex-col gap-1.5">
+    <div className="group/field relative flex flex-col gap-2 transition-shadow duration-300">
       <label
         htmlFor={id}
         className={cn(
@@ -67,7 +67,17 @@ function FieldWrap({
           </span>
         )}
       </label>
-      {children}
+      <div className="relative">
+        {children}
+        <span
+          aria-hidden
+          className="absolute -bottom-1 left-0 h-px w-0 bg-[#951C30] transition-all duration-500 ease-out group-focus-within/field:w-full"
+        />
+        <span
+          aria-hidden
+          className="absolute -bottom-1 left-1/2 h-4 w-0 -translate-x-1/2 rounded-full bg-[#951C30]/15 blur-md transition-all duration-500 ease-out group-focus-within/field:w-full"
+        />
+      </div>
       <AnimatePresence>
         {error && (
           <motion.p
@@ -215,10 +225,10 @@ export default function ContactForm() {
         e.preventDefault();
         onSubmit();
       }}
-      className="space-y-8"
+      className="space-y-10"
     >
       {/* Row 1: Name · Email · Phone */}
-      <div className="grid gap-8 sm:grid-cols-3">
+      <div className="grid gap-10 sm:grid-cols-3">
         <FieldWrap id="name" label={t('nameLabel')} error={errors.name?.message}>
           <input
             id="name"
@@ -257,7 +267,7 @@ export default function ContactForm() {
             id="service"
             className={cn(
               inputBase,
-              'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+              'appearance-none cursor-pointer pe-8',
               errors.service ? inputError : inputNormal,
               // dim the placeholder option
               watchedService === '' ? 'text-rose-100/25' : 'text-rose-50'
@@ -274,7 +284,7 @@ export default function ContactForm() {
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60 transition-colors group-focus-within/field:text-rose-200/90" />
+          <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60 transition-colors group-focus-within/field:text-rose-200/90" />
         </div>
 
         <AnimatePresence>
@@ -306,7 +316,7 @@ export default function ContactForm() {
       </FieldWrap>
 
       {/* Budget · Timeline */}
-      <div className="grid gap-8 sm:grid-cols-2">
+      <div className="grid gap-10 sm:grid-cols-2">
         <FieldWrap id="budget" label={t('budgetLabel')} optional>
           <div className="relative">
             <select
@@ -314,7 +324,7 @@ export default function ContactForm() {
               className={cn(
                 inputBase,
                 inputNormal,
-                'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+                'appearance-none cursor-pointer pe-8',
                 watch('budget') === '' ? 'text-rose-100/25' : 'text-rose-50'
               )}
               defaultValue=""
@@ -329,7 +339,7 @@ export default function ContactForm() {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
+            <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
           </div>
         </FieldWrap>
 
@@ -340,7 +350,7 @@ export default function ContactForm() {
               className={cn(
                 inputBase,
                 inputNormal,
-                'appearance-none cursor-pointer pr-8 rtl:pl-8 rtl:pr-0',
+                'appearance-none cursor-pointer pe-8',
                 watch('timeline') === '' ? 'text-rose-100/25' : 'text-rose-50'
               )}
               defaultValue=""
@@ -355,7 +365,7 @@ export default function ContactForm() {
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-0 rtl:right-auto rtl:left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
+            <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
           </div>
         </FieldWrap>
       </div>
@@ -399,10 +409,10 @@ export default function ContactForm() {
         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         className={cn(
           'group/btn relative flex w-full items-center justify-between gap-4 overflow-hidden',
-          'rounded-full border border-[#951C30]/60 bg-[#951C30]/10 px-7 py-4',
+          'rounded-full border border-[#951C30]/60 bg-[#951C30]/15 px-7 py-5',
           'text-sm font-semibold tracking-wider rtl:tracking-normal text-white',
-          'hover:bg-[#951C30] hover:border-[#951C30]',
-          'transition-colors duration-500 ease-out',
+          'hover:bg-[#951C30] hover:border-[#951C30] hover:shadow-[0_0_28px_rgba(149,28,48,0.25)]',
+          'transition-all duration-500 ease-out',
           'disabled:pointer-events-none disabled:opacity-50',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#951C30]/60'
         )}

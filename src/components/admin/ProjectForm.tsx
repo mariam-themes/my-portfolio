@@ -319,7 +319,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         visualDirection?: { colors?: string[]; fonts?: string[]; identity?: string[]; imageStyle?: string[] };
         sectionOrder?: string[];
       };
-      const payload = { ...data } as ProjectSubmitValues;
+      const payload = { ...data, sectionOrder: form.getValues('sectionOrder') } as ProjectSubmitValues;
       const metaTitle = cleanLocalized(data.metaTitle);
       const metaDescription = cleanLocalized(data.metaDescription);
       if (metaTitle) payload.metaTitle = metaTitle;
@@ -333,7 +333,9 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       if (vd && !vd.colors?.length && !vd.fonts?.length && !vd.identity?.length && !vd.imageStyle?.length) {
         delete payload.visualDirection;
       }
-      if (!payload.sectionOrder?.length) delete payload.sectionOrder;
+      if (!payload.sectionOrder) {
+        payload.sectionOrder = [];
+      }
 
       const url = initialData ? `/api/admin/projects/${initialData._id}` : '/api/admin/projects';
       const method = initialData ? 'PUT' : 'POST';
@@ -409,7 +411,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   );
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 bg-black/40 p-6 md:p-8 rounded-2xl border border-rose-900/30 backdrop-blur-xl">
+    <form onSubmit={form.handleSubmit(onSubmit, (errors) => { toast.error(t('formErrors') || 'Please fix the errors in the form before publishing.'); console.error(errors); })} className="space-y-10 bg-black/40 p-6 md:p-8 rounded-2xl border border-rose-900/30 backdrop-blur-xl">
 
 
       {/* ══ SECTION 1: Basic Info ══ */}
@@ -419,7 +421,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div className="space-y-4">
           {/* Title */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('projectTitle')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('projectTitle')} <span className="text-rose-500">*</span></label>
             <input {...form.register('title')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('projectTitlePh')} />
@@ -428,16 +430,16 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
 
           {/* Category */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('category')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('category')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></label>
             {categories.length > 0 ? (
               <select
                 {...form.register('category')}
                 autoComplete="off"
                 className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               >
-                <option value="">{t('categoryPh')}</option>
+                <option value="" disabled hidden>Select Category</option>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat} className="bg-rose-950 text-white">
+                  <option key={cat} value={cat} className="bg-[#4a0d14] text-white">
                     {cat}
                   </option>
                 ))}
@@ -454,7 +456,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
 
           {/* Sector */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('sector')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('sector')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></label>
             <input {...form.register('sector')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('sectorPh')} />
@@ -462,7 +464,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
 
           {/* Platform */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('platform')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('platform')} <span className="text-rose-500">*</span></label>
             <input {...form.register('platform')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('platformPh')} />
@@ -471,7 +473,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('description')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('description')} <span className="text-rose-500">*</span></label>
             <textarea {...form.register('description')} rows={3} dir="auto"
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
               placeholder={t('descriptionPh')} />
@@ -479,16 +481,16 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           </div>
 
           {/* Services */}
-          <ChipInput fieldName="services" label={t('services')} placeholder={t('servicesPh')} />
+          <ChipInput fieldName="services" label={`${t('services')} *`} placeholder={t('servicesPh')} />
 
           {/* Tools */}
-          <ChipInput fieldName="tools" label={t('tools')} placeholder={t('toolsPh')} />
+          <ChipInput fieldName="tools" label={`${t('tools')} ${t('liveUrlOptional')}`} placeholder={t('toolsPh')} />
         </div>
 
         {/* Year & Live URL (not bilingual) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('year')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('year')} <span className="text-rose-500">*</span></label>
             <input type="number" {...form.register('year', { valueAsNumber: true })}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors" />
             {form.formState.errors.year && <p className="text-red-400 text-xs">{form.formState.errors.year.message}</p>}
@@ -509,12 +511,12 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-rose-950/10 rounded-xl border border-rose-900/20">
           <div className="space-y-2">
             <Controller name="heroMediaUrl" control={form.control}
-              render={({ field }) => <ImageUpload label={t('heroCover')} value={field.value} onChange={field.onChange} folder="projects" />} />
+              render={({ field }) => <ImageUpload label={`${t('heroCover')} *`} value={field.value} onChange={field.onChange} folder="projects" />} />
             {form.formState.errors.heroMediaUrl && <p className="text-red-400 text-xs">{form.formState.errors.heroMediaUrl.message}</p>}
           </div>
           <div className="space-y-2">
             <Controller name="fullPageMockupUrl" control={form.control}
-              render={({ field }) => <ImageUpload label={t('fullPageMockup')} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
+              render={({ field }) => <ImageUpload label={`${t('fullPageMockup')} ${t('liveUrlOptional')}`} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
             <p className="text-xs text-rose-500/50">{t('fullPageHint')}</p>
           </div>
         </div>
@@ -690,13 +692,13 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <SectionHeader title={t('seoSettings')} subtitle={t('seoSub')} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('metaTitleEn')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaTitleEn')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></label>
             <input {...form.register('metaTitle.en')} maxLength={70}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('metaTitleEnPh')} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('metaTitleAr')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaTitleAr')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></label>
             <input {...form.register('metaTitle.ar')} maxLength={70} dir="rtl"
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('metaTitleArPh')} />
@@ -704,13 +706,13 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('metaDescEn')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaDescEn')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></label>
             <textarea {...form.register('metaDescription.en')} rows={2} maxLength={160}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
               placeholder={t('metaDescEnPh')} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('metaDescAr')}</label>
+            <label className="text-xs font-medium text-rose-200">{t('metaDescAr')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></label>
             <textarea {...form.register('metaDescription.ar')} rows={2} maxLength={160} dir="rtl"
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
               placeholder={t('metaDescArPh')} />

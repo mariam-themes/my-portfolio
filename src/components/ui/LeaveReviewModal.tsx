@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLocale } from 'next-intl';
 import { X, Star, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface LeaveReviewModalProps {
@@ -18,6 +19,8 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
+  const locale = useLocale();
+  const isAr = locale === 'ar';
 
   // Lock the page scroll while the modal is open so the page itself never
   // scrolls; the modal handles its own overflow internally.
@@ -37,15 +40,15 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
     setError('');
 
     if (!clientName.trim()) {
-      setError('Please enter your full name.');
+      setError(isAr ? 'يرجى إدخال اسمك الكامل.' : 'Please enter your full name.');
       return;
     }
     if (!content.trim() || content.trim().length < 10) {
-      setError('Please write at least 10 characters in your review.');
+      setError(isAr ? 'يرجى كتابة 10 أحرف على الأقل.' : 'Please write at least 10 characters in your review.');
       return;
     }
     if (rating === 0) {
-      setError('Please select a star rating.');
+      setError(isAr ? 'يرجى اختيار تقييم.' : 'Please select a star rating.');
       return;
     }
 
@@ -68,7 +71,7 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
       if (!data.success) throw new Error(data.error || 'Failed to submit review');
       setIsSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : (isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى.' : 'Something went wrong. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -104,7 +107,7 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-full text-rose-300/60 hover:text-rose-200 hover:bg-white/5 transition-colors z-10"
+          className="absolute top-4 end-4 p-2 rounded-full text-rose-300/60 hover:text-rose-200 hover:bg-white/5 transition-colors z-10"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
@@ -120,33 +123,31 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-white mb-3">شكراً لك!</h3>
+                <h3 className="text-2xl font-bold text-white mb-3">{isAr ? 'شكراً لك!' : 'Thank you!'}</h3>
                 <p className="text-rose-200/70 leading-relaxed">
-                  تم إرسال رأيك بنجاح وسيظهر بعد المراجعة.
-                  <br />
-                  <span className="text-sm">Thank you! Your review has been submitted and will appear after approval.</span>
+                  {isAr ? 'تم إرسال رأيك بنجاح وسيظهر بعد المراجعة.' : 'Your review has been submitted and will appear after approval.'}
                 </p>
               </div>
               <button
                 onClick={handleClose}
                 className="mt-2 px-8 py-3 rounded-full bg-gradient-to-r from-rose-600 to-rose-900 text-white font-semibold hover:from-rose-500 hover:to-rose-800 transition-all"
               >
-                Close
+                {isAr ? 'إغلاق' : 'Close'}
               </button>
             </div>
           ) : (
             // Form State
             <>
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white mb-1">Leave a Review</h2>
-                <p className="text-rose-200/60 text-sm">شارك رأيك وتجربتك معنا</p>
+                <h2 className="text-2xl font-bold text-white mb-1">{isAr ? 'شاركنا رأيك' : 'Leave a Review'}</h2>
+                <p className="text-rose-200/60 text-sm">{isAr ? 'شاركنا رأيك وتجربتك معنا' : 'Share your feedback and experience with us'}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Star Rating */}
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-3">
-                    Star Rating <span className="text-rose-500">*</span>
+                    {isAr ? 'التقييم' : 'Star Rating'} <span className="text-rose-500">*</span>
                   </label>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -168,8 +169,10 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
                       </button>
                     ))}
                     {rating > 0 && (
-                      <span className="ml-2 text-sm text-rose-300/60">
-                        {['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][rating]}
+                      <span className="ms-2 text-sm text-rose-300/60">
+                        {isAr 
+                          ? ['', 'ضعيف', 'مقبول', 'جيد', 'جيد جداً', 'ممتاز'][rating] 
+                          : ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][rating]}
                       </span>
                     )}
                   </div>
@@ -178,16 +181,16 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
                 {/* Full Name */}
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">
-                    Full Name <span className="text-rose-500">*</span>
+                    {isAr ? 'الاسم الكامل' : 'Full Name'} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     className={inputClass}
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    placeholder="John Doe / محمد"
+                    placeholder={isAr ? 'محمد' : 'John Doe'}
                     dir="auto"
-                    lang="ar"
+                    lang={locale}
                     required
                   />
                 </div>
@@ -195,23 +198,23 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
                 {/* Role & Company */}
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">
-                    Role & Company <span className="text-rose-300/40">(Optional)</span>
+                    {isAr ? 'المسمى الوظيفي والشركة' : 'Role & Company'} <span className="text-rose-300/40">{isAr ? '(اختياري)' : '(Optional)'}</span>
                   </label>
                   <input
                     type="text"
                     className={inputClass}
                     value={roleCompany}
                     onChange={(e) => setRoleCompany(e.target.value)}
-                    placeholder="e.g. Product Manager at Meta / مدير منتج"
+                    placeholder={isAr ? 'مدير منتج' : 'e.g. Product Manager at Meta'}
                     dir="auto"
-                    lang="ar"
+                    lang={locale}
                   />
                 </div>
 
                 {/* Email */}
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">
-                    Email Address <span className="text-rose-300/40">(Optional — won&apos;t be shown)</span>
+                    {isAr ? 'البريد الإلكتروني' : 'Email Address'} <span className="text-rose-300/40">{isAr ? '(اختياري — لن يتم عرضه)' : '(Optional — won\'t be shown)'}</span>
                   </label>
                   <input
                     type="email"
@@ -225,15 +228,15 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
                 {/* Review Content */}
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-rose-300/70 mb-2">
-                    Your Review <span className="text-rose-500">*</span>
+                    {isAr ? 'رأيك' : 'Your Review'} <span className="text-rose-500">*</span>
                   </label>
                   <textarea
                     className={`${inputClass} min-h-[120px] resize-none`}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="Share your experience working together... / شارك تجربتك معنا"
+                    placeholder={isAr ? 'شارك تجربتك معنا...' : 'Share your experience working together...'}
                     dir="auto"
-                    lang="ar"
+                    lang={locale}
                     required
                   />
                 </div>
@@ -252,7 +255,7 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
                     onClick={handleClose}
                     className="flex-1 px-6 py-3 rounded-xl border border-rose-900/40 text-rose-200/70 hover:bg-white/5 hover:text-rose-200 transition-all font-medium text-sm"
                   >
-                    Cancel
+                    {isAr ? 'إلغاء' : 'Cancel'}
                   </button>
                   <button
                     type="submit"
@@ -262,10 +265,10 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Submitting...
+                        {isAr ? 'جاري الإرسال...' : 'Submitting...'}
                       </>
                     ) : (
-                      'Submit Review'
+                      isAr ? 'إرسال التقييم' : 'Submit Review'
                     )}
                   </button>
                 </div>

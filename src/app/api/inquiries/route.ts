@@ -2,9 +2,22 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import { Inquiry } from '@/models/Inquiry';
 import { sendNewInquiryNotification } from '@/lib/email';
+import { checkRateLimit, createRateLimitHeaders } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+               request.headers.get('x-real-ip') ||
+               'unknown';
+    const rateLimit = await checkRateLimit(`contact:${ip}`, 5, 60 * 60 * 1000);
+    
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: createRateLimitHeaders(rateLimit) }
+      );
+    }
+
     await connectToDatabase();
     const body = await request.json();
 
@@ -36,10 +49,12 @@ export async function POST(request: Request) {
       message: typeof body.message === 'string' ? body.message.trim() : '',
     });
 
-    // Notify the owner (non-fatal: never fails the request).
     await sendNewInquiryNotification(inquiry);
 
-    return NextResponse.json({ success: true, data: inquiry }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: inquiry },
+      { status: 201, headers: createRateLimitHeaders(rateLimit) }
+    );
   } catch (error) {
     console.error('Error creating inquiry:', error);
     if (error instanceof Error && error.name === 'ValidationError') {

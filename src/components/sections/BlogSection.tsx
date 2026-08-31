@@ -101,6 +101,25 @@ export default function BlogSection() {
     { scope: sectionRef }
   );
 
+  // Hide preview when section leaves viewport (so it doesn't get stuck after scrolling past)
+  useEffect(() => {
+    const el = sectionRef.current;
+    const inner = innerRef.current;
+    if (!el || !inner) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          setHoveredIndex(null);
+          gsap.to(inner, { autoAlpha: 0, scale: 0.95, duration: 0.3, ease: 'power2.out' });
+          activeIndexRef.current = null;
+        }
+      },
+      { threshold: 0, rootMargin: '80px 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   // Drive the floating preview from the hovered index
   useEffect(() => {
     if (hoveredIndex === null) {
@@ -161,8 +180,8 @@ export default function BlogSection() {
 
   if (!loading && blogs.length === 0) {
     return (
-      <section ref={sectionRef} className="py-24 md:py-32 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
+      <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 relative z-10">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
           <div ref={headerRef} className="mb-14 md:mb-20">
             <span className="block text-[11px] tracking-[0.32em] uppercase text-white/40 mb-5">
               {t('kicker')}
@@ -180,8 +199,8 @@ export default function BlogSection() {
   }
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 relative z-10">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 relative z-10">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20">
         {/* Header */}
         <div ref={headerRef} className="mb-14 md:mb-20">
           <span className="block text-[11px] tracking-[0.32em] uppercase text-white/40 mb-5">
@@ -223,6 +242,7 @@ export default function BlogSection() {
                   ? format(new Date(blog.createdAt), 'MMM yyyy').toUpperCase()
                   : '';
 
+<<<<<<< HEAD
                 return (
                   <Link
                     key={blog._id}
@@ -246,6 +266,38 @@ export default function BlogSection() {
                           —
                         </span>
                       )}
+=======
+              return (
+                <Link
+                  key={String(blog._id ?? blog.slug ?? `blog-${index}`)}
+                  href={`/blog/${blog.slug}` as any}
+                  className={`journal-row group flex items-center gap-4 md:gap-7 py-5 md:py-6 px-4 md:px-6 rounded-xl transition-colors duration-500 ${
+                    isActive ? 'bg-white/[0.04]' : 'hover:bg-white/[0.03]'
+                  }`}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onFocus={() => setHoveredIndex(index)}
+                >
+                  {/* Thumbnail */}
+                  <span className="w-10 h-10 md:w-11 md:h-11 rounded-lg overflow-hidden flex-shrink-0 bg-white/5 ring-1 ring-white/10">
+                    {blog.coverImage ? (
+                      <img
+                        src={blog.coverImage}
+                        alt=""
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="w-full h-full flex items-center justify-center text-white/20 text-[10px] uppercase tracking-widest">
+                        —
+                      </span>
+                    )}
+                  </span>
+
+                  {/* Title */}
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-base md:text-lg font-serif font-normal text-foreground/80 leading-snug group-hover:text-white transition-colors duration-500 line-clamp-2">
+                      {blog.title}
+>>>>>>> main
                     </span>
 
                     {/* Title */}

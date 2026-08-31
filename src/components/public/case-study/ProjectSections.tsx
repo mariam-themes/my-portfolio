@@ -37,7 +37,7 @@ export function GallerySection({ items, projectTitle }: { items: GalleryItem[]; 
 
   const Frame = ({ item, index }: { item: GalleryItem; index: number }) => (
     <figure
-      className={`relative overflow-hidden rounded-xl border border-white/10 bg-[#1c060f] group transition-all duration-500 hover:border-rose-400/50 hover:shadow-[0_0_0_1px_rgba(251,113,133,0.25),0_0_32px_rgba(251,113,133,0.15)] [&>img]:transition-transform [&>img]:duration-700 hover:[&>img]:scale-105 [&>video]:transition-transform [&>video]:duration-700 hover:[&>video]:scale-105 ${getGridClasses(item.type)}`}
+      className={`relative overflow-hidden rounded-xl border border-[#951C30]/20 bg-[#1c060f] group transition-all duration-500 hover:border-[#951C30]/60 hover:shadow-[0_0_0_1px_rgba(149,28,48,0.3),0_8px_40px_rgba(149,28,48,0.15)] hover:-translate-y-1 hover:scale-[1.01] [&>img]:transition-transform [&>img]:duration-700 hover:[&>img]:scale-105 [&>video]:transition-transform [&>video]:duration-700 hover:[&>video]:scale-105 ${getGridClasses(item.type)}`}
     >
       <Media item={item} alt={`${projectTitle} frame ${index + 1}`} />
       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />

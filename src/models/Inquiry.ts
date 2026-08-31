@@ -11,6 +11,7 @@ export interface IInquiry extends Document {
   timeline?: string;
   message: string;
   status: InquiryStatus;
+  isRead: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +56,10 @@ const InquirySchema: Schema = new Schema(
       type: String,
       enum: ['new', 'contacted', 'closed'],
       default: 'new',
+    },
+    isRead: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -283,11 +283,10 @@ export async function buildProjectTranslations(input: {
   const sourceLang: 'en' | 'ar' = isArabic(probe) ? 'ar' : 'en';
   const target: 'en' | 'ar' = sourceLang === 'ar' ? 'en' : 'ar';
 
-  const [tTitle, tDesc, tSector, tPlatform, tCategory, tServices, tTools] = await Promise.all([
+  const [tTitle, tDesc, tSector, tCategory, tServices, tTools] = await Promise.all([
     input.title ? translateTargetOf(input.title, target) : Promise.resolve(undefined),
     input.description ? translateTargetOf(input.description, target) : Promise.resolve(undefined),
     input.sector ? translateTargetOf(input.sector, target) : Promise.resolve(undefined),
-    input.platform ? translateTargetOf(input.platform, target) : Promise.resolve(undefined),
     input.category ? translateTargetOf(input.category, target) : Promise.resolve(undefined),
     input.services?.length
       ? Promise.all(input.services.filter(Boolean).map((s) => translateTargetOf(s, target)))
@@ -301,10 +300,9 @@ export async function buildProjectTranslations(input: {
   if (tTitle) set.title = tTitle;
   if (tDesc) set.description = tDesc;
   if (tSector) set.sector = tSector;
-  if (tPlatform) set.platform = tPlatform;
   if (tCategory) set.category = tCategory;
-  if (tServices) set.services = tServices as string[];
-  if (tTools) set.tools = tTools as string[];
+  if (tServices) set.services = tServices.map((t, i) => t ?? input.services![i]) as string[];
+  if (tTools) set.tools = tTools.map((t, i) => t ?? input.tools![i]) as string[];
 
   const [metaTitle, metaDescription] = await Promise.all([
     completeLocalized(input.metaTitle),

@@ -151,7 +151,7 @@ export default function ServicesPage() {
               </div>
             ) : (
               services.map((service, index) => (
-                <div key={service._id} className="flex items-center justify-between p-4 bg-black/40 border border-rose-900/30 rounded-xl backdrop-blur-sm group hover:border-rose-500/50 transition-colors">
+                <div key={String(service._id ?? service.slug ?? service.title ?? `svc-${index}`)} className="flex items-center justify-between p-4 bg-black/40 border border-rose-900/30 rounded-xl backdrop-blur-sm group hover:border-rose-500/50 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="flex flex-col gap-1">
                       <button 

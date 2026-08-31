@@ -175,25 +175,31 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
             
             return (
               <Link 
+<<<<<<< HEAD
                 key={project._id}
                 href={`/work/${project.slug}`} 
+=======
+                key={String(project._id ?? project.slug ?? `proj-${i}`)}
+                href={`/projects/${project.slug}`} 
+>>>>>>> main
                 className={`project-card block group ${isRightColumn ? 'md:mt-32' : ''}`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
+                onClick={() => { try { sessionStorage.setItem('caseStudyRef', '/work'); } catch {} }}
                 // We use cursor-none to hide the default pointer since we have a custom follower
                 style={{ cursor: 'none' }}
               >
                 {/* Image Container */}
                 <div className="relative w-full aspect-[4/3] sm:aspect-[3/2] overflow-hidden bg-[#111]">
-                  {project.heroMediaUrl ? (
-                    <Image
-                      src={project.heroMediaUrl}
-                      alt={project.title}
-                      fill
-                      className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
-                      unoptimized
-                    />
-                  ) : (
+{project.heroMediaUrl ? (
+                      <Image
+                        src={project.heroMediaUrl}
+                        alt={project.title}
+                        fill
+                        className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/30 font-light">
                       {t('noImage')}
                     </div>

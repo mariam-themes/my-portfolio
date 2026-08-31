@@ -64,7 +64,7 @@ export default function BlogCard({ title, slug, excerpt, coverImage, createdAt, 
           <div className="mt-auto pt-4 flex items-center text-xs tracking-[0.15em] text-foreground/80 group-hover:text-accent transition-colors uppercase">
             Read Article
             <svg 
-              className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" 
+              className="ms-2 w-4 h-4 rtl:-scale-x-100 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" 
               fill="none" 
               viewBox="0 0 24 24" 
               stroke="currentColor"

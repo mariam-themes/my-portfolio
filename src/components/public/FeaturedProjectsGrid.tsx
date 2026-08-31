@@ -34,8 +34,8 @@ export default function FeaturedProjectsGrid() {
   }, []);
 
   return (
-    <section className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
-      <div className="container mx-auto px-8 md:px-16 lg:px-24 xl:px-32">
+    <section className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20">
         {/* Header */}
         <div className="mx-auto max-w-4xl mb-16 md:mb-20 text-center">
           <div className="flex items-center justify-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
@@ -96,10 +96,10 @@ export default function FeaturedProjectsGrid() {
 
                   return (
                     <motion.div
-                      key={project._id as string}
+                      key={String(project._id ?? project.slug ?? 'feat-' + rowIndex + '-' + i)}
                       initial={initial}
                       whileInView={animate}
-                      viewport={{ once: false, amount: 0.25, margin: '-80px' }}
+                      viewport={{ once: true, amount: 0.25, margin: '-80px' }}
                       transition={
                         shouldReduceMotion
                           ? { duration: 0.4 }

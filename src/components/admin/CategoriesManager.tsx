@@ -115,9 +115,9 @@ export default function CategoriesManager() {
         {categories.length === 0 ? (
           <p className="text-sm text-rose-200/50 italic">No categories added yet.</p>
         ) : (
-          categories.map((cat) => (
+          categories.map((cat, i: number) => (
             <div
-              key={cat._id}
+              key={String(cat._id ?? cat.name ?? `cat-${i}`)}
               className="flex items-center gap-2 bg-rose-950/30 border border-rose-900/50 rounded-full pl-4 pr-2 py-1.5 group"
             >
               <span className="text-sm text-rose-200">{cat.name}</span>

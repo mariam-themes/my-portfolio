@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
+import { formatPortfolioNumber } from '@/lib/formatters';
 
 export default function ServicesSection() {
   const [services, setServices] = useState<any[]>([]);
@@ -49,18 +50,17 @@ export default function ServicesSection() {
   if (!services || services.length === 0) return null;
 
   return (
-    <section id="services" className="py-24 md:py-32 text-white relative">
+    <section id="services" className="py-16 md:py-24 lg:py-32 text-white relative">
       <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
-          <div className="flex items-center gap-6">
-            <div className="w-12 h-[1px] bg-rose-900/50" />
-            <h2 className="text-sm tracking-[0.3em] uppercase text-rose-100/60 font-medium">
-              {t('title') || 'Services'}
-            </h2>
+        <div className="flex flex-col items-start mb-10 md:mb-16 gap-4">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] font-semibold mb-2 rtl:tracking-normal w-fit">
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
+            {t('title') || 'Services'}
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
           </div>
-          <p className="max-w-md text-rose-100/50 text-sm md:text-base leading-relaxed md:text-right rtl:md:text-left">
+          <p className="max-w-xl text-rose-100/50 text-sm md:text-base leading-relaxed">
             {t('description') || 'Five disciplines, one continuous system — from the first mark to the shipped storefront.'}
           </p>
         </div>
@@ -78,11 +78,11 @@ export default function ServicesSection() {
               locale === 'ar'
                 ? service.translations?.ar?.description || service.description
                 : service.translations?.en?.description || service.description;
-            const num = (index + 1).toString().padStart(2, '0');
+            const num = formatPortfolioNumber(index + 1, locale);
 
             return (
               <div
-                key={service._id}
+                key={String(service._id ?? service.slug ?? service.title ?? `svc-${index}`)}
                 ref={(el) => { itemRefs.current[index] = el; }}
                 className="group relative cursor-pointer"
                 onClick={() => setExpandedIndex(index)}
@@ -94,13 +94,13 @@ export default function ServicesSection() {
                       : 'border-rose-900/20 bg-white/[0.01] hover:border-rose-500/25'}`}
                 >
                   {/* Header Row */}
-                  <div className="w-full px-6 md:px-10 py-7 md:py-9 flex items-center justify-between gap-6">
-                    <div className="flex items-center gap-5 md:gap-10 min-w-0">
+                  <div className="w-full px-5 sm:px-6 md:px-10 py-6 md:py-9 flex items-center justify-between gap-4 sm:gap-6">
+                    <div className="flex items-center gap-4 sm:gap-5 md:gap-10 min-w-0">
                       <span className="shrink-0 text-xs md:text-sm font-mono text-rose-500/50 tracking-[0.2em]">
                         {num}
                       </span>
                       <h3
-                        className={`font-bold uppercase tracking-tight leading-none transition-colors duration-400 truncate text-2xl md:text-4xl lg:text-5xl ${
+                        className={`font-bold uppercase tracking-tight leading-none transition-colors duration-400 text-xl sm:text-2xl md:text-4xl lg:text-5xl break-words ${
                           isExpanded ? 'text-white' : 'text-rose-100/30 group-hover:text-rose-100/55'
                         }`}
                       >
@@ -158,6 +158,7 @@ export default function ServicesSection() {
                               <img
                                 src={service.image}
                                 alt={title}
+                                loading="lazy"
                                 className="w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0507]/80 to-transparent" />

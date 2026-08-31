@@ -18,10 +18,10 @@ export default async function AdminDashboard() {
 
   await connectToDatabase();
 
-  // Fetch real counts
+  // Fetch real counts — blog count is total (not just published) so Live shows actual number
   const [projectCount, blogCount, inquiryCount] = await Promise.all([
     Project.countDocuments(),
-    Blog.countDocuments({ isPublished: true }),
+    Blog.countDocuments({}),
     Inquiry.countDocuments({ status: 'new' }),
   ]);
 

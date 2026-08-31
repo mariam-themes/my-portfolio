@@ -1,250 +1,265 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Link } from '@/i18n/navigation';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, memo } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { resolveText, type LocalizedProject } from '@/lib/localizeProject';
-import { useReducedMotion } from 'framer-motion'; 
+import { formatPortfolioNumber } from '@/lib/formatters';
+import { useReducedMotion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
+import { Link, useRouter } from '@/i18n/navigation';
+import { ArrowUpRight } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+  gsap.registerPlugin(ScrollTrigger);
 }
 
 export default function ProjectsPreviewSection() {
-  const locale        = useLocale();
-  const t             = useTranslations('ProjectsPreview');
+  const locale = useLocale();
+  const t = useTranslations('ProjectsPreview');
   const prefersReduced = useReducedMotion() ?? false;
+  const router = useRouter();
 
-  const [projects,    setProjects]    = useState<LocalizedProject[]>([]);
-  const [loading,     setLoading]     = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const isRtl = locale === 'ar';
 
-  // The wrapper that will be pinned
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const [projects, setProjects] = useState<LocalizedProject[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  // For RTL: reverse projects so first project (index 0) appears at track start (right edge in RTL viewport)
+  const displayProjects = isRtl ? [...projects].reverse() : projects;
+  const total = displayProjects.length;
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLSpanElement>(null);
+  const currentRef = useRef<HTMLSpanElement>(null);
+
+  const openProject = useCallback((slug: string) => {
+    router.push(`/work/${slug}`);
+  }, [router]);
 
   useEffect(() => {
+    let cancelled = false;
     async function fetchProjects() {
       try {
-        // "Selected Projects" = a curated showcase of the latest projects.
-        // (Featured projects get their own dedicated section.)
         const res = await fetch('/api/projects');
         const json = await res.json();
-        if (json.success) setProjects(json.data.slice(0, 4));
+        if (cancelled || !json.success) return;
+        setTotalCount(json.data.length);
+        setProjects(json.data.slice(0, 4));
       } catch (err) {
         console.error('Failed to fetch projects:', err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     fetchProjects();
+    return () => { cancelled = true; };
   }, []);
 
-  useGSAP(() => {
-    if (loading || !projects.length || prefersReduced) return;
+  // useLayoutEffect for GSAP scroll trigger
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track || loading || !displayProjects.length) return;
 
-    let mm = gsap.matchMedia();
+    // Reduced motion: static vertical layout, no animation whatsoever
+    if (prefersReduced) {
+      document.body.classList.add('no-pin');
+      return;
+    }
 
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const cards = gsap.utils.toArray('.project-card') as HTMLElement[];
-      const total = cards.length;
-      if (total === 0) return;
+    const ctx = gsap.context(() => {
+      const getDistance = () => {
+        const trackWidth = track.scrollWidth;
+        const viewportWidth = track.parentElement?.clientWidth ?? window.innerWidth;
+        return Math.max(0, trackWidth - viewportWidth);
+      };
 
-      // Reset initial states
-      gsap.set(cards, { yPercent: 100, pointerEvents: 'none' });
-      gsap.set(cards[0], { yPercent: 0, pointerEvents: 'auto' });
-
-      const pauseDuration = 0.3; 
-      const totalDuration = (total - 1) + pauseDuration;
-
-      const tl = gsap.timeline({
+      gsap.to(track, {
+        x: () => (isRtl ? getDistance() : -getDistance()),
+        ease: 'none',
         scrollTrigger: {
-          trigger: containerRef.current,
-          // NO GSAP PINNING! We use native CSS sticky.
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: true,
+          trigger: '#workPinWrap',
+          start: 'center center',
+          end: () => '+=' + getDistance(),
+          pin: true,
+          scrub: 0.1,
           invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const progress = self.progress * totalDuration;
-            let current = Math.floor(progress + 0.5);
-            if (current >= total) current = total - 1;
-            setActiveIndex(current);
-          }
-        }
+          onUpdate(self) {
+            if (fillRef.current) fillRef.current.style.transform = `scaleX(${self.progress})`;
+            const idx = Math.min(total - 1, Math.floor(self.progress * total));
+            const shown = idx + 1;
+            const shownStr = formatPortfolioNumber(shown, locale);
+            if (currentRef.current && currentRef.current.textContent !== shownStr) {
+              currentRef.current.textContent = shownStr;
+            }
+          },
+        },
       });
-
-      if (total > 1) {
-        cards.forEach((card: any, index) => {
-          if (index > 0) {
-            tl.to(card, { yPercent: 0, pointerEvents: 'auto', duration: 1, ease: 'none' }, `transition${index}`);
-            tl.to(cards[index - 1], { yPercent: -30, pointerEvents: 'none', duration: 1, ease: 'none' }, `transition${index}`);
-          }
-        });
-      }
-
-      tl.to({}, { duration: pauseDuration });
-
-      setTimeout(() => ScrollTrigger.refresh(), 200);
     });
 
-    return () => mm.revert();
-  }, { scope: containerRef, dependencies: [projects, prefersReduced, loading] });
+    return () => ctx.revert();
+  }, [loading, displayProjects.length, prefersReduced, total, isRtl]);
 
-  // Handle language switch gracefully and fix Lenis height calculation
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-      window.dispatchEvent(new Event('resize')); // Force Lenis to recalculate document height
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [locale, loading, projects.length]);
+  if (loading) {
+    return (
+      <section className="py-16 md:py-24 lg:py-32 bg-[#0a0507] relative">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="h-64 animate-pulse rounded-2xl bg-white/5" />
+        </div>
+      </section>
+    );
+  }
 
-  // Calculate total height for the sticky wrapper. 
-  // Each project gets 100vh of scroll distance.
-  const totalProjects = projects.length || 1;
-  const stickyHeight = !prefersReduced && !loading && totalProjects > 1 
-    ? `${totalProjects * 100}vh` 
-    : 'auto';
+  if (projects.length === 0) {
+    return (
+      <section className="py-16 md:py-24 lg:py-32 bg-[#0a0507] relative">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] py-12 text-center text-white/40">{t('noProjects')}</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <div ref={containerRef} className="relative w-full" style={{ height: stickyHeight }}>
-      <section 
-        ref={sectionRef} 
-        className="sticky top-0 z-10 bg-[#0a0507] h-screen flex flex-col overflow-hidden"
-      >
-        {/* ── Section header ── */}
-        <div className="container relative z-10 mx-auto px-6 md:px-12 lg:px-20 pt-24 md:pt-32 pb-6 shrink-0">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="max-w-4xl text-start">
-              <div className="flex items-center gap-4 text-xs tracking-[0.2em] rtl:tracking-normal uppercase text-accent mb-4">
-                <span className="w-12 h-[1px] bg-accent/50" />
-                {t('kicker')}
-              </div>
-              <h2 className="text-5xl md:text-7xl font-serif font-normal text-foreground leading-tight">
+    <section className="work py-12 md:py-16 lg:py-20 bg-[#0a0507]" id="work" aria-label="Selected work">
+      <div id="workPinWrap" className="work__pin-wrap">
+        <header className="work__head flex flex-col items-start container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] font-semibold mb-4 rtl:tracking-normal w-fit">
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
+            {locale === 'ar' ? 'المشاريع' : 'PROJECTS'}
+            <span className="w-12 h-[1px] bg-[#951C30]/50" />
+          </div>
+          
+          <h2 className="sec-title text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-[0.9] text-white">
+            <span className="block overflow-hidden">
+              <span className="block">
                 {t('title')}{' '}
                 <span className="italic" style={{ color: '#951C30' }}>
                   {t('titleAccent')}
                 </span>
-              </h2>
-            </div>
-          </div>
-        </div>
+              </span>
+            </span>
+          </h2>
+          
+          {(() => {
+            const scrollHintStr = t('scrollHint');
+            const arrowChar = scrollHintStr.includes('→') ? '→' : scrollHintStr.includes('←') ? '←' : '';
+            let scrollPart = scrollHintStr;
+            let clickPart = '';
+            
+            if (arrowChar) {
+              const parts = scrollHintStr.split(arrowChar);
+              scrollPart = parts[0].trim();
+              clickPart = parts[1].trim();
+            }
 
-        {/* ── Loading ── */}
-        {loading ? (
-          <div className="flex-1 flex justify-center items-center">
-            <div className="animate-pulse flex gap-2">
-              <div className="w-3 h-3 bg-[#951C30] rounded-full animate-bounce" />
-              <div className="w-3 h-3 bg-[#951C30] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-              <div className="w-3 h-3 bg-[#951C30] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-            </div>
-          </div>
-        ) : projects.length === 0 ? (
-          /* ── Empty ── */
-          <div className="flex-1 container mx-auto px-6 md:px-12 lg:px-20 pb-24">
-            <div className="text-center text-slate-500 py-12 border border-white/10 rounded-xl">
-              {t('noProjects')}
-            </div>
-          </div>
-        ) : prefersReduced ? (
-          /* ── Reduced Motion ── */
-          <div className="flex-1 flex flex-col gap-24 pb-24 overflow-y-auto">
-            {projects.map((project, index) => (
-              <div key={project._id as string} className="relative w-full min-h-[60vh]">
-                 <ProjectCard project={project} index={index} total={projects.length} activeIndex={index} locale={locale} t={t} isActive={true} />
+            return (
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <span className="mono text-xs tracking-widest text-white/40 uppercase">
+                  {scrollPart}
+                </span>
+                {arrowChar && (
+                  <span className="text-white/30">{arrowChar}</span>
+                )}
+                {clickPart && (
+                  <span className="mono text-xs tracking-widest text-white/90 font-bold uppercase relative inline-flex items-center px-4 py-2 rounded-full bg-white/[0.03] border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.03)]">
+                    <span className="absolute -inset-1 bg-[#951C30]/20 blur-md rounded-full animate-pulse"></span>
+                    <span className="relative">{clickPart}</span>
+                  </span>
+                )}
               </div>
-            ))}
+            );
+          })()}
+        </header>
+
+        <div className="work__viewport">
+          <div ref={trackRef} id="workTrack" className="work__track" dir="ltr">
+            {displayProjects.map((p, i) => {
+              const logicalIndex = isRtl ? total - 1 - i : i;
+              return (
+                <ProjectCard
+                  key={String(p._id ?? p.slug ?? `p-${i}`)}
+                  project={p}
+                  index={logicalIndex}
+                  total={total}
+                  locale={locale}
+                  t={t}
+                  onOpen={openProject}
+                />
+              );
+            })}
           </div>
-        ) : (
-          /* ── GSAP Showcase ── */
-          <div className="flex-1 relative w-full overflow-hidden">
-            {projects.map((project, index) => (
-              <div 
-                key={project._id as string} 
-                className="project-card absolute inset-0 w-full h-full bg-[#0d0507] overflow-hidden rounded-t-[2rem] lg:rounded-t-[3rem] shadow-[0_-15px_50px_rgba(0,0,0,0.5)] border-t border-white/5"
-              >
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#21060e] via-[#0d0507] to-[#180307]" />
-                  <div 
-                    className="absolute bg-[#951C30] rounded-full mix-blend-screen filter blur-[120px] opacity-[0.15]"
-                    style={{
-                      width: '50vw', height: '50vw',
-                      top: index % 2 === 0 ? '-10%' : 'auto',
-                      bottom: index % 2 !== 0 ? '-10%' : 'auto',
-                      left: index % 2 === 0 ? '-10%' : 'auto',
-                      right: index % 2 !== 0 ? '-10%' : 'auto',
-                    }}
-                  />
-                </div>
-                <div className="relative z-10 w-full h-full">
-                  <ProjectCard project={project} index={index} total={projects.length} activeIndex={activeIndex} locale={locale} t={t} isActive={activeIndex === index} />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+
+          <footer className="work__progress" aria-hidden="true">
+            <span className="mono" ref={currentRef}>
+              {formatPortfolioNumber(1, locale)}
+            </span>
+            <div className="work__bar"><span ref={fillRef}></span></div>
+            <span className="mono">
+              {formatPortfolioNumber(total, locale)}
+            </span>
+          </footer>
+        </div>
+      </div>
+
+      {totalCount > 4 && (
+        <div className="relative z-10 flex justify-center pb-12 md:pb-16 pt-4">
+          <Link
+            href="/work"
+            className="group inline-flex items-center gap-3 rounded-full bg-[#951C30] px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:bg-[#b8223b] hover:shadow-rose-800/40 hover:-translate-y-0.5"
+          >
+            {t('seeAll')}
+            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+          </Link>
+        </div>
+      )}
+    </section>
   );
 }
 
-function ProjectCard({ project, index, total, activeIndex, locale, t, isActive }: any) {
-  const title    = resolveText(project.title,    project, 'title',    'en');
+const ProjectCard = memo(function ProjectCard({ project, index, total, locale, t, onOpen }: { project: LocalizedProject; index: number; total: number; locale: string; t: (key: string) => string; onOpen: (slug: string) => void }) {
+  const title = resolveText(project.title, project, 'title', locale);
   const category = resolveText(project.category, project, 'category', locale);
-  const sector   = resolveText(project.sector,   project, 'sector',   locale);
-  const num      = String(index + 1).padStart(2, '0');
-  const isLast   = index === total - 1;
-  const isEven   = index % 2 === 0;
+  const sector = resolveText(project.sector, project, 'sector', locale);
+  
+  const isRtl = locale === 'ar';
+  const num = formatPortfolioNumber(index + 1, locale);
+  const totalStr = formatPortfolioNumber(total, locale);
 
   return (
-    <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 lg:p-12 gap-8 ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
-      <div className="relative w-full h-[45vh] lg:h-full lg:w-[50%] shrink-0 flex items-center justify-center">
-        {project.heroMediaUrl ? (
-          <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_2rem_5rem_rgba(0,0,0,0.5)] border border-white/5">
-            <Image src={project.heroMediaUrl as string} alt={title || `Project ${num}`} fill className="object-cover" unoptimized priority={index === 0} />
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/20 font-light">{t('noImage')}</div>
-        )}
-        <div className="absolute inset-0 pointer-events-none hidden lg:block" style={{ background: 'linear-gradient(to right, transparent 70%, rgba(13,5,7,0.3))' }} />
-        <span aria-hidden className="absolute -bottom-4 -left-2 rtl:-left-auto rtl:-right-2 lg:-bottom-6 lg:-left-6 rtl:lg:-left-auto rtl:lg:-right-6 font-serif font-extrabold text-white/[0.04] leading-none select-none pointer-events-none drop-shadow-2xl" style={{ fontSize: 'clamp(5rem, 14vw, 12rem)' }}>
-          {num}
+    <article data-project-card data-index={index} className="project">
+      <div className="project__meta-row">
+        <span className="mono">
+          <b className="text-[#951C30]">{num}</b>&nbsp;/&nbsp;{totalStr}
+        </span>
+        <span className="mono">
+          {category || sector || t('design')}{project.year ? `\u00A0\u00A0·\u00A0\u00A0${project.year}` : ''}
         </span>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center px-4 py-8 lg:px-8 lg:py-12 gap-5 lg:gap-8 relative">
-        <div className="flex items-center gap-3 text-[10px] rtl:text-xs font-bold uppercase tracking-[0.22em] rtl:tracking-normal text-white/40">
-          <span>{category || sector || t('design')}</span>
-          <span className="w-1 h-1 rounded-full bg-[#951C30]/70 shrink-0" aria-hidden />
-          <span>{project.year as string | number}</span>
-        </div>
-        <h3 className="font-serif font-normal leading-[1.08] tracking-[-0.02em] rtl:tracking-normal text-white" style={{ fontSize: 'clamp(1.8rem, 4vw, 3.25rem)' }}>
-          {title}
-        </h3>
-        <Link href={`/work/${project.slug as string}`} className="group/cta inline-flex items-center gap-3 w-fit mt-1" tabIndex={isActive ? 0 : -1}>
-          <span className="block h-px w-8 bg-[#951C30] transition-[width] duration-500 group-hover/cta:w-14" />
-          <span className="text-[11px] rtl:text-xs font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white/55 group-hover/cta:text-white transition-colors duration-300">{t('viewProject')}</span>
-          <span className="text-[#951C30] text-sm transition-transform duration-300 group-hover/cta:translate-x-1.5 rtl:group-hover/cta:-translate-x-1.5 rtl:-scale-x-100 block">→</span>
-        </Link>
-        <div className="flex items-center gap-2 mt-2" aria-hidden>
-          {Array.from({ length: total }).map((_, i) => (
-            <span key={i} className={`block rounded-full transition-all duration-500 ${i === activeIndex ? 'w-7 h-[5px] bg-[#951C30]' : 'w-[5px] h-[5px] bg-white/15'}`} />
-          ))}
-        </div>
-        {isLast && (
-          <div className="mt-4 transition-all duration-500" style={{ opacity: isActive ? 1 : 0, transform: `translateY(${isActive ? 0 : '10px'})` }} aria-hidden={!isActive}>
-            <Link href="/work" tabIndex={isActive ? 0 : -1} className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-sm font-semibold tracking-widest uppercase text-white hover:bg-[#951C30] hover:border-[#951C30] hover:text-white transition-all duration-300">
-              {t('seeAll')}
-              <span aria-hidden className="rtl:-scale-x-100 block">→</span>
-            </Link>
-          </div>
+      <figure data-project-visual className="project__visual">
+        {project.heroMediaUrl ? (
+          <Image src={project.heroMediaUrl as string} alt={title} fill sizes="56vw" className="project__image" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-sm text-white/20">{t('noImage')}</div>
         )}
-      </div>
-    </div>
+      </figure>
+
+      <button
+        data-cursor="view"
+        aria-label={`Open ${title}`}
+        onClick={() => onOpen(project.slug as string)}
+        className="project__open"
+      />
+
+      <figcaption className="project__caption">
+        <h3 className="project__name">{title}</h3>
+        <p className="project__outcome">
+          {resolveText(project.description, project, 'description', locale)?.slice(0, 120)}
+        </p>
+      </figcaption>
+    </article>
   );
-}
+});

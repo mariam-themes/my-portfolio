@@ -48,9 +48,9 @@ export default async function AdminBlogsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogs.map((blog: any) => (
+          {blogs.map((blog: any, i: number) => (
             <div
-              key={blog._id}
+              key={String(blog._id ?? blog.slug ?? `blog-${i}`)}
               className="bg-black/40 border border-rose-900/30 rounded-xl overflow-hidden flex flex-col transition-all hover:border-rose-700/50 hover:shadow-lg hover:shadow-rose-900/10"
             >
               {/* Cover Image */}

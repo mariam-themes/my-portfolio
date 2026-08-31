@@ -110,24 +110,24 @@ export default function AboutMeSection() {
   }
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-transparent relative z-10 overflow-hidden">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
       <div className="container mx-auto px-6 md:px-12 lg:px-20" ref={containerRef}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
           
           {/* Left Column: Photo & Details */}
           <div className="lg:col-span-5 space-y-10">
-            {data.photo && (
-              <div className="relative group rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border border-white/5 bg-rose-950/20">
+{data.photo && (
+               <div className="relative group mx-auto w-full max-w-md lg:mx-0 lg:max-w-none rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border border-white/5 bg-rose-950/20">
                 <Image 
                   src={data.photo} 
                   alt="Portrait"
                   fill 
                   className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  unoptimized
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
               </div>
-            )}
+             )}
             
             {data.cvLink && (
               <div className="flex justify-start">
@@ -144,8 +144,8 @@ export default function AboutMeSection() {
             )}
           </div>
 
-          {/* Right Column: Bio, Skills & Experience */}
-          <div className="lg:col-span-7 lg:pl-10 space-y-16">
+           {/* Right Column: Bio, Skills & Experience */}
+           <div className="lg:col-span-7 lg:ps-10 space-y-10 lg:space-y-16">
             
             {/* Bio Section */}
             <div className="space-y-6">
@@ -153,10 +153,19 @@ export default function AboutMeSection() {
                 <span className="w-12 h-[1px] bg-[#951C30]/50"></span>
                 {t('kicker')}
               </div>
+<<<<<<< HEAD
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
                 {t('heading')}{' '}
                 <span className="italic text-[#951C30]">{t('headingAccent')}</span>
                 {t('headingSuffix') ? ` ${t('headingSuffix')}` : ''}
+=======
+               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
+                {locale === 'ar' ? (
+                  <>تصميم تجارب <span className="italic text-[#951C30]">ذات معنى</span></>
+                ) : (
+                  <>Designing <span className="italic text-[#951C30]">Meaningful</span> Experiences</>
+                )}
+>>>>>>> main
               </h2>
               <article
                 className="prose prose-lg md:prose-xl prose-invert prose-p:text-white/70 prose-a:text-rose-400 max-w-none font-light leading-relaxed"
@@ -189,10 +198,10 @@ export default function AboutMeSection() {
                 <h3 className="text-xl font-semibold text-white tracking-wide">
                   {t('experience')}
                 </h3>
-                <div className="space-y-8 border-l border-white/10 pl-6 ml-2 rtl:pr-6 rtl:pl-0 rtl:mr-2 rtl:ml-0 rtl:border-r rtl:border-l-0">
+                <div className="space-y-8 border-s border-white/10 ps-6 ms-2">
                   {data.experience.map((exp, idx) => (
                     <div key={idx} className="relative exp-item group">
-                      <span className="absolute -left-[31px] rtl:left-auto rtl:-right-[31px] top-1.5 w-3 h-3 rounded-full bg-black border-2 border-[#951C30] group-hover:bg-[#951C30] transition-colors shadow-[0_0_10px_rgba(149,28,48,0)] group-hover:shadow-[0_0_10px_rgba(149,28,48,0.8)]" />
+                      <span className="absolute -start-[31px] top-1.5 w-3 h-3 rounded-full bg-black border-2 border-[#951C30] group-hover:bg-[#951C30] transition-colors shadow-[0_0_10px_rgba(149,28,48,0)] group-hover:shadow-[0_0_10px_rgba(149,28,48,0.8)]" />
                       
                       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
                         <h4 className="text-xl font-bold text-white group-hover:text-rose-200 transition-colors">{exp.role}</h4>

@@ -39,6 +39,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full" suppressHydrationWarning>
+        {/* Pre-paint gate: plain <script> is correct in App Router —
+            next/script beforeInteractive is not supported in app/ directory. */}
+        <script
+          id="splash-prehidden-gate"
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{if(sessionStorage.getItem('m-portfolio-splash-seen')||/[?&]noSplash=1/.test(location.search)){document.documentElement.classList.add('splash-prehidden');}}catch(e){}})();",
+          }}
+        />
         {children}
       </body>
     </html>

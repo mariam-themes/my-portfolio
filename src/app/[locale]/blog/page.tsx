@@ -85,7 +85,7 @@ export default async function BlogIndexPage({ params }: PageProps) {
               const isRightColumn = i % 2 !== 0;
               return (
                 <Link
-                  key={blog._id}
+                  key={String(blog._id ?? blog.slug ?? `blog-${i}`)}
                   href={`/blog/${blog.slug}`}
                   className={`block group ${isRightColumn ? 'md:mt-32' : ''}`}
                 >

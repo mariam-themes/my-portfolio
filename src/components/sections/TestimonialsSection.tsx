@@ -51,23 +51,23 @@ export default function TestimonialsSection() {
   const rest = visibleTestimonials.slice(1);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-32 bg-transparent relative z-10">
+    <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
       {/* Subtle depth glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 h-[32rem] w-[42rem] rounded-full bg-[radial-gradient(circle,rgba(149,28,48,0.10),transparent_60%)] blur-3xl"
+        className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 h-[32rem] w-[42rem] max-w-[90vw] rounded-full bg-[radial-gradient(circle,rgba(149,28,48,0.10),transparent_60%)] blur-3xl"
       />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 relative">
+      <div className="container mx-auto px-6 md:px-12 lg:px-20 relative">
         
-        <div className="max-w-4xl mx-auto mb-16 md:mb-20 text-start">
+        <div className="w-full mb-10 md:mb-16 lg:mb-20 text-start">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50"></span>
             {t('kicker')}
           </div>
           <div className="font-serif text-lg tracking-[0.3em] text-foreground/80 mb-2">{t('maison')}</div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-            <h2 className="text-5xl md:text-7xl font-serif font-normal text-foreground">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-serif font-normal text-foreground">
               {t('title')}
             </h2>
             <button
@@ -94,6 +94,7 @@ export default function TestimonialsSection() {
             {t('noTestimonials')}
           </div>
         ) : (
+<<<<<<< HEAD
           <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {primary && (
@@ -143,6 +144,40 @@ export default function TestimonialsSection() {
               </div>
             )}
           </>
+=======
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {primary && (
+              <div
+                key={String(primary._id ?? primary.clientName ?? 'primary')}
+                className={`tcard-reveal ${rest.length === 0 ? 'lg:col-span-3' : 'lg:col-span-2'}`}
+              >
+                <TestimonialCard
+                  featured
+                  clientName={primary.clientName}
+                  role={primary.role}
+                  company={primary.company}
+                  content={primary.content}
+                  rating={primary.rating}
+                  avatarUrl={primary.avatarUrl}
+                  audioUrl={primary.audioUrl}
+                />
+              </div>
+            )}
+            {rest.map((t, i) => (
+              <div key={String(t._id ?? t.clientName ?? `test-${i}`)} className="tcard-reveal">
+                <TestimonialCard
+                  clientName={t.clientName}
+                  role={t.role}
+                  company={t.company}
+                  content={t.content}
+                  rating={t.rating}
+                  avatarUrl={t.avatarUrl}
+                  audioUrl={t.audioUrl}
+                />
+              </div>
+            ))}
+          </div>
+>>>>>>> main
         )}
 
       </div>

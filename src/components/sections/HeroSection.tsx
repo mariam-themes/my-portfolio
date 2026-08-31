@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
@@ -18,8 +18,12 @@ export default function HeroSection() {
   const locale = useLocale();
   const heroRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [hasPointer, setHasPointer] = useState(false);
 
-  // Mouse tracking
+  useEffect(() => {
+    setHasPointer(window.matchMedia('(pointer: fine)').matches);
+  }, []);
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const glowOpacity = useSpring(0, { damping: 30, stiffness: 200 });
@@ -36,8 +40,8 @@ export default function HeroSection() {
     () => {
       // Scroll-out parallax
       gsap.to(contentRef.current, {
-        y: '25vh',
-        scale: 0.88,
+        y: 80,
+        scale: 0.92,
         opacity: 0,
         ease: 'none',
         scrollTrigger: {
@@ -62,58 +66,23 @@ export default function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => glowOpacity.set(1)}
-      onMouseLeave={() => glowOpacity.set(0)}
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-transparent"
+      onMouseMove={hasPointer ? handleMouseMove : undefined}
+      onMouseEnter={hasPointer ? () => glowOpacity.set(1) : undefined}
+      onMouseLeave={hasPointer ? () => glowOpacity.set(0) : undefined}
     >
-      {/* ── Hero background image ── */}
-      <img
-        src="/hero-bg.jpg"
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute inset-0 w-full h-full object-cover object-center select-none"
-        style={{ zIndex: 0 }}
-        fetchPriority="high"
-      />
-      {/* Dark scrim so text stays readable */}
-      <div className="pointer-events-none absolute inset-0 bg-[#0a0507]/60" style={{ zIndex: 1 }} />
-      {/* Vignette edges */}
-      <div className="pointer-events-none absolute inset-0" style={{ zIndex: 1, background: 'radial-gradient(ellipse 90% 80% at 50% 50%, transparent 30%, rgba(10,5,7,0.75) 100%)' }} />
-
-      {/* ── Deep layered background overlays ── */}
-      {/* Top radial accent */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(149,28,48,0.22),transparent)]" style={{ zIndex: 2 }} />
-      {/* Corner accents */}
-      <div className="pointer-events-none absolute -top-32 -left-32 h-[36rem] w-[36rem] rounded-full bg-[#951C30]/[0.07] blur-[120px]" style={{ zIndex: 2 }} />
-      <div className="pointer-events-none absolute -bottom-24 -right-20 h-[28rem] w-[28rem] rounded-full bg-[#6b1222]/[0.10] blur-[100px]" style={{ zIndex: 2 }} />
-
-      {/* Decorative ruled lines (pure CSS, zero weight) */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.03]" aria-hidden style={{ zIndex: 3 }}>
-        {[10, 30, 50, 70, 90].map((p) => (
-          <div key={p} className="absolute top-0 bottom-0 w-px bg-white" style={{ left: `${p}%` }} />
-        ))}
-      </div>
-
-      {/* Grain texture via SVG filter */}
-      <svg className="pointer-events-none absolute inset-0 w-full h-full opacity-[0.04]" aria-hidden style={{ zIndex: 3 }}>
-        <filter id="hero-grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#hero-grain)" />
-      </svg>
-
-      {/* Interactive Mouse Glow */}
-      <motion.div
-        className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/40 blur-[180px] mix-blend-screen"
-        style={{ left: smoothX, top: smoothY, opacity: glowOpacity, zIndex: 4 }}
-      />
+      {/* Mouse-follow glow — only on desktop with fine pointer */}
+      {hasPointer && (
+        <motion.div
+          className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/35 blur-[180px] mix-blend-screen"
+          style={{ left: smoothX, top: smoothY, opacity: glowOpacity, zIndex: 4 }}
+        />
+      )}
 
       {/* ── Main Content ── */}
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20 transform-gpu pt-28 sm:pt-32"
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20 transform-gpu pt-24 sm:pt-28"
       >
         {/* Kicker line */}
         <div className="hero-kicker mb-8 flex items-center gap-5 justify-center">
@@ -132,10 +101,10 @@ export default function HeroSection() {
           aria-hidden
           className="text-center select-none"
         >
-          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(3.5rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(3.2rem,12vw,10.5rem)] font-semibold leading-[0.88]'} text-[#f5f2f3]`}>
+          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(2.8rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(2.6rem,12vw,10.5rem)] font-semibold leading-[0.88]'} text-[#f5f2f3]`}>
             {t('nameTop')}
           </div>
-          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(3.5rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(3.2rem,12vw,10.5rem)] font-semibold leading-[0.88]'}`}>
+          <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(2.8rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(2.6rem,12vw,10.5rem)] font-semibold leading-[0.88]'}`}>
             {/* Second line gets the accent */}
             <span
               className="italic"
@@ -153,29 +122,29 @@ export default function HeroSection() {
         </div>
 
         {/* Subtitle */}
-        <p className="hero-subtitle mx-auto mt-8 max-w-xl text-center text-base sm:text-lg font-light leading-relaxed text-white/60">
+        <p className="hero-subtitle mx-auto mt-6 max-w-xl text-center text-sm sm:text-base md:text-lg font-light leading-relaxed text-white/60">
           {t('subtitle')}
         </p>
 
         {/* CTAs */}
-        <div className="hero-ctas mt-10 flex flex-wrap items-center justify-center gap-4">
+        <div className="hero-ctas mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           <Link
             href="/contact"
-            className="group inline-flex items-center gap-2.5 rounded-full bg-[#951C30] px-8 py-4 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white shadow-[0_0_40px_rgba(149,28,48,0.4)] transition-all duration-300 hover:bg-[#b8223b] hover:shadow-[0_0_60px_rgba(149,28,48,0.6)] hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-[#951C30] px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white shadow-[0_0_40px_rgba(149,28,48,0.4)] transition-all duration-300 hover:bg-[#b8223b] hover:shadow-[0_0_60px_rgba(149,28,48,0.6)] hover:-translate-y-0.5"
           >
             {t('ctaPrimary')}
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 rtl:-scale-x-100" />
           </Link>
           <Link
             href="/work"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-8 py-4 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white/80 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/[0.08] hover:text-white hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.18em] rtl:tracking-normal text-white/80 backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/[0.08] hover:text-white hover:-translate-y-0.5"
           >
             {t('ctaSecondary')}
           </Link>
         </div>
 
         {/* Scroll cue */}
-        <div className="hero-scroll mt-16 flex justify-center">
+        <div className="hero-scroll mt-12 flex justify-center sm:mt-16">
           <motion.div
             className="flex flex-col items-center gap-2 cursor-default"
             animate={{ y: [0, 6, 0] }}

@@ -22,11 +22,13 @@ function rasterize(lines: [string, string]): Dot[] {
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
 
+  const fontStack = '"Playfair Display", "Georgia", serif';
+
   const fit = (text: string) => {
     const maxWidth = CANVAS_W - 140;
     let size = LINE_H;
     while (size > 40) {
-      ctx.font = `700 ${size}px "Space Grotesk", "Helvetica Neue", Arial, sans-serif`;
+      ctx.font = `700 ${size}px ${fontStack}`;
       const width = ctx.measureText(text).width;
       if (width <= maxWidth) return size;
       size -= 4;
@@ -37,10 +39,10 @@ function rasterize(lines: [string, string]): Dot[] {
   const s1 = fit(lines[0]);
   const s2 = fit(lines[1] || lines[0]);
 
-  ctx.font = `700 ${s1}px "Space Grotesk", "Helvetica Neue", Arial, sans-serif`;
+  ctx.font = `700 ${s1}px ${fontStack}`;
   ctx.fillText(lines[0], 70, LINE_H * 0.78 + 8);
   if (lines[1]) {
-    ctx.font = `700 ${s2}px "Space Grotesk", "Helvetica Neue", Arial, sans-serif`;
+    ctx.font = `700 ${s2}px ${fontStack}`;
     ctx.fillText(lines[1], 70, LINE_H * 1.78 + 8);
   }
 
@@ -105,46 +107,42 @@ export default function DotTitle({ title, reducedMotion }: { title: string; redu
     return () => context.revert();
   }, [dots, reducedMotion]);
 
-  if (!dots) {
-    return (
-      <h1 className="text-[clamp(3rem,10vw,9rem)] font-bold uppercase leading-[0.9] tracking-[-0.05em] text-white/95">
-        {title}
-      </h1>
-    );
-  }
-
-  if (!dots.length) {
-    return (
-      <h1 className="text-[clamp(3rem,10vw,9rem)] font-bold uppercase leading-[0.9] tracking-[-0.05em] text-white/95">
-        {title}
-      </h1>
-    );
-  }
+  const showDots = dots && dots.length > 0;
 
   return (
-    <div
-      ref={scopeRef}
-      className="cs-dot-title relative aspect-[1500/400] w-full max-w-5xl select-none"
-      role="img"
-      aria-label={title}
-    >
-      <div aria-hidden className="pointer-events-none absolute -inset-x-10 -inset-y-6 rounded-full bg-rose-500/8 blur-2xl" />
-      {dots.map((dot, i) => (
-        <i
-          key={i}
-          data-dot
-          aria-hidden="true"
-          className="absolute rounded-full will-change-transform"
-          style={{
-            left: `${dot.x * 100}%`,
-            top: `${dot.y * 100}%`,
-            width: dot.gold ? 3.4 : 2.7,
-            height: dot.gold ? 3.4 : 2.7,
-            background: dot.gold ? 'rgba(205,171,122,0.85)' : 'rgba(242,205,212,0.8)',
-            transform: 'translate(0px, 0px)',
-          }}
-        />
-      ))}
+    <div ref={scopeRef} className="relative w-full max-w-5xl select-none">
+      {/* Accessible heading always rendered — hidden when dot version is active */}
+      <h1
+        className={`text-[clamp(3rem,10vw,9rem)] font-bold uppercase leading-[0.9] tracking-[-0.05em] text-white/95 ${showDots ? 'sr-only' : ''}`}
+      >
+        {title}
+      </h1>
+
+      {showDots && (
+        <div
+          className="cs-dot-title relative aspect-[1500/400] w-full"
+          role="img"
+          aria-label={title}
+        >
+          <div aria-hidden className="pointer-events-none absolute -inset-x-10 -inset-y-6 rounded-full bg-rose-500/8 blur-2xl" />
+          {dots!.map((dot, i) => (
+            <i
+              key={i}
+              data-dot
+              aria-hidden="true"
+              className="absolute rounded-full will-change-transform"
+              style={{
+                left: `${dot.x * 100}%`,
+                top: `${dot.y * 100}%`,
+                width: dot.gold ? 3.4 : 2.7,
+                height: dot.gold ? 3.4 : 2.7,
+                background: dot.gold ? 'rgba(205,171,122,0.85)' : 'rgba(242,205,212,0.8)',
+                transform: 'translate(0px, 0px)',
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

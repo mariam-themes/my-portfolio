@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import connectToDatabase from '@/lib/mongodb';
 import AboutMe, { DEFAULT_ABOUT_ME } from '@/models/AboutMe';
+<<<<<<< HEAD
 import { autoTranslate, isArabic, translateHtmlContent } from '@/lib/translate';
+=======
+import { logActivity, extractIp } from '@/lib/activity-log';
+>>>>>>> main
 
 export const dynamic = 'force-dynamic';
 
@@ -92,6 +97,11 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const token = await getToken({ req: request as any });
+  if (!token || token.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     await connectToDatabase();
     const body = await request.json();
@@ -160,6 +170,20 @@ export async function PUT(request: Request) {
     const updated = await AboutMe.findOneAndUpdate({}, update, {
       new: true,
       upsert: true,
+    });
+
+    await logActivity({
+      adminId: token.id || 'unknown',
+      action: 'ABOUT_ME_UPDATE',
+      entityType: 'about_me',
+      details: { 
+        bioUpdated: !!body.bio,
+        photoUpdated: !!body.photo,
+        skillsUpdated: Array.isArray(body.skills),
+        cvLinkUpdated: !!body.cvLink,
+        experienceUpdated: Array.isArray(body.experience),
+      },
+      ip: extractIp(request),
     });
 
     return NextResponse.json({ success: true, data: updated });

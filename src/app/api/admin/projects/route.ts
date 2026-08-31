@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
 import { buildProjectTranslations } from '@/lib/translate';
+import { logActivity, extractIp } from '@/lib/activity-log';
 
 export async function GET() {
   try {
@@ -47,6 +48,15 @@ export async function POST(request: Request) {
     if (tr.metaDescription) body.metaDescription = tr.metaDescription;
 
     const project = await Project.create(body);
+
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'PROJECT_CREATE',
+      entityType: 'project',
+      entityId: project._id.toString(),
+      details: { title: project.title, slug: project.slug },
+      ip: extractIp(request),
+    });
 
     return NextResponse.json({ success: true, data: project }, { status: 201 });
   } catch (error: any) {

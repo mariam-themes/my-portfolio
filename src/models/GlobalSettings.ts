@@ -44,7 +44,7 @@ const GlobalSettingsSchema = new Schema<IGlobalSettings>(
   {
     siteName: { type: String, default: 'Mariam Aljumaiah' },
     logoUrl: { type: String, default: '/portfolio-logo.jpeg' },
-    email: { type: String, default: 'Anomtk1993@gmail.com' },
+    email: { type: String, default: 'info@mariammjstudio.com' },
     whatsapp: { type: String, default: '' },
     copyright: {
       type: String,
@@ -61,7 +61,7 @@ const GlobalSettingsSchema = new Schema<IGlobalSettings>(
 export const DEFAULT_GLOBAL_SETTINGS = {
   siteName: 'Mariam Aljumaiah',
   logoUrl: '/portfolio-logo.jpeg',
-  email: 'Anomtk1993@gmail.com',
+  email: 'info@mariammjstudio.com',
   whatsapp: '',
   copyright: `© ${new Date().getFullYear()} Mariam Aljumaiah. All rights reserved.`,
   socials: [] as ISocialLink[],

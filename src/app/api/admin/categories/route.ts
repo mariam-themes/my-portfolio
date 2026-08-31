@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Category from '@/models/Category';
+import { logActivity, extractIp } from '@/lib/activity-log';
 
 export async function GET() {
   try {
@@ -37,6 +38,15 @@ export async function POST(request: Request) {
     
     const body = await request.json();
     const category = await Category.create({ name: body.name });
+
+    await logActivity({
+      adminId: session.user?.id || 'unknown',
+      action: 'CATEGORY_CREATE',
+      entityType: 'category',
+      entityId: category._id.toString(),
+      details: { name: category.name },
+      ip: extractIp(request),
+    });
 
     return NextResponse.json({ success: true, data: category }, { status: 201 });
   } catch (error: any) {

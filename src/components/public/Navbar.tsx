@@ -25,10 +25,15 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    let lastState = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const newState = window.scrollY > 50;
+      if (newState !== lastState) {
+        lastState = newState;
+        setIsScrolled(newState);
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -61,12 +66,45 @@ export default function Navbar() {
         className={cn(
           'fixed inset-x-0 top-0 z-50 transition-all duration-300',
           isScrolled
-            ? 'bg-[#0a0507]/90 py-4 shadow-lg backdrop-blur-md'
-            : 'bg-transparent py-6'
+            ? 'bg-[#0a0507]/90 py-3 shadow-lg backdrop-blur-md'
+            : 'bg-transparent py-4 sm:py-6'
         )}
       >
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-6">
-          {/* Logo */}
+        {/* Mobile / tablet layout: logo left, actions right */}
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 sm:px-6 lg:hidden">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
+          >
+            <div className="relative h-9 w-9 overflow-hidden rounded-full border border-white/10">
+              <Image 
+                src="/portfolio-logo.jpeg" 
+                alt="Mariam Logo" 
+                fill 
+                className="object-cover" 
+                priority
+              />
+            </div>
+            <div className="block sm:block">
+              <p className="text-xs sm:text-sm font-bold leading-tight tracking-widest text-white">{t('nameTop')}</p>
+              <p className="text-[10px] sm:text-xs font-medium leading-tight tracking-widest text-rose-100/60">{t('nameBottom')}</p>
+            </div>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <LocaleSwitcher />
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-white flex h-10 w-10 items-center justify-center rounded-full border border-white/10"
+              aria-label="Toggle Menu"
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop layout: 3-column grid (unchanged) */}
+        <div className="mx-auto hidden w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-6 lg:grid">
           <Link
             href="/"
             className="flex items-center justify-self-start gap-3 transition-opacity hover:opacity-80"
@@ -86,7 +124,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Nav — centered at the viewport so it aligns with the hero text */}
+          {/* Desktop Nav — centered */}
           <nav className="hidden lg:flex items-center justify-center gap-6">
             {NAV_LINKS.map((link) => (
               <a
@@ -96,7 +134,7 @@ export default function Navbar() {
                 className="group relative whitespace-nowrap text-[11px] rtl:text-[15px] font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
               >
                 {t(link.key)}
-                <span className="absolute -bottom-1.5 left-0 rtl:left-auto rtl:right-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1.5 start-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </nav>
@@ -113,7 +151,6 @@ export default function Navbar() {
               <ArrowUpRight className="h-4 w-4 rtl:-scale-x-100" />
             </Link>
 
-            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden text-white"

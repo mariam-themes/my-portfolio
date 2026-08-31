@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import connectToDatabase from "@/lib/mongodb";
 import { User } from "@/models/User";
+import { checkRateLimit, createRateLimitHeaders } from "@/lib/rate-limit";
+import { logActivity, extractIp } from "@/lib/activity-log";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,43 +14,94 @@ export const authOptions: NextAuthOptions = {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
-        console.log("=== NEXTAUTH LOGIN ATTEMPT ===");
-        console.log("Credentials received:", credentials);
+      async authorize(credentials, req) {
+        const username = credentials?.username?.trim() || 'unknown';
         
         if (!credentials?.username || !credentials?.password) {
-          console.log("Error: Missing username or password");
+          await logActivity({
+            adminId: username,
+            action: 'LOGIN_FAILED',
+            entityType: 'auth',
+            details: { reason: 'missing_credentials', username },
+            ip: extractIp(req as Request | undefined),
+          }).catch(err => console.log('[AUTH DEBUG] logActivity error:', err));
           throw new Error("Invalid credentials");
         }
 
-        // Use fixed admin credentials from environment variables (fallback for local dev)
-        const adminUsername = process.env.ADMIN_USERNAME || process.env.ADMIN_UserName || "Mariam";
-        const adminPassword = process.env.ADMIN_PASSWORD || "Mariam@88";
+        const ip = extractIp(req as Request | undefined);
+        try {
+          const rateLimit = await checkRateLimit(`login:${username}`, 5, 15 * 60 * 1000);
+          if (!rateLimit.allowed) {
+            console.log('[AUTH DEBUG] Rate limit exceeded');
+            await logActivity({
+              adminId: username,
+              action: 'LOGIN_FAILED',
+              entityType: 'auth',
+              details: { reason: 'rate_limited', username },
+              ip,
+            }).catch(() => {});
+            throw new Error("Too many login attempts. Please try again later.");
+          }
+        } catch (error) {
+          console.error('[AUTH DEBUG] checkRateLimit Error:', error);
+          // Don't fail the login if rate limit check fails (db down etc)
+        }
 
-        console.log("Expected Username:", adminUsername);
-        console.log("Expected Password:", adminPassword);
+        const adminUsername = process.env.ADMIN_USERNAME || process.env.ADMIN_UserName;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+
+        if (!adminUsername || !adminPassword) {
+          throw new Error("Admin credentials not configured");
+        }
 
         if (
-          credentials.username.trim().toLowerCase() === adminUsername.toLowerCase() &&
-          credentials.password.trim() === adminPassword
+          username === adminUsername &&
+          credentials.password === adminPassword
         ) {
+          try {
+            await logActivity({
+              adminId: username,
+              action: 'LOGIN',
+              entityType: 'auth',
+              details: { status: 'success' },
+              ip,
+            });
+          } catch (err) {
+            console.error('[AUTH DEBUG] logActivity (success) Error:', err);
+          }
+
           return {
             id: "admin-1",
-            email: "admin@portfolio.com", // Dummy email to satisfy NextAuth user object
+            email: "admin@portfolio.com",
             name: "Mariam",
             role: "admin",
           };
         }
-        
+
+        await logActivity({
+          adminId: username,
+          action: 'LOGIN_FAILED',
+          entityType: 'auth',
+          details: { reason: 'invalid_credentials', username },
+          ip,
+        });
+
         throw new Error("Invalid credentials");
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        // Log successful login on first JWT creation
+        await logActivity({
+          adminId: user.id,
+          action: 'LOGIN_SUCCESS',
+          entityType: 'auth',
+          details: { name: user.name, email: user.email },
+        });
       }
       return token;
     },

@@ -53,9 +53,9 @@ export default async function AdminProjectsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project: any) => (
+          {projects.map((project: any, i: number) => (
             <div
-              key={project._id.toString()}
+              key={String(project._id ?? project.slug ?? `proj-${i}`)}
               className="bg-black/40 border border-rose-900/30 rounded-xl overflow-hidden flex flex-col transition-all hover:border-rose-700/50 hover:shadow-lg hover:shadow-rose-900/10"
             >
               {/* Cover Image */}

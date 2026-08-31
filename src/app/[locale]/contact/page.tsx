@@ -29,13 +29,13 @@ export default async function ContactPage({ params }: PageProps) {
         className="pointer-events-none absolute bottom-0 -left-32 h-[24rem] w-[24rem] rounded-full bg-[#3F0D1C]/40 blur-[160px]"
       />
 
-      <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center px-6 py-6">
+      <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center px-6 pt-24 pb-6">
         <Link
           href="/"
           className="inline-flex items-center gap-1 text-xs font-medium uppercase tracking-widest text-rose-100/60 transition hover:text-rose-50"
         >
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
-          {t('kicker')}
+          {locale === 'ar' ? 'العودة للمعرض' : 'Back to portfolio'}
         </Link>
       </header>
 

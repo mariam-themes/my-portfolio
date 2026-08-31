@@ -14,7 +14,7 @@ function serializeProject(rawProject: LocalizedProject, locale: string) {
     title: resolveText(rawProject.title, rawProject, 'title', locale),
     description: resolveText(rawProject.description, rawProject, 'description', locale),
     sector: resolveText(rawProject.sector, rawProject, 'sector', locale),
-    platform: resolveText(rawProject.platform, rawProject, 'platform', locale),
+    platform: typeof rawProject.platform === 'string' ? rawProject.platform : '',
     services: resolveList(rawProject.services, rawProject, 'services', locale),
     tools: resolveList(rawProject.tools, rawProject, 'tools', locale),
   }));

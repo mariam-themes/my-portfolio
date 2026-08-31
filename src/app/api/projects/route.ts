@@ -35,7 +35,10 @@ export async function GET(request: Request) {
       
       // If the target locale is the same as the sourceLang, use the original fields,
       // otherwise use the translated fields (fallback to original if missing).
-      const isTargetSource = project.sourceLang === locale;
+      // Also treat projects as target source if they have translations in the target locale,
+      // even if sourceLang is not explicitly set (legacy projects).
+      const hasTargetTranslation = project.translations?.[locale];
+      const isTargetSource = project.sourceLang === locale || (!project.sourceLang && !!hasTargetTranslation);
       
       return {
         ...project,

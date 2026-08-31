@@ -54,7 +54,7 @@ export default async function TestimonialsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 items-stretch">
             {display.map((t: any, i: number) => (
-              <div key={t._id} className={i % 2 !== 0 && i >= 1 && i % 3 !== 0 ? 'md:mt-16' : ''}>
+              <div key={String(t._id ?? t.clientName ?? `test-${i}`)} className={i % 2 !== 0 && i >= 1 && i % 3 !== 0 ? 'md:mt-16' : ''}>
                 <TestimonialCard
                   clientName={t.clientName}
                   role={t.role}

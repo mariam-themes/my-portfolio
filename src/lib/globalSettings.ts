@@ -19,7 +19,6 @@ export async function getGlobalSettings(): Promise<IGlobalSettings | null> {
     // Merge with defaults so newly-added fields (e.g. whatsapp) exist even on
     // documents created before the field was introduced.
     const finalSettings = { ...DEFAULT_GLOBAL_SETTINGS, ...doc } as unknown as IGlobalSettings;
-    finalSettings.email = 'Anomtk1993@gmail.com';
     return finalSettings;
   } catch (error) {
     console.error('getGlobalSettings failed:', error);

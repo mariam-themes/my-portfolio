@@ -1,11 +1,12 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
-import { User, Search, Bell, Image as ImageIcon, FileText, Mail } from 'lucide-react';
+import { User, Search, Bell, Image as ImageIcon, FileText, Mail, LogOut } from 'lucide-react';
 import { setAdminLocaleCookie } from '@/lib/adminLocaleCookie';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
+
 
 // Simple fetcher for SWR
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -21,8 +22,36 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Robust sign-out: fetch CSRF token then POST to next-auth signout endpoint
+  const handleSignOut = useCallback(async () => {
+    try {
+      const csrfRes = await fetch('/api/auth/csrf');
+      const { csrfToken } = await csrfRes.json();
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/api/auth/signout';
+      const tokenInput = document.createElement('input');
+      tokenInput.type = 'hidden';
+      tokenInput.name = 'csrfToken';
+      tokenInput.value = csrfToken;
+      const callbackInput = document.createElement('input');
+      callbackInput.type = 'hidden';
+      callbackInput.name = 'callbackUrl';
+      callbackInput.value = '/login';
+      form.appendChild(tokenInput);
+      form.appendChild(callbackInput);
+      document.body.appendChild(form);
+      form.submit();
+    } catch {
+      // Fallback: navigate directly to login
+      window.location.href = '/login';
+    }
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -32,6 +61,9 @@ export default function Header() {
       }
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -71,11 +103,29 @@ export default function Header() {
     window.location.reload();
   };
 
-  // Fetch new inquiries every 30 seconds
-  const { data } = useSWR('/api/admin/inquiries?status=new', fetcher, { refreshInterval: 30000 });
+  // Fetch unread inquiries every 30 seconds
+  const { data, mutate } = useSWR('/api/admin/inquiries?isRead=false', fetcher, { refreshInterval: 30000 });
   
+  const [displayInquiries, setDisplayInquiries] = useState<any[]>([]);
   const newInquiries = data?.data || [];
   const hasNotifications = newInquiries.length > 0;
+
+  useEffect(() => {
+    // Only update the displayed list if the dropdown is closed, 
+    // so it doesn't vanish while the user is reading it.
+    if (!isDropdownOpen) {
+      setDisplayInquiries(newInquiries);
+    }
+  }, [newInquiries, isDropdownOpen]);
+
+  const handleOpenDropdown = async () => {
+    const opening = !isDropdownOpen;
+    setIsDropdownOpen(opening);
+    if (opening && hasNotifications) {
+      // Mark as read in the background when opening the dropdown
+      fetch('/api/admin/inquiries/mark-read', { method: 'POST' }).then(() => mutate());
+    }
+  };
 
   return (
     <header className="h-24 border-b border-rose-900/30 bg-[#2A0813]/80 backdrop-blur-xl flex items-center justify-between px-10 sticky top-0 z-40">
@@ -149,7 +199,7 @@ export default function Header() {
         {/* Notifications */}
         <div className="relative" ref={dropdownRef}>
           <button 
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            onClick={handleOpenDropdown}
             className={`relative transition-colors ${hasNotifications || isDropdownOpen ? 'text-white' : 'text-rose-300 hover:text-white'}`}
           >
             <Bell size={22} />
@@ -164,19 +214,19 @@ export default function Header() {
                 <h3 className="text-white font-bold text-sm">
                   {locale === 'ar' ? 'الإشعارات' : 'Notifications'}
                 </h3>
-                {hasNotifications && (
+                {displayInquiries.length > 0 && (
                   <span className="bg-rose-500/20 text-rose-400 text-xs px-2 py-0.5 rounded-full font-bold">
-                    {newInquiries.length} {tInq('statusNew')}
+                    {displayInquiries.length} {tInq('statusNew')}
                   </span>
                 )}
               </div>
               
               <div className="max-h-80 overflow-y-auto">
-                {hasNotifications ? (
+                {displayInquiries.length > 0 ? (
                   <div className="flex flex-col">
-                    {newInquiries.map((inq: any) => (
+                    {displayInquiries.map((inq: any, i: number) => (
                       <Link 
-                        key={inq._id} 
+                        key={String(inq._id ?? inq.email ?? `inq-${i}`)} 
                         href="/admin/inquiries"
                         onClick={() => setIsDropdownOpen(false)}
                         className="px-5 py-4 border-b border-white/5 hover:bg-white/5 transition-colors group block"
@@ -198,7 +248,7 @@ export default function Header() {
                 )}
               </div>
               
-              {hasNotifications && (
+              {displayInquiries.length > 0 && (
                 <div className="p-3 bg-[#2A0813]/30 border-t border-rose-900/30">
                   <Link 
                     href="/admin/inquiries"
@@ -235,16 +285,42 @@ export default function Header() {
 
         <div className="h-8 w-px bg-rose-900/50" />
 
-        <div className="flex items-center gap-4 group cursor-pointer">
-          <div className="text-right rtl:text-left hidden md:block">
-            <p className="text-sm font-bold text-white group-hover:text-rose-200 transition-colors">Mariam</p>
-            <p className="text-xs text-rose-400">{t('creativeDirector')}</p>
-          </div>
-          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-rose-600 to-rose-400 p-0.5 shadow-lg shadow-rose-900/40">
-            <div className="w-full h-full rounded-full bg-[#3F0D1C] flex items-center justify-center border-2 border-[#2A0813]">
-              <User size={20} className="text-rose-200" />
+        {/* User Avatar + Logout Dropdown */}
+        <div className="relative" ref={userMenuRef}>
+          <button
+            onClick={() => setIsUserMenuOpen((prev) => !prev)}
+            className="flex items-center gap-4 group cursor-pointer focus:outline-none"
+            aria-label="User menu"
+          >
+            <div className="text-right rtl:text-left hidden md:block">
+              <p className="text-sm font-bold text-white group-hover:text-rose-200 transition-colors">Mariam</p>
+              <p className="text-xs text-rose-400">{t('creativeDirector')}</p>
             </div>
-          </div>
+            <div className={`w-12 h-12 rounded-full bg-gradient-to-tr from-rose-600 to-rose-400 p-0.5 shadow-lg shadow-rose-900/40 transition-transform duration-200 ${isUserMenuOpen ? 'scale-95 ring-2 ring-rose-500/60' : 'group-hover:scale-105'}`}>
+              <div className="w-full h-full rounded-full bg-[#3F0D1C] flex items-center justify-center border-2 border-[#2A0813]">
+                <User size={20} className="text-rose-200" />
+              </div>
+            </div>
+          </button>
+
+          {/* Dropdown */}
+          {isUserMenuOpen && (
+            <div className="absolute right-0 rtl:right-auto rtl:left-0 top-full mt-3 w-52 bg-[#1A050C] border border-rose-900/50 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="px-4 py-3 border-b border-rose-900/30 bg-[#2A0813]/60">
+                <p className="text-xs font-bold text-rose-200">Mariam Aljumaiah</p>
+                <p className="text-[11px] text-rose-400/70 mt-0.5">{t('creativeDirector')}</p>
+              </div>
+              <div className="p-2">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-rose-300 hover:text-white hover:bg-rose-900/40 transition-colors text-sm font-medium"
+                >
+                  <LogOut size={15} />
+                  {locale === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
