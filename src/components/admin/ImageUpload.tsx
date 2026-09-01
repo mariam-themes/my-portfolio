@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { UploadCloud, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ImageUploadProps {
-  label: string;
+  label: React.ReactNode;
   value: string;
   onChange: (url: string) => void;
   folder?: string;

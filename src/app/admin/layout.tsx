@@ -11,6 +11,12 @@ import arMessages from '../../../messages/ar.json';
 import { cookies } from 'next/headers';
 import AdminSessionProvider from '@/components/admin/AdminSessionProvider';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Mariam's Dashboard",
+};
+
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],

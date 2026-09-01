@@ -357,7 +357,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   };
 
   // ─── Chip Input (reusable) ────────────────────────────────────────────────
-  const ChipInput = ({ fieldName, label, placeholder }: { fieldName: any; label: string; placeholder: string }) => {
+  const ChipInput = ({ fieldName, label, placeholder }: { fieldName: any; label: React.ReactNode; placeholder: string }) => {
     const [inputValue, setInputValue] = useState('');
     const items: string[] = form.watch(fieldName) || [];
     const handleAdd = () => {
@@ -481,10 +481,10 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           </div>
 
           {/* Services */}
-          <ChipInput fieldName="services" label={`${t('services')} *`} placeholder={t('servicesPh')} />
+          <ChipInput fieldName="services" label={<>{t('services')} <span className="text-rose-500">*</span></>} placeholder={t('servicesPh')} />
 
           {/* Tools */}
-          <ChipInput fieldName="tools" label={`${t('tools')} ${t('liveUrlOptional')}`} placeholder={t('toolsPh')} />
+          <ChipInput fieldName="tools" label={<>{t('tools')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></>} placeholder={t('toolsPh')} />
         </div>
 
         {/* Year & Live URL (not bilingual) */}
@@ -496,7 +496,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
             {form.formState.errors.year && <p className="text-red-400 text-xs">{form.formState.errors.year.message}</p>}
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('liveUrl')} <span className="text-rose-500/50">{t('liveUrlOptional')}</span></label>
+            <label className="text-xs font-medium text-rose-200">{t('liveUrl')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></label>
             <input {...form.register('liveUrl')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder="https://..." />
@@ -511,12 +511,12 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-rose-950/10 rounded-xl border border-rose-900/20">
           <div className="space-y-2">
             <Controller name="heroMediaUrl" control={form.control}
-              render={({ field }) => <ImageUpload label={`${t('heroCover')} *`} value={field.value} onChange={field.onChange} folder="projects" />} />
+              render={({ field }) => <ImageUpload label={<>{t('heroCover')} <span className="text-rose-500">*</span></>} value={field.value} onChange={field.onChange} folder="projects" />} />
             {form.formState.errors.heroMediaUrl && <p className="text-red-400 text-xs">{form.formState.errors.heroMediaUrl.message}</p>}
           </div>
           <div className="space-y-2">
             <Controller name="fullPageMockupUrl" control={form.control}
-              render={({ field }) => <ImageUpload label={`${t('fullPageMockup')} ${t('liveUrlOptional')}`} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
+              render={({ field }) => <ImageUpload label={<>{t('fullPageMockup')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></>} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*" />} />
             <p className="text-xs text-rose-500/50">{t('fullPageHint')}</p>
           </div>
         </div>
