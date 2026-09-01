@@ -228,15 +228,19 @@ export default function GalleryPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Fetch the current full layout so we can send all sections back
+      // (with only other-projects.content updated) — this keeps every
+      // other section's visibility and content intact.
       const sectionsRes = await fetch('/api/admin/section-layout');
+      if (!sectionsRes.ok) throw new Error('Failed to fetch layout');
       const sectionsData = await sectionsRes.json();
       if (!sectionsData.success) throw new Error('Failed to get layout');
 
-      const payload = sectionsData.data.map((s: any) => {
+      const payload = (sectionsData.data as Array<{ id: string; isVisible: boolean; content?: unknown }>).map((s) => {
         if (s.id === 'other-projects') {
-          return { ...s, content: { gallery: images } };
+          return { id: s.id, isVisible: s.isVisible, content: { gallery: images } };
         }
-        return s;
+        return { id: s.id, isVisible: s.isVisible, content: s.content ?? null };
       });
 
       const response = await fetch('/api/admin/section-layout', {
@@ -246,9 +250,9 @@ export default function GalleryPage() {
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
-      
-      setInitialImages(images);
+      if (!response.ok || !result.success) throw new Error(result.error || 'Failed to save');
+
+      setInitialImages([...images]);
       toast.success(t('allUploaded') || 'Gallery updated successfully!');
       router.refresh();
     } catch (err: any) {

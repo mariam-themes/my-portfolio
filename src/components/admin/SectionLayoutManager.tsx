@@ -34,9 +34,12 @@ export default function SectionLayoutManager({
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // Always include `content` so gallery data (and any other per-section
+          // content) is never silently erased when toggling visibility.
           sections: sections.map((s) => ({
             id: s.id,
             isVisible: s.isVisible,
+            content: s.content ?? null,
           })),
         }),
       });

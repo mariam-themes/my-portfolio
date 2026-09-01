@@ -19,13 +19,6 @@ const SERVICE_OPTIONS = [
 
 const OTHER_SERVICE = SERVICE_OPTIONS[SERVICE_OPTIONS.length - 1].value;
 
-const BUDGET_OPTIONS = [
-  { value: 'Under 500 SAR', labelKey: 'budgetOption1' },
-  { value: '500 – 1000 SAR', labelKey: 'budgetOption2' },
-  { value: '1000 – 2000 SAR', labelKey: 'budgetOption3' },
-  { value: '2000+ SAR', labelKey: 'budgetOption4' },
-  { value: 'Flexible', labelKey: 'budgetOption5' },
-];
 
 const TIMELINE_OPTIONS = [
   { value: 'Flexible', labelKey: 'timelineOption1' },
@@ -318,29 +311,13 @@ export default function ContactForm() {
       {/* Budget · Timeline */}
       <div className="grid gap-10 sm:grid-cols-2">
         <FieldWrap id="budget" label={t('budgetLabel')} optional>
-          <div className="relative">
-            <select
-              id="budget"
-              className={cn(
-                inputBase,
-                inputNormal,
-                'appearance-none cursor-pointer pe-8',
-                watch('budget') === '' ? 'text-rose-100/25' : 'text-rose-50'
-              )}
-              defaultValue=""
-              {...register('budget')}
-            >
-              <option value="" className="bg-[#160308] text-rose-100/40">
-                {t('budgetPlaceholder')}
-              </option>
-              {BUDGET_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-[#160308] text-rose-50">
-                  {t(option.labelKey)}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
-          </div>
+          <input
+            id="budget"
+            type="text"
+            placeholder={t('budgetPlaceholder')}
+            className={cn(inputBase, inputNormal)}
+            {...register('budget')}
+          />
         </FieldWrap>
 
         <FieldWrap id="timeline" label={t('timelineLabel')} optional>

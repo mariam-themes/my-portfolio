@@ -132,7 +132,7 @@ const ProjectSchema = new Schema<IProject>(
     },
     services: { type: [String], required: [true, 'At least one service is required'] },
     tools: { type: [String], default: [] },
-    platform: { type: String, required: [true, 'Platform is required'] },
+    platform: { type: String, required: false, default: '' },
     year: {
       type: Number,
       required: [true, 'Year is required'],
