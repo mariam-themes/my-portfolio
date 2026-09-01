@@ -180,7 +180,8 @@
     "title": "Stories with",
     "titleAccent": "substance.",
     "readAll": "Read all stories",
-    "noBlogs": "No articles published yet."
+    "noBlogs": "No articles published yet.",
+    "seeMore": "See more"
   },
   "SelectedProjects": {
     "kicker": "Selected Projects",
@@ -192,12 +193,16 @@
     "kicker": "KIND WORDS",
     "maison": "MAISON",
     "title": "Clients who stayed.",
-    "noTestimonials": "No testimonials found. Add some from the dashboard!"
+    "noTestimonials": "No testimonials found. Add some from the dashboard!",
+    "seeMore": "See more"
   },
   "Admin": {
     "shell": {
       "dashboard": "Dashboard",
       "projects": "Projects",
+      "services": "Services",
+      "gallery": "Gallery",
+      "about": "About Me",
       "blog": "Blog",
       "testimonials": "Testimonials",
       "inquiries": "Inquiries",
@@ -378,7 +383,17 @@
       "editTitle": "Edit Blog Post",
       "editSubtitle": "Update your article.",
       "update": "Update Blog Post",
-      "updating": "Updating..."
+      "updating": "Updating...",
+      "seoSettings": "SEO Settings",
+      "seoSub": "Optional: helps search engines understand your content",
+      "metaTitleEn": "Meta Title (English)",
+      "metaTitleEnPh": "SEO title for English pages...",
+      "metaTitleAr": "Meta Title (Arabic)",
+      "metaTitleArPh": "عنوان SEO للصفحات العربية...",
+      "metaDescEn": "Meta Description (English)",
+      "metaDescEnPh": "Brief description for search results (max 160 chars)...",
+      "metaDescAr": "Meta Description (Arabic)",
+      "metaDescArPh": "وصف مختصر لنتائج البحث (حتى 160 حرف)..."
     },
     "testimonialsList": {
       "title": "Testimonials",
@@ -436,7 +451,9 @@
       "videoReady": "Video File Ready",
       "uploading": "Uploading massive file directly...",
       "clickToUpload": "Click to upload media",
-      "supports": "Supports huge Browser Screenshots & Videos"
+      "supports": "Supports huge Browser Screenshots & Videos",
+      "optimizing": "Optimizing & compressing image...",
+      "compressing": "Instant processing..."
     },
     "editor": {
       "bold": "Bold",
@@ -475,8 +492,11 @@
       "saved": "Homepage layout saved!",
       "failed": "Failed to save layout",
       "hero": "Hero / 3D Intro",
+      "work": "Work / Portfolio Showcase",
       "about": "About Me",
       "services": "Services",
+      "platforms": "Platforms & Tools",
+      "featuredProjects": "Featured Projects",
       "projectsPreview": "Projects Preview",
       "work": "Selected Work",
       "platforms": "Tools & Platforms",
@@ -485,6 +505,58 @@
       "testimonials": "Testimonials",
       "blog": "Blog / Journal",
       "contact": "Contact Section"
+    },
+    "servicesPage": {
+      "title": "Services Manager",
+      "subtitle": "Manage your service offerings.",
+      "list": "Services List",
+      "addService": "Add Service",
+      "addNew": "Add New Service",
+      "editTitle": "Edit Service",
+      "noServices": "No services added yet.",
+      "saving": "Saving..."
+    },
+    "galleryPage": {
+      "title": "Gallery Manager",
+      "subtitle": "Upload images for the 'Other Projects' gallery section on the homepage with instant compression and high speed.",
+      "images": "Gallery Images",
+      "save": "Save Gallery Updates",
+      "addImage": "Add Image",
+      "dragDropMultiple": "Drag & drop images here, or click to browse",
+      "supportsMultiple": "Supports batch multi-image upload with instant compression",
+      "uploadingCount": "Uploading {count} images...",
+      "allUploaded": "All images uploaded successfully!",
+      "clearAll": "Clear All",
+      "confirmClear": "Are you sure you want to remove all gallery images?",
+      "totalImages": "Total Images",
+      "moveLeft": "Move Backward",
+      "moveRight": "Move Forward",
+      "preview": "Preview",
+      "unsavedChanges": "Unsaved changes"
+    },
+    "aboutPage": {
+      "title": "About Me",
+      "subtitle": "Update your personal info, bio and experience.",
+      "photo": "Profile Photo",
+      "bioLabel": "Bio / Story",
+      "cvLabel": "CV / Resume Link",
+      "cvPh": "https://...",
+      "skillsLabel": "Skills (comma-separated)",
+      "skillsPh": "Figma, Branding, Web Design",
+      "experienceLabel": "Experience",
+      "addExp": "Add Experience",
+      "roleLabel": "Role",
+      "rolePh": "UX Designer",
+      "companyLabel": "Company",
+      "companyPh": "Acme Corp",
+      "durationLabel": "Duration",
+      "durationPh": "2020 – 2023",
+      "descLabel": "Description",
+      "descPh": "Brief summary of your role...",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Profile saved!",
+      "failed": "Failed to save profile"
     }
   },
   "FeaturedProjects": {
@@ -529,5 +601,14 @@
     "backToStories": "Back to Stories",
     "endOfArticle": "End of article",
     "readMore": "Read more stories"
+  },
+  "AboutMe": {
+    "kicker": "About Me",
+    "heading": "Designing",
+    "headingAccent": "Meaningful",
+    "headingSuffix": "Experiences",
+    "coreExpertise": "Core Expertise",
+    "experience": "Experience",
+    "downloadCv": "Download CV"
   }
 }

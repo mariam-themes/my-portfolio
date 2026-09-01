@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { Download } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -30,6 +30,7 @@ interface IAboutMe {
 
 export default function AboutMeSection() {
   const locale = useLocale();
+  const t = useTranslations('AboutMe');
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -39,7 +40,7 @@ export default function AboutMeSection() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch('/api/about-me');
+        const res = await fetch(`/api/about-me?locale=${locale}`);
         const json = await res.json();
         if (json.success) {
           setData(json.data);
@@ -51,7 +52,7 @@ export default function AboutMeSection() {
       }
     }
     fetchData();
-  }, []);
+  }, [locale]);
 
   useGSAP(() => {
     if (loading || !data) return;
@@ -137,7 +138,7 @@ export default function AboutMeSection() {
                   className="inline-flex items-center gap-3 bg-gradient-to-r from-[#951C30] to-[#ad2240] hover:from-[#ad2240] hover:to-[#c6284a] text-white px-8 py-4 rounded-full font-semibold tracking-wide transition-all shadow-lg hover:shadow-[#951C30]/50 transform hover:-translate-y-1"
                 >
                   <Download className="w-5 h-5" />
-                  {locale === 'ar' ? 'تحميل السيرة الذاتية' : 'Download CV'}
+                  {t('downloadCv')}
                 </a>
               </div>
             )}
@@ -150,14 +151,12 @@ export default function AboutMeSection() {
             <div className="space-y-6">
               <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] mb-4">
                 <span className="w-12 h-[1px] bg-[#951C30]/50"></span>
-                {locale === 'ar' ? 'نبذة عني' : 'About Me'}
+                {t('kicker')}
               </div>
-               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
-                {locale === 'ar' ? (
-                  <>تصميم تجارب <span className="italic text-[#951C30]">ذات معنى</span></>
-                ) : (
-                  <>Designing <span className="italic text-[#951C30]">Meaningful</span> Experiences</>
-                )}
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
+                {t('heading')}{' '}
+                <span className="italic text-[#951C30]">{t('headingAccent')}</span>
+                {t('headingSuffix') ? ` ${t('headingSuffix')}` : ''}
               </h2>
               <article
                 className="prose prose-lg md:prose-xl prose-invert prose-p:text-white/70 prose-a:text-rose-400 max-w-none font-light leading-relaxed"
@@ -169,7 +168,7 @@ export default function AboutMeSection() {
             {data.skills && data.skills.length > 0 && (
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-white tracking-wide">
-                  {locale === 'ar' ? 'الخبرات الأساسية' : 'Core Expertise'}
+                  {t('coreExpertise')}
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {data.skills.map((skill, idx) => (
@@ -188,7 +187,7 @@ export default function AboutMeSection() {
             {data.experience && data.experience.length > 0 && (
               <div className="space-y-8 exp-list">
                 <h3 className="text-xl font-semibold text-white tracking-wide">
-                  {locale === 'ar' ? 'الخبرة العملية' : 'Experience'}
+                  {t('experience')}
                 </h3>
                 <div className="space-y-8 border-s border-white/10 ps-6 ms-2">
                   {data.experience.map((exp, idx) => (

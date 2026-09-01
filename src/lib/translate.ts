@@ -102,6 +102,67 @@ export async function autoTranslate(
 }
 
 /**
+ * Splits long text into sentence-sized chunks (≤ 450 chars) and translates
+ * each chunk in parallel, then joins the results.
+ */
+async function translateLongText(text: string, target: 'en' | 'ar'): Promise<string> {
+  // Split on Arabic/Latin sentence-ending punctuation
+  const sentenceRe = /[^.!?؟\n]+[.!?؟\n]*/g;
+  const sentences = text.match(sentenceRe) || [text];
+
+  const chunks: string[] = [];
+  let curr = '';
+  for (const s of sentences) {
+    if (curr.length + s.length > 450) {
+      if (curr.trim()) chunks.push(curr.trim());
+      curr = s;
+    } else {
+      curr += s;
+    }
+  }
+  if (curr.trim()) chunks.push(curr.trim());
+
+  const results = await Promise.all(
+    chunks.map((c) => autoTranslate(c).then((r) => r[target] || c))
+  );
+  return results.join(' ');
+}
+
+/**
+ * Translates an HTML string while preserving all tags.
+ *
+ * Each text node is translated individually in parallel so there is
+ * no separator fragility. Nodes longer than 450 chars are split into
+ * sentence-sized chunks before translation.
+ */
+export async function translateHtmlContent(
+  html: string,
+  target: 'en' | 'ar'
+): Promise<string> {
+  if (!html?.trim()) return html ?? '';
+
+  // Split on HTML tags, preserving them as capture groups
+  const parts = html.split(/(<[^>]*>)/g);
+
+  const translated = await Promise.all(
+    parts.map(async (part) => {
+      // Keep tags and pure whitespace as-is
+      if (part.startsWith('<') || !part.trim()) return part;
+
+      const text = part.trim();
+      if (text.length <= 450) {
+        const t = await autoTranslate(text).then((r) => r[target]);
+        return t || part;
+      }
+      // Long text node → split into sentences first
+      return translateLongText(text, target);
+    })
+  );
+
+  return translated.join('');
+}
+
+/**
  * Auto-translates multiple fields at once.
  * Only translates fields that are strings (skips arrays, numbers, etc.)
  *

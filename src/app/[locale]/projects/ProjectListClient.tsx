@@ -182,7 +182,7 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
                 onMouseLeave={() => setIsHovering(false)}
                 onClick={() => { try { sessionStorage.setItem('caseStudyRef', '/work'); } catch {} }}
                 // We use cursor-none to hide the default pointer since we have a custom follower
-                style={{ cursor: 'none', visibility: 'hidden' }} // GSAP autoAlpha will make it visible
+                style={{ cursor: 'none' }}
               >
                 {/* Image Container */}
                 <div className="relative w-full aspect-[4/3] sm:aspect-[3/2] overflow-hidden bg-[#111]">

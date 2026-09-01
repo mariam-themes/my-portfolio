@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Loader2, Check } from 'lucide-react';
 import TiptapEditor from '@/components/admin/TiptapEditor';
+import { compressImageFile } from '@/lib/imageCompression';
 
 const inputClass =
   'w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white placeholder:text-rose-500/50 focus:outline-none focus:border-rose-500 transition-colors';
@@ -29,8 +30,8 @@ export default function BlogForm({ mode, blogId }: BlogFormProps) {
     content: '',
     coverImage: '',
     tags: '',
-    seoTitle: '',
-    seoDescription: '',
+    seoTitle: { en: '', ar: '' },
+    seoDescription: { en: '', ar: '' },
   });
 
   useEffect(() => {
@@ -47,8 +48,14 @@ export default function BlogForm({ mode, blogId }: BlogFormProps) {
               content: b.content || '',
               coverImage: b.coverImage || '',
               tags: (b.tags || []).join(', '),
-              seoTitle: b.seoTitle || '',
-              seoDescription: b.seoDescription || '',
+              seoTitle: {
+                en: b.seoTitle?.en || '',
+                ar: b.seoTitle?.ar || '',
+              },
+              seoDescription: {
+                en: b.seoDescription?.en || '',
+                ar: b.seoDescription?.ar || '',
+              },
             });
           }
         })
@@ -62,12 +69,13 @@ export default function BlogForm({ mode, blogId }: BlogFormProps) {
     if (!file) return;
 
     setLoading(true);
-    const data = new FormData();
-    data.append('file', file);
-    data.append('folder', 'portfolio_blogs');
-    data.append('resource_type', 'image');
-
     try {
+      const fileToUpload = await compressImageFile(file);
+      const data = new FormData();
+      data.append('file', fileToUpload);
+      data.append('folder', 'portfolio_blogs');
+      data.append('resource_type', 'image');
+
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: data,
@@ -92,7 +100,23 @@ export default function BlogForm({ mode, blogId }: BlogFormProps) {
         .split(',')
         .map((tag) => tag.trim())
         .filter(Boolean);
-      const payload = { ...formData, tags: tagsArray };
+
+      // Clean up localized SEO fields — only include non-empty values
+      const cleanLocalized = (val: { en: string; ar: string }) => {
+        const result: { en?: string; ar?: string } = {};
+        if (val.en?.trim()) result.en = val.en.trim();
+        if (val.ar?.trim()) result.ar = val.ar.trim();
+        return Object.keys(result).length > 0 ? result : undefined;
+      };
+
+      const seoTitle = cleanLocalized(formData.seoTitle);
+      const seoDescription = cleanLocalized(formData.seoDescription);
+
+      const payload: any = { ...formData, tags: tagsArray };
+      if (seoTitle) payload.seoTitle = seoTitle;
+      else delete payload.seoTitle;
+      if (seoDescription) payload.seoDescription = seoDescription;
+      else delete payload.seoDescription;
 
       const res =
         mode === 'edit'
@@ -170,24 +194,65 @@ export default function BlogForm({ mode, blogId }: BlogFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-1">
-            <label className={labelClass}>SEO Title</label>
-            <input
-              value={formData.seoTitle}
-              onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
-              placeholder="SEO Title"
-              className={inputClass}
-            />
+        {/* ── SEO Settings ── */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-rose-900/30" />
+            <div className="text-center">
+              <h3 className="text-sm font-semibold text-rose-300 uppercase tracking-widest">{t('seoSettings')}</h3>
+              <p className="text-xs text-rose-500/60 mt-0.5">{t('seoSub')}</p>
+            </div>
+            <div className="flex-1 h-px bg-rose-900/30" />
           </div>
-          <div className="space-y-1">
-            <label className={labelClass}>SEO Description</label>
-            <input
-              value={formData.seoDescription}
-              onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
-              placeholder="SEO Description"
-              className={inputClass}
-            />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className={labelClass}>{t('metaTitleEn')}</label>
+              <input
+                maxLength={70}
+                value={formData.seoTitle.en}
+                onChange={(e) => setFormData({ ...formData, seoTitle: { ...formData.seoTitle, en: e.target.value } })}
+                placeholder={t('metaTitleEnPh')}
+                className={inputClass}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className={labelClass}>{t('metaTitleAr')}</label>
+              <input
+                maxLength={70}
+                dir="rtl"
+                value={formData.seoTitle.ar}
+                onChange={(e) => setFormData({ ...formData, seoTitle: { ...formData.seoTitle, ar: e.target.value } })}
+                placeholder={t('metaTitleArPh')}
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className={labelClass}>{t('metaDescEn')}</label>
+              <textarea
+                rows={2}
+                maxLength={160}
+                value={formData.seoDescription.en}
+                onChange={(e) => setFormData({ ...formData, seoDescription: { ...formData.seoDescription, en: e.target.value } })}
+                placeholder={t('metaDescEnPh')}
+                className={`${inputClass} resize-none`}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className={labelClass}>{t('metaDescAr')}</label>
+              <textarea
+                rows={2}
+                maxLength={160}
+                dir="rtl"
+                value={formData.seoDescription.ar}
+                onChange={(e) => setFormData({ ...formData, seoDescription: { ...formData.seoDescription, ar: e.target.value } })}
+                placeholder={t('metaDescArPh')}
+                className={`${inputClass} resize-none`}
+              />
+            </div>
           </div>
         </div>
 

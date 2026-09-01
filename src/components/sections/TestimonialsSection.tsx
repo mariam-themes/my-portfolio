@@ -21,6 +21,7 @@ export default function TestimonialsSection() {
   }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   useEffect(() => {
     async function fetchTestimonials() {
@@ -45,8 +46,9 @@ export default function TestimonialsSection() {
   // Cards are visible by default; no GSAP hide/show to avoid Lenis conflicts.
   // Use CSS @keyframes fadeInUp instead (no ScrollTrigger dependency).
 
-  const primary = testimonials[0];
-  const rest = testimonials.slice(1);
+  const visibleTestimonials = testimonials.slice(0, visibleCount);
+  const primary = visibleTestimonials[0];
+  const rest = visibleTestimonials.slice(1);
 
   return (
     <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
@@ -92,38 +94,55 @@ export default function TestimonialsSection() {
             {t('noTestimonials')}
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {primary && (
-              <div
-                key={String(primary._id ?? primary.clientName ?? 'primary')}
-                className={`tcard-reveal ${rest.length === 0 ? 'lg:col-span-3' : 'lg:col-span-2'}`}
-              >
-                <TestimonialCard
-                  featured
-                  clientName={primary.clientName}
-                  role={primary.role}
-                  company={primary.company}
-                  content={primary.content}
-                  rating={primary.rating}
-                  avatarUrl={primary.avatarUrl}
-                  audioUrl={primary.audioUrl}
-                />
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+              {primary && (
+                <div
+                  key={String(primary._id ?? primary.clientName ?? 'primary')}
+                  className={`tcard-reveal ${rest.length === 0 ? 'lg:col-span-3' : 'lg:col-span-2'}`}
+                >
+                  <TestimonialCard
+                    featured
+                    clientName={primary.clientName}
+                    role={primary.role}
+                    company={primary.company}
+                    content={primary.content}
+                    rating={primary.rating}
+                    avatarUrl={primary.avatarUrl}
+                    audioUrl={primary.audioUrl}
+                  />
+                </div>
+              )}
+              {rest.map((t, i) => (
+                <div key={String(t._id ?? t.clientName ?? `test-${i}`)} className="tcard-reveal">
+                  <TestimonialCard
+                    clientName={t.clientName}
+                    role={t.role}
+                    company={t.company}
+                    content={t.content}
+                    rating={t.rating}
+                    avatarUrl={t.avatarUrl}
+                    audioUrl={t.audioUrl}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {testimonials.length > visibleCount && (
+              <div className="mt-12 flex justify-center">
+                <button
+                  onClick={() => setVisibleCount((prev) => prev + 5)}
+                  className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-white/20 transition-all duration-300 text-sm font-medium tracking-[0.05em] text-white/80 hover:text-white overflow-hidden shadow-sm hover:shadow-md cursor-pointer"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {t('seeMore')}
+                    <span className="transition-transform duration-300 group-hover:translate-y-0.5">↓</span>
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#951C30]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                </button>
               </div>
             )}
-            {rest.map((t, i) => (
-              <div key={String(t._id ?? t.clientName ?? `test-${i}`)} className="tcard-reveal">
-                <TestimonialCard
-                  clientName={t.clientName}
-                  role={t.role}
-                  company={t.company}
-                  content={t.content}
-                  rating={t.rating}
-                  avatarUrl={t.avatarUrl}
-                  audioUrl={t.audioUrl}
-                />
-              </div>
-            ))}
-          </div>
+          </>
         )}
 
       </div>

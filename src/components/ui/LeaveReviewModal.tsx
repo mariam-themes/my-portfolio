@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { X, Star, Loader2, CheckCircle2 } from 'lucide-react';
+import { useLenis } from 'lenis/react';
 
 interface LeaveReviewModalProps {
   isOpen: boolean;
@@ -22,18 +23,23 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
   const locale = useLocale();
   const isAr = locale === 'ar';
 
+  const lenis = useLenis();
+
   // Lock the page scroll while the modal is open so the page itself never
   // scrolls; the modal handles its own overflow internally.
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      lenis?.stop();
     } else {
       document.body.style.overflow = '';
+      lenis?.start();
     }
     return () => {
       document.body.style.overflow = '';
+      lenis?.start();
     };
-  }, [isOpen]);
+  }, [isOpen, lenis]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +101,7 @@ export default function LeaveReviewModal({ isOpen, onClose }: LeaveReviewModalPr
     'w-full bg-black/60 border border-rose-900/30 rounded-lg px-4 py-3 text-white placeholder-rose-200/30 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/30 transition-all text-sm';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" data-lenis-prevent="true">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/75 backdrop-blur-sm"

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { ArrowUpRight } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { format } from 'date-fns';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -15,6 +15,7 @@ if (typeof window !== 'undefined') {
 
 export default function BlogSection() {
   const t = useTranslations('BlogPreview');
+  const locale = useLocale();
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -36,7 +37,7 @@ export default function BlogSection() {
   useEffect(() => {
     async function fetchBlogs() {
       try {
-        const res = await fetch('/api/blogs');
+        const res = await fetch(`/api/blogs?locale=${locale}`);
         const json = await res.json();
         if (json.success) setBlogs(json.data);
       } catch (error) {
@@ -47,7 +48,7 @@ export default function BlogSection() {
       }
     }
     fetchBlogs();
-  }, []);
+  }, [locale]);
 
   // Init GSAP: quickTo for magnetic follow + initial preview state + scroll reveal
   useGSAP(
@@ -227,65 +228,81 @@ export default function BlogSection() {
             </div>
           </div>
         ) : (
-          <div
-            ref={listRef}
-            className="divide-y divide-white/[0.06]"
-            onMouseMove={handleListMove}
-            onMouseLeave={() => setHoveredIndex(null)}
-            onBlur={() => setHoveredIndex(null)}
-          >
-            {blogs.slice(0, 3).map((blog, index) => {
-              const isActive = hoveredIndex === index;
-              const formattedDate = blog.createdAt
-                ? format(new Date(blog.createdAt), 'MMM yyyy').toUpperCase()
-                : '';
+          <>
+            <div
+              ref={listRef}
+              className="divide-y divide-white/[0.06]"
+              onMouseMove={handleListMove}
+              onMouseLeave={() => setHoveredIndex(null)}
+              onBlur={() => setHoveredIndex(null)}
+            >
+              {blogs.slice(0, 3).map((blog, index) => {
+                const isActive = hoveredIndex === index;
+                const formattedDate = blog.createdAt
+                  ? format(new Date(blog.createdAt), 'MMM yyyy').toUpperCase()
+                  : '';
 
-              return (
-                <Link
-                  key={String(blog._id ?? blog.slug ?? `blog-${index}`)}
-                  href={`/blog/${blog.slug}` as any}
-                  className={`journal-row group flex items-center gap-4 md:gap-7 py-5 md:py-6 px-4 md:px-6 rounded-xl transition-colors duration-500 ${
-                    isActive ? 'bg-white/[0.04]' : 'hover:bg-white/[0.03]'
-                  }`}
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onFocus={() => setHoveredIndex(index)}
-                >
-                  {/* Thumbnail */}
-                  <span className="w-10 h-10 md:w-11 md:h-11 rounded-lg overflow-hidden flex-shrink-0 bg-white/5 ring-1 ring-white/10">
-                    {blog.coverImage ? (
-                      <img
-                        src={blog.coverImage}
-                        alt=""
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="w-full h-full flex items-center justify-center text-white/20 text-[10px] uppercase tracking-widest">
-                        —
-                      </span>
-                    )}
-                  </span>
-
-                  {/* Title */}
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-base md:text-lg font-serif font-normal text-foreground/80 leading-snug group-hover:text-white transition-colors duration-500 line-clamp-2">
-                      {blog.title}
+                return (
+                  <Link
+                    key={String(blog._id ?? blog.slug ?? `blog-${index}`)}
+                    href={`/blog/${blog.slug}` as any}
+                    className={`journal-row group flex items-center gap-4 md:gap-7 py-5 md:py-6 px-4 md:px-6 rounded-xl transition-colors duration-500 ${isActive ? 'bg-white/[0.04]' : 'hover:bg-white/[0.03]'
+                      }`}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onFocus={() => setHoveredIndex(index)}
+                  >
+                    {/* Thumbnail */}
+                    <span className="w-10 h-10 md:w-11 md:h-11 rounded-lg overflow-hidden flex-shrink-0 bg-white/5 ring-1 ring-white/10">
+                      {blog.coverImage ? (
+                        <img
+                          src={blog.coverImage}
+                          alt=""
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="w-full h-full flex items-center justify-center text-white/20 text-[10px] uppercase tracking-widest">
+                          —
+                        </span>
+                      )}
                     </span>
-                  </span>
 
-                  {/* Date */}
-                  <span className="hidden sm:block flex-shrink-0 w-24 md:w-28 text-right text-[11px] uppercase tracking-[0.18em] text-white/35 font-mono">
-                    {formattedDate}
-                  </span>
+                    {/* Title */}
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-base md:text-lg font-serif font-normal text-foreground/80 leading-snug group-hover:text-white transition-colors duration-500 line-clamp-2">
+                        {blog.title}
+                      </span>
+                    </span>
 
-                  {/* Circular arrow button */}
-                  <span className="flex-shrink-0 grid place-items-center w-9 h-9 md:w-10 md:h-10 rounded-full border border-white/15 text-white/55 transition-all duration-500 group-hover:scale-105 group-hover:border-white/40 group-hover:text-white">
-                    <ArrowUpRight className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      {/* Date */}
+                      <span className="hidden sm:block flex-shrink-0 w-24 md:w-28 text-right text-[11px] uppercase tracking-[0.18em] text-white/35 font-mono">
+                        {formattedDate}
+                      </span>
+
+                      {/* Circular arrow button */}
+                      <span className="flex-shrink-0 grid place-items-center w-9 h-9 md:w-10 md:h-10 rounded-full border border-white/15 text-white/55 transition-all duration-500 group-hover:scale-105 group-hover:border-white/40 group-hover:text-white">
+                        <ArrowUpRight className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {blogs.length > 3 && (
+              <div className="mt-12 flex justify-center">
+                <Link
+                  href="/blog"
+                  className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-white/20 transition-all duration-300 text-sm font-medium tracking-[0.05em] text-white/80 hover:text-white overflow-hidden shadow-sm hover:shadow-md"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {t('seeMore')}
+                    <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#951C30]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </Link>
-              );
-            })}
-          </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

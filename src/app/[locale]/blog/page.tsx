@@ -1,10 +1,14 @@
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import connectToDatabase from '@/lib/mongodb';
+import { Blog } from '@/models/Blog';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
+
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -15,18 +19,36 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-async function getBlogs() {
-  const base = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-  const res = await fetch(`${base}/api/blogs`, { cache: 'no-store' });
-  if (!res.ok) return [];
-  const json = await res.json();
-  return json.success ? json.data : [];
+function localizeBlogs(blogs: any[], locale: string) {
+  return blogs.map((blog) => {
+    const tSet = blog.translations?.[locale as 'en' | 'ar'];
+    if (locale !== blog.sourceLang && tSet) {
+      return {
+        ...blog,
+        title: tSet.title || blog.title,
+        excerpt: tSet.excerpt || blog.excerpt,
+      };
+    }
+    return blog;
+  });
+}
+
+async function getBlogs(locale: string) {
+  try {
+    await connectToDatabase();
+    const rawBlogs = await Blog.find({}).sort({ createdAt: -1 }).lean<any[]>();
+    const serialized = JSON.parse(JSON.stringify(rawBlogs));
+    return localizeBlogs(serialized, locale);
+  } catch (error) {
+    console.error('Failed to fetch blogs from database:', error);
+    return [];
+  }
 }
 
 export default async function BlogIndexPage({ params }: PageProps) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'BlogPage' });
-  const blogs = await getBlogs();
+  const blogs = await getBlogs(locale);
 
   return (
     <div

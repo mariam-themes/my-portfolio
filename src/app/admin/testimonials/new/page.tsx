@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { compressImageFile } from '@/lib/imageCompression';
 
 const inputClass =
   'w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white placeholder:text-rose-500/50 focus:outline-none focus:border-rose-500 transition-colors';
@@ -26,6 +28,8 @@ export default function NewTestimonialPage() {
     rating: 5,
     avatarUrl: '',
     audioUrl: '',
+    isApproved: true,
+    isFeatured: false,
   });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'avatarUrl' | 'audioUrl', resourceType: 'image' | 'video' = 'video') => {
@@ -33,24 +37,30 @@ export default function NewTestimonialPage() {
     if (!file) return;
 
     setLoading(true);
-    const data = new FormData();
-    data.append('file', file);
-    data.append('folder', 'portfolio_testimonials');
-    data.append('resource_type', resourceType);
-
     try {
+      const fileToUpload = resourceType === 'image' || file.type.startsWith('image/')
+        ? await compressImageFile(file)
+        : file;
+
+      const data = new FormData();
+      data.append('file', fileToUpload);
+      data.append('folder', 'portfolio_testimonials');
+      data.append('resource_type', resourceType);
+
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: data,
       });
       const json = await res.json();
       if (json.success) {
-        setFormData({ ...formData, [field]: json.data.secure_url });
+        setFormData((prev) => ({ ...prev, [field]: json.data.secure_url }));
+        toast.success(field === 'avatarUrl' ? t('avatarUploaded') : t('audioUploaded'));
       } else {
-        alert("Upload failed: " + json.error);
+        toast.error('Upload failed: ' + json.error);
       }
     } catch (error) {
       console.error('Upload failed:', error);
+      toast.error('Failed to upload file');
     } finally {
       setLoading(false);
     }
@@ -64,18 +74,23 @@ export default function NewTestimonialPage() {
       const res = await fetch('/api/testimonials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          isApproved: true,
+        }),
       });
       
       const json = await res.json();
       if (json.success) {
+        toast.success('Testimonial created and published successfully!');
         router.push('/admin/testimonials');
         router.refresh();
       } else {
-        alert(json.error);
+        toast.error(json.error || 'Failed to create testimonial');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submit failed:', error);
+      toast.error(error.message || 'Failed to submit');
     } finally {
       setLoading(false);
     }

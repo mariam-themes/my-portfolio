@@ -8,6 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import connectToDatabase from '@/lib/mongodb';
 import { Blog } from '@/models/Blog';
 import { slugify } from '@/lib/slugify';
+import { autoTranslate, isArabic, translateHtmlContent } from '@/lib/translate';
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;
@@ -15,29 +16,74 @@ interface PageProps {
 
 export const dynamic = 'force-dynamic';
 
-async function getBlog(slug: string) {
-  await connectToDatabase();
-  const isObjectId = slug.match(/^[0-9a-fA-F]{24}$/);
-  if (isObjectId) {
-    const blog = await Blog.findById(slug).lean();
-    return blog ? JSON.parse(JSON.stringify(blog)) : null;
+function localize(blogObj: any, locale: string) {
+  const result = { ...blogObj };
+  const tSet = blogObj.translations?.[locale as 'en' | 'ar'];
+  if (locale !== blogObj.sourceLang && tSet) {
+    if (tSet.title) result.title = tSet.title;
+    if (tSet.excerpt) result.excerpt = tSet.excerpt;
+    if (tSet.content) result.content = tSet.content;
   }
+  return result;
+}
+
+async function getBlog(slug: string, locale: string) {
+  await connectToDatabase();
+
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(slug);
   const candidates = Array.from(new Set([slug, slugify(slug)])).filter(Boolean);
-  const blog = await Blog.findOne({ slug: { $in: candidates } }).lean();
+  const query = isObjectId ? { _id: slug } : { slug: { $in: candidates } };
+
+  const blog = await Blog.findOne(query).lean<any>();
   if (!blog) return null;
-  return JSON.parse(JSON.stringify(blog));
+
+  const sourceLang = blog.sourceLang || (isArabic(blog.title || '') ? 'ar' : 'en');
+  const target: 'en' | 'ar' = sourceLang === 'ar' ? 'en' : 'ar';
+  const existingContent = blog.translations?.[target]?.content;
+
+  // Needs translation if: no content saved, OR saved content is still in the source language
+  const contentIsWrongLang = existingContent
+    ? target === 'en' ? isArabic(existingContent) : !isArabic(existingContent)
+    : false;
+  const needsTranslation = !existingContent || contentIsWrongLang;
+
+  if (!blog.sourceLang || needsTranslation) {
+    const [tTitle, tExcerpt, tContent] = await Promise.all([
+      blog.title ? autoTranslate(blog.title).then((r) => r[target]) : Promise.resolve(''),
+      blog.excerpt ? autoTranslate(blog.excerpt).then((r) => r[target]) : Promise.resolve(''),
+      blog.content ? translateHtmlContent(blog.content, target) : Promise.resolve(''),
+    ]);
+
+    // Persist using $set so Mongoose strict mode doesn't block it
+    await Blog.findByIdAndUpdate(blog._id, {
+      $set: {
+        sourceLang,
+        [`translations.${target}.title`]: tTitle,
+        [`translations.${target}.excerpt`]: tExcerpt,
+        [`translations.${target}.content`]: tContent,
+      },
+    });
+
+    blog.sourceLang = sourceLang;
+    blog.translations = {
+      ...(blog.translations || {}),
+      [target]: { title: tTitle, excerpt: tExcerpt, content: tContent },
+    };
+  }
+
+  return JSON.parse(JSON.stringify(localize(blog, locale)));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const blog = await getBlog(slug);
+  const { slug, locale } = await params;
+  const blog = await getBlog(slug, locale);
 
   if (!blog) {
     return { title: 'Post Not Found' };
   }
 
-  const title = blog.seoTitle || blog.title || 'Untitled Post';
-  const description = blog.seoDescription || blog.excerpt || '';
+  const title = blog.seoTitle?.[locale as 'en' | 'ar'] || blog.title || 'Untitled Post';
+  const description = blog.seoDescription?.[locale as 'en' | 'ar'] || blog.excerpt || '';
 
   return {
     title: `${title} | Mariam Portfolio`,
@@ -53,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug, locale } = await params;
-  const blog = await getBlog(slug);
+  const blog = await getBlog(slug, locale);
   const t = await getTranslations({ locale, namespace: 'BlogPage' });
 
   if (!blog) {
