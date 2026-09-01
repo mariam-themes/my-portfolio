@@ -40,15 +40,6 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Refresh ScrollTrigger when layout shifts to prevent stuck scroll
-  useEffect(() => {
-    if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => {
-      ScrollTrigger.refresh();
-    });
-    ro.observe(document.body);
-    return () => ro.disconnect();
-  }, []);
 
   // Extract unique categories — only show user-created categories, hide system placeholders
   const hiddenCats = new Set(['uncategorized', 'selected project', 'selected projects']);
