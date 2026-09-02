@@ -63,6 +63,7 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
     };
   }, [isHovering]);
 
+
   // Extract unique categories — only show user-created categories, hide system placeholders
   const hiddenCats = new Set(['uncategorized', 'selected project', 'selected projects']);
   const categories = Array.from(

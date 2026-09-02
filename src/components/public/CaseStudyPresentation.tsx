@@ -130,16 +130,6 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Refresh ScrollTrigger when layout shifts (e.g., images loading) to prevent stuck or empty scroll
-  useEffect(() => {
-    if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => {
-      ScrollTrigger.refresh();
-    });
-    ro.observe(document.body);
-    return () => ro.disconnect();
-  }, []);
-
   useLayoutEffect(() => {
     const root = mainRef.current;
     if (!root) return;

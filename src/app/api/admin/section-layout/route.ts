@@ -49,15 +49,38 @@ export async function PUT(request: Request) {
     const incoming: Array<{ id: string; isVisible: boolean; content?: unknown }> =
       Array.isArray(body.sections) ? body.sections : [];
 
-    // Only accept ids that exist in the code registry (flexible, no orphans).
+    // Only accept ids that exist in the code registry (no orphans).
     const registryIds = new Set(HOME_SECTIONS.map((s) => s.id));
+
+    // Load existing DB state so we can preserve content that isn't being
+    // explicitly updated (e.g. gallery images when only toggling visibility).
+    const existing = await SectionLayout.findOne({ key: 'home' }).lean();
+    const existingMap = new Map<string, unknown>();
+    if (existing?.sections) {
+      for (const s of existing.sections as Array<{
+        id: string;
+        isVisible: boolean;
+        content?: unknown;
+      }>) {
+        existingMap.set(s.id, s.content);
+      }
+    }
+
     const sections = incoming
       .filter((s) => s && registryIds.has(s.id))
-      .map((s) => ({
-        id: s.id,
-        isVisible: typeof s.isVisible === 'boolean' ? s.isVisible : true,
-        ...(s.content !== undefined ? { content: s.content } : {}),
-      }));
+      .map((s) => {
+        // If the request explicitly sends content (even null to clear it), use
+        // that value. Otherwise fall back to whatever is already stored so that
+        // a visibility-only save never wipes gallery data.
+        const resolvedContent =
+          s.content !== undefined ? s.content : (existingMap.get(s.id) ?? null);
+
+        return {
+          id: s.id,
+          isVisible: typeof s.isVisible === 'boolean' ? s.isVisible : true,
+          content: resolvedContent,
+        };
+      });
 
     await SectionLayout.findOneAndUpdate(
       { key: 'home' },

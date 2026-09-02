@@ -10,6 +10,9 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+
 function ScrollReset() {
   const pathname = usePathname();
   const lenis = useLenis();
@@ -29,6 +32,25 @@ function ScrollReset() {
     }, 150);
     return () => clearTimeout(id);
   }, [pathname, lenis]);
+
+  useEffect(() => {
+    if (!lenis) return;
+    
+    // Sync Lenis with GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+    
+    const ticker = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    
+    gsap.ticker.add(ticker);
+    gsap.ticker.lagSmoothing(0);
+    
+    return () => {
+      lenis.off('scroll', ScrollTrigger.update);
+      gsap.ticker.remove(ticker);
+    };
+  }, [lenis]);
 
   return null;
 }

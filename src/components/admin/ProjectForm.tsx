@@ -93,7 +93,7 @@ const projectSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   services: z.array(z.string()).min(1, 'At least one service is required'),
   tools: z.array(z.string()).default([]),
-  platform: z.string().min(1, 'Platform is required'),
+  platform: z.string().optional().default(''),
   year: z.number().int().min(1990).max(new Date().getFullYear() + 5),
   heroMediaUrl: z.string().min(1, 'Hero media is required'),
   fullPageMockupUrl: z.string().optional().default(''),
@@ -179,7 +179,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
     description: z.string().min(10, t('errDesc')),
     services: z.array(z.string()).min(1, t('errServices')),
     tools: z.array(z.string()).default([]),
-    platform: z.string().min(1, t('errPlatform')),
+    platform: z.string().optional().default(''),
     year: z.number().int().min(1990).max(new Date().getFullYear() + 5),
     heroMediaUrl: z.string().min(1, t('errHero')),
     fullPageMockupUrl: z.string().optional().default(''),
@@ -462,13 +462,15 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
               placeholder={t('sectorPh')} />
           </div>
 
-          {/* Platform */}
+          {/* Platform (optional) */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-rose-200">{t('platform')} <span className="text-rose-500">*</span></label>
+            <label className="text-xs font-medium text-rose-200">
+              {t('platform')}
+              <span className="ms-1 text-rose-200/40 font-normal text-[11px]">{t('liveUrlOptional')}</span>
+            </label>
             <input {...form.register('platform')}
               className="w-full bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-rose-500 transition-colors"
               placeholder={t('platformPh')} />
-            {form.formState.errors.platform && <p className="text-red-400 text-xs">{form.formState.errors.platform.message}</p>}
           </div>
 
           {/* Description */}
