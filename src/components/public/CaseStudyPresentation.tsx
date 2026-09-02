@@ -264,7 +264,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
   };
 
   return (
-    <main ref={mainRef} className="case-study-narrative relative isolate min-h-screen overflow-x-clip overflow-y-auto bg-[#0b0107] text-white" style={{ overscrollBehavior: 'contain' }}>
+    <main ref={mainRef} className="case-study-narrative relative isolate min-h-screen overflow-x-clip bg-[#0b0107] text-white" style={{ overscrollBehavior: 'contain' }}>
       <CSSKeyframes />
       <ImageBackground />
 

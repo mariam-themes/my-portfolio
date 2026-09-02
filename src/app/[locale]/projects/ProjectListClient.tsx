@@ -27,18 +27,41 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
   const [activeFilter, setActiveFilter] = useState<string>('');
   
   // Custom Cursor State
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
+  const mouseRef = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Drive the custom cursor via refs + rAF so mouse movement does not rerender the grid.
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+    const updateCursor = () => {
+      const el = cursorRef.current;
+      if (!el) return;
+      const { x, y } = mouseRef.current;
+      el.style.transform = `translate(${x - 50}px, ${y - 50}px) scale(${isHovering ? 1 : 0.5})`;
     };
-    
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+      if (!rafRef.current) {
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = 0;
+          updateCursor();
+        });
+      }
+    };
+
+    updateCursor();
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
+      }
+    };
+  }, [isHovering]);
 
   // Extract unique categories — only show user-created categories, hide system placeholders
   const hiddenCats = new Set(['uncategorized', 'selected project', 'selected projects']);
@@ -85,18 +108,18 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
   }, [filteredProjects]);
 
   return (
-    <div className="min-h-screen pb-32 bg-[#0a0507] text-white overflow-hidden relative">
+    <div className="min-h-screen pb-32 bg-[#0a0507] text-white overflow-x-clip relative">
       
       {/* ── CUSTOM HOVER CURSOR ── */}
       <div 
-        className="pointer-events-none fixed top-0 left-0 z-50 flex items-center justify-center rounded-full text-white font-bold text-[10px] tracking-widest uppercase transition-opacity duration-300"
+        ref={cursorRef}
+        className="pointer-events-none fixed top-0 left-0 z-50 flex items-center justify-center rounded-full text-white font-bold text-[10px] tracking-widest uppercase transition-opacity duration-300 will-change-transform"
         style={{
           backgroundColor: 'rgba(149, 28, 48, 0.9)', // #951C30 with 90% opacity
           width: '100px',
           height: '100px',
           opacity: isHovering ? 1 : 0,
-          transform: `translate(${mousePos.x - 50}px, ${mousePos.y - 50}px) scale(${isHovering ? 1 : 0.5})`,
-          transition: 'transform 0.15s ease-out, opacity 0.3s ease-out, width 0.3s, height 0.3s',
+          transition: 'opacity 0.3s ease-out, width 0.3s, height 0.3s',
         }}
       >
         <span className="text-center leading-tight">{t('viewProject') || 'View'}</span>

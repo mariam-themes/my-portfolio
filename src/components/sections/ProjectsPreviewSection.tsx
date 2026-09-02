@@ -66,8 +66,10 @@ export default function ProjectsPreviewSection() {
     // Reduced motion: static vertical layout, no animation whatsoever
     if (prefersReduced) {
       document.body.classList.add('no-pin');
-      return;
+      return () => document.body.classList.remove('no-pin');
     }
+
+    document.body.classList.remove('no-pin');
 
     const ctx = gsap.context(() => {
       const getDistance = () => {
@@ -99,7 +101,10 @@ export default function ProjectsPreviewSection() {
       });
     });
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      document.body.classList.remove('no-pin');
+    };
   }, [loading, displayProjects.length, prefersReduced, total, isRtl]);
 
   if (loading) {
