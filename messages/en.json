@@ -63,7 +63,8 @@
     "all": "All",
     "noImage": "No Image Available",
     "design": "Design",
-    "noProjectsInCategory": "No projects found in this category."
+    "noProjectsInCategory": "No projects found in this category.",
+    "featured": "Featured"
   },
   "LocaleSwitcher": {
     "label": "AR"

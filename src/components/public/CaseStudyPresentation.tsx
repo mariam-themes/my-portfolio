@@ -37,7 +37,8 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
   const t = useTranslations('CaseStudy');
   const router = useRouter();
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [cameFromWork, setCameFromWork] = useState(false);
+  // backHref: '/' = came from Home, '/work' = came from All Projects, null = use router.back()
+  const [backHref, setBackHref] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState(0);
   const mainRef = useRef<HTMLElement>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -82,12 +83,11 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
     return () => query.removeEventListener('change', update);
   }, []);
 
-  // Detect if user came from /work page
   useEffect(() => {
     try {
       const ref = sessionStorage.getItem('caseStudyRef');
-      if (ref === '/work') {
-        setCameFromWork(true);
+      if (ref === '/work' || ref === '/') {
+        setBackHref(ref);
       }
       sessionStorage.removeItem('caseStudyRef');
     } catch {}
@@ -316,8 +316,11 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
 
 
       <header className="case-study-nav relative z-20 flex items-center justify-between px-5 py-5 sm:px-12 lg:px-16">
-        <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white">
-          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{cameFromWork ? t('allProjects') : t('backToPortfolio')}</span>
+        <button
+          onClick={() => backHref ? router.push(backHref as '/') : router.back()}
+          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{backHref === '/work' ? t('allProjects') : t('backToPortfolio')}</span>
         </button>
         <div className="flex items-center gap-5">
           {project.platform && <span className="hidden text-xs md:text-sm font-black uppercase tracking-[.15em] text-white/80 sm:inline">{project.platform}</span>}

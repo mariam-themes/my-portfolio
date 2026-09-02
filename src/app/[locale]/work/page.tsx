@@ -35,7 +35,7 @@ export default async function WorkPage({
     // Oldest-first (ascending by year) so the list reads in date order.
     const projects = await Project.find(query)
       .sort({ year: 1, createdAt: 1 })
-      .select('title slug sector category heroMediaUrl year sourceLang translations')
+      .select('title slug sector category heroMediaUrl year sourceLang translations isFeatured')
       .lean();
 
     serializedProjects = (
@@ -48,6 +48,7 @@ export default async function WorkPage({
       title: resolveText(project.title, project, 'title', locale),
       category: resolveText(project.category, project, 'category', locale),
       sector: resolveText(project.sector, project, 'sector', locale),
+      isFeatured: !!project.isFeatured,
     }));
   } catch (error) {
     console.error('Failed to load projects for WorkPage:', error);

@@ -37,6 +37,16 @@ export function sourceLangOf(project: LocalizedProject): 'en' | 'ar' {
   return arabic > probe.length * 0.3 ? 'ar' : 'en';
 }
 
+const COMMON_CATEGORIES: Record<string, { en: string; ar: string }> = {
+  'wordpress': { en: 'WordPress', ar: 'ووردبريس' },
+  'web design': { en: 'Web Design', ar: 'تصميم مواقع' },
+  'تصميم مواقع': { en: 'Web Design', ar: 'تصميم مواقع' },
+  'landing pages': { en: 'Landing Pages', ar: 'صفحات هبوط' },
+  'صفحات هبوط': { en: 'Landing Pages', ar: 'صفحات هبوط' },
+  'ui/ux': { en: 'UI/UX Design', ar: 'تصميم واجهات' },
+  'تصميم واجهات': { en: 'UI/UX Design', ar: 'تصميم واجهات' },
+};
+
 /**
  * Resolves a single-language text field for the current locale.
  * - Legacy { en, ar } objects are handled directly.
@@ -56,6 +66,14 @@ export function resolveText(
   if (typeof value === 'string') {
     // DO NOT translate title, platform, client, etc.
     if (field === 'title' || field === 'platform') return value;
+
+    // Check common category mappings first to fix duplicate/untranslated DB entries
+    if (field === 'category' || field === 'sector') {
+      const normalized = value.trim().toLowerCase();
+      if (COMMON_CATEGORIES[normalized]) {
+        return COMMON_CATEGORIES[normalized][locale as 'en' | 'ar'];
+      }
+    }
 
     if (locale === sourceLangOf(project)) return value;
     const translated = project.translations?.[locale as 'en' | 'ar'];

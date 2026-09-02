@@ -36,6 +36,7 @@ export default function ProjectsPreviewSection() {
   const currentRef = useRef<HTMLSpanElement>(null);
 
   const openProject = useCallback((slug: string) => {
+    try { sessionStorage.setItem('caseStudyRef', '/'); } catch {}
     router.push(`/work/${slug}`);
   }, [router]);
 

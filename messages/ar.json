@@ -63,7 +63,8 @@
     "all": "الكل",
     "noImage": "لا توجد صورة",
     "design": "تصميم",
-    "noProjectsInCategory": "لا توجد مشاريع في هذه الفئة."
+    "noProjectsInCategory": "لا توجد مشاريع في هذه الفئة.",
+    "featured": "مميز"
   },
   "LocaleSwitcher": {
     "label": "EN"

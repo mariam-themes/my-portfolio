@@ -2,7 +2,7 @@
 
 import { ReactLenis, useLenis } from 'lenis/react';
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -10,6 +10,7 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Resets scroll position to the top on every client-side navigation.
 function ScrollReset() {
   const pathname = usePathname();
   const lenis = useLenis();
@@ -19,30 +20,32 @@ function ScrollReset() {
       window.scrollTo(0, 0);
       return;
     }
-    // Immediately jump to top on navigation
+    // Immediately jump to top on navigation.
     lenis.scrollTo(0, { immediate: true, force: true });
-    // Recalculate page height after content renders (important for dynamic pages)
-    const id = setTimeout(() => {
-      lenis.resize();
-      // Re-measure ScrollTrigger after Lenis recalculates its scroll limit
-      ScrollTrigger.refresh();
-    }, 150);
-    return () => clearTimeout(id);
   }, [pathname, lenis]);
+
+  return null;
+}
+
+// Wires the GSAP ticker to Lenis and keeps ScrollTrigger in sync.
+function ScrollTriggerSync() {
+  const lenis = useLenis();
 
   useEffect(() => {
     if (!lenis) return;
-    
-    // Sync Lenis with GSAP ScrollTrigger
+
     lenis.on('scroll', ScrollTrigger.update);
-    
+
     const ticker = (time: number) => {
       lenis.raf(time * 1000);
     };
-    
+
     gsap.ticker.add(ticker);
     gsap.ticker.lagSmoothing(0);
-    
+
+    // Refresh once so trigger positions match the smoothed scroller.
+    ScrollTrigger.refresh();
+
     return () => {
       lenis.off('scroll', ScrollTrigger.update);
       gsap.ticker.remove(ticker);
@@ -52,20 +55,43 @@ function ScrollReset() {
   return null;
 }
 
-function ScrollTriggerSync() {
+// Observes document.body for height changes caused by ssr:false dynamic components
+// mounting after Lenis has already booted, and re-syncs Lenis + ScrollTrigger.
+function ContentSizeSync() {
   const lenis = useLenis();
+  const rafRef = useRef<number>(0);
+  const prevHeightRef = useRef<number>(0);
 
   useEffect(() => {
     if (!lenis) return;
 
-    // Keep ScrollTrigger in sync with Lenis's animated scroll position
-    lenis.on('scroll', ScrollTrigger.update);
+    const scheduleResize = (entries: ResizeObserverEntry[]) => {
+      // entries[0] is document.body; use its reported height.
+      const newHeight = entries[0]?.contentRect.height ?? 0;
+      // Guard: skip if the height hasn't meaningfully changed (prevents
+      // a feedback loop if ScrollTrigger.refresh() adds/removes pin spacers).
+      if (Math.abs(newHeight - prevHeightRef.current) < 1) return;
+      prevHeightRef.current = newHeight;
 
-    // Refresh once Lenis has mounted so trigger positions match the smoothed scroller
-    ScrollTrigger.refresh();
+      // Debounce via rAF so multiple rapid resize notifications in the same
+      // frame collapse into a single lenis.resize() call.
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        lenis.resize();
+        ScrollTrigger.refresh();
+      });
+    };
+
+    const ro = new ResizeObserver(scheduleResize);
+    ro.observe(document.body);
 
     return () => {
-      lenis.off('scroll', ScrollTrigger.update);
+      ro.disconnect();
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
+      }
     };
   }, [lenis]);
 
@@ -77,6 +103,7 @@ export default function SmoothScroller({ children }: { children: React.ReactNode
     <ReactLenis root options={{ lerp: 0.1, smoothWheel: true, duration: 1.2 }}>
       <ScrollReset />
       <ScrollTriggerSync />
+      <ContentSizeSync />
       <div style={{ overscrollBehavior: 'contain' }}>
         {children}
       </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
+import { Star } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -17,6 +18,7 @@ interface Project {
   sector?: string; // fallback if category is empty for legacy projects
   heroMediaUrl: string;
   year: number;
+  isFeatured?: boolean;
 }
 
 export type ProjectRecord = Project;
@@ -225,6 +227,16 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
                   )}
                   {/* Subtle Dark Overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-700" />
+                  
+                  {/* Featured Badge on Image */}
+                  {project.isFeatured && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#951C30] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white shadow-lg">
+                        <Star className="h-3 w-3 fill-white" />
+                        {t('featured') || 'Featured'}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Project Meta Info */}
