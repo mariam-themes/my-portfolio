@@ -3,15 +3,12 @@
 import { ReactLenis, useLenis } from 'lenis/react';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { gsap } from 'gsap';
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
-
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
 
 function ScrollReset() {
   const pathname = usePathname();
