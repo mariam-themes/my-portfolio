@@ -23,7 +23,7 @@ interface Project {
 
 export type ProjectRecord = Project;
 
-export default function ProjectListClient({ projects, featuredOnly = false }: { projects: Project[]; featuredOnly?: boolean }) {
+export default function ProjectListClient({ projects, featuredOnly = false, validCategories = [] }: { projects: Project[]; featuredOnly?: boolean; validCategories?: { name: string; label: string }[] }) {
   const locale = useLocale();
   const t = useTranslations('Work');
   const [activeFilter, setActiveFilter] = useState<string>('');
@@ -66,22 +66,29 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
   }, [isHovering]);
 
 
-  // Extract unique categories — only show user-created categories, hide system placeholders
-  const hiddenCats = new Set(['uncategorized', 'selected project', 'selected projects']);
-  const categories = Array.from(
-    new Set(
-      projects
-        .map((p) => p.category || p.sector)
-        .filter(Boolean)
-        .filter((cat) => !hiddenCats.has((cat as string).trim().toLowerCase()))
-    )
-  ) as string[];
-  
+  // Build filter list: only show categories that exist in the Category collection
+  // AND are actually used by at least one project.
+  // name = canonical (for matching), label = localized (for display).
+  const projectCatSet = new Set(
+    projects.map((p) => (p.category || p.sector || '').trim().toLowerCase()).filter(Boolean)
+  );
+  const categories = validCategories.filter((cat) =>
+    // match against the canonical name OR the localized label — covers all cases
+    projectCatSet.has(cat.name.trim().toLowerCase()) ||
+    projectCatSet.has(cat.label.trim().toLowerCase())
+  );
+
   const filteredProjects = useMemo(() => {
-    return activeFilter === ''
-      ? projects
-      : projects.filter(p => (p.category || p.sector) === activeFilter);
-  }, [projects, activeFilter]);
+    if (activeFilter === '') return projects;
+    const active = validCategories.find((c) => c.name === activeFilter);
+    if (!active) return projects;
+    const activeLower = active.name.trim().toLowerCase();
+    const activeLabelLower = active.label.trim().toLowerCase();
+    return projects.filter((p) => {
+      const cat = (p.category || p.sector || '').trim().toLowerCase();
+      return cat === activeLower || cat === activeLabelLower;
+    });
+  }, [projects, activeFilter, validCategories]);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
@@ -165,12 +172,12 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
             >
               {t('all')}
             </button>
-            {categories.map(category => {
-              const isActive = activeFilter === category;
+            {categories.map(cat => {
+              const isActive = activeFilter === cat.name;
               return (
                 <button
-                  key={category}
-                  onClick={() => setActiveFilter(category)}
+                  key={cat.name}
+                  onClick={() => setActiveFilter(cat.name)}
                   className={`
                     px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300
                     ${isActive 
@@ -182,7 +189,7 @@ export default function ProjectListClient({ projects, featuredOnly = false }: { 
                     backgroundColor: isActive ? '#951C30' : 'transparent'
                   }}
                 >
-                  {category}
+                  {cat.label}
                 </button>
               );
             })}

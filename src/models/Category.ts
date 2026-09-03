@@ -1,7 +1,9 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface ICategory extends Document {
-  name: string;
+  name: string;         // original name as entered by admin (source of truth)
+  nameEn?: string;      // auto-translated English version
+  nameAr?: string;      // auto-translated Arabic version
 }
 
 const CategorySchema = new Schema<ICategory>(
@@ -14,6 +16,8 @@ const CategorySchema = new Schema<ICategory>(
       minlength: [2, 'Category name must be at least 2 characters'],
       maxlength: [50, 'Category name cannot exceed 50 characters'],
     },
+    nameEn: { type: String, trim: true },
+    nameAr: { type: String, trim: true },
   },
   { timestamps: true }
 );

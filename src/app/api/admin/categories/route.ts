@@ -4,6 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Category from '@/models/Category';
 import { logActivity, extractIp } from '@/lib/activity-log';
+import { translateCategoryName } from '@/lib/translate';
 
 export async function GET() {
   try {
@@ -37,14 +38,20 @@ export async function POST(request: Request) {
     await connectToDatabase();
     
     const body = await request.json();
-    const category = await Category.create({ name: body.name });
+    const rawName: string = (body.name || '').trim();
+
+    // Smart translation for short category labels
+    const { en: nameEn, ar: nameAr } = await translateCategoryName(rawName);
+
+    const category = await Category.create({ name: rawName, nameEn, nameAr });
+
 
     await logActivity({
       adminId: session.user?.id || 'unknown',
       action: 'CATEGORY_CREATE',
       entityType: 'category',
       entityId: category._id.toString(),
-      details: { name: category.name },
+      details: { name: rawName, nameEn, nameAr },
       ip: extractIp(request),
     });
 

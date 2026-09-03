@@ -141,7 +141,7 @@ export default function FeaturedProjectsSection() {
         {total > MAX_FEATURED && (
           <div className="mt-14 flex justify-center">
             <Link
-              href={{ pathname: '/work', query: { featured: 'true' } }}
+              href="/work"
               className="group inline-flex items-center gap-3 rounded-full bg-[#951C30] px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:bg-[#b8223b] hover:shadow-rose-800/40 hover:-translate-y-0.5"
             >
               {t('viewAll')}

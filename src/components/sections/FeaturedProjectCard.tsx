@@ -50,7 +50,7 @@ export default function FeaturedProjectCard({
           {t('badge')}
         </span>
 
-        <div className="relative z-10 rounded-2xl border border-white/10 bg-[#0a0507]/85 p-5 backdrop-blur-md md:p-6">
+        <div className="relative z-10 rounded-2xl border border-white/10 bg-[#0a0507]/95 p-5 md:p-6 shadow-xl">
           <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]">
             <span className="rounded-full bg-[#951C30] px-2.5 py-1 text-white">{type}</span>
             {(project.year as string | number | undefined) && (

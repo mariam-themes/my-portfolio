@@ -19,15 +19,6 @@ const SERVICE_OPTIONS = [
 
 const OTHER_SERVICE = SERVICE_OPTIONS[SERVICE_OPTIONS.length - 1].value;
 
-
-const TIMELINE_OPTIONS = [
-  { value: 'Flexible', labelKey: 'timelineOption1' },
-  { value: '1–2 weeks', labelKey: 'timelineOption2' },
-  { value: '2–4 weeks', labelKey: 'timelineOption3' },
-  { value: '1–2 months', labelKey: 'timelineOption4' },
-  { value: '3+ months', labelKey: 'timelineOption5' },
-];
-
 const EMAIL_REGEX = /^[\w.+-]+@[\w-]+\.[\w.-]+$/;
 
 // ── Floating-label field wrapper ──────────────────────────────────────────── //
@@ -321,29 +312,13 @@ export default function ContactForm() {
         </FieldWrap>
 
         <FieldWrap id="timeline" label={t('timelineLabel')} optional>
-          <div className="relative">
-            <select
-              id="timeline"
-              className={cn(
-                inputBase,
-                inputNormal,
-                'appearance-none cursor-pointer pe-8',
-                watch('timeline') === '' ? 'text-rose-100/25' : 'text-rose-50'
-              )}
-              defaultValue=""
-              {...register('timeline')}
-            >
-              <option value="" className="bg-[#160308] text-rose-100/40">
-                {t('timelinePlaceholder')}
-              </option>
-              {TIMELINE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-[#160308] text-rose-50">
-                  {t(option.labelKey)}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute end-0 top-1/2 h-4 w-4 -translate-y-1/2 text-rose-100/60" />
-          </div>
+          <input
+            id="timeline"
+            type="text"
+            placeholder={t('timelinePlaceholder')}
+            className={cn(inputBase, inputNormal)}
+            {...register('timeline')}
+          />
         </FieldWrap>
       </div>
 

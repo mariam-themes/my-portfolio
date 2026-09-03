@@ -3,7 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectToDatabase from '@/lib/mongodb';
 import Category from '@/models/Category';
+import Project from '@/models/Project';
 import { logActivity, extractIp } from '@/lib/activity-log';
+import { translateCategoryName } from '@/lib/translate';
 
 export async function PUT(
   request: Request,
@@ -18,8 +20,16 @@ export async function PUT(
     await connectToDatabase();
     const { id } = await params;
     const body = await request.json();
+    const rawName: string = (body.name || '').trim();
 
-    const category = await Category.findByIdAndUpdate(id, { name: body.name }, { new: true });
+    // Auto-translate the updated name
+    const { en: nameEn, ar: nameAr } = await translateCategoryName(rawName);
+
+    const category = await Category.findByIdAndUpdate(
+      id,
+      { name: rawName, nameEn, nameAr },
+      { new: true }
+    );
 
     if (!category) {
       return NextResponse.json({ success: false, error: 'Category not found' }, { status: 404 });
@@ -30,7 +40,7 @@ export async function PUT(
       action: 'CATEGORY_UPDATE',
       entityType: 'category',
       entityId: id,
-      details: { name: category.name },
+      details: { name: rawName },
       ip: extractIp(request),
     });
 
@@ -62,6 +72,18 @@ export async function DELETE(
     if (!category) {
       return NextResponse.json({ success: false, error: 'Category not found' }, { status: 404 });
     }
+
+    // Clear this category name from all projects that reference it
+    // Projects are NOT deleted — they just become uncategorised.
+    await Project.updateMany(
+      { category: category.name },
+      { $unset: { category: '' } }
+    );
+    // Also handle legacy projects that used "sector" instead of "category"
+    await Project.updateMany(
+      { sector: category.name },
+      { $unset: { sector: '' } }
+    );
 
     await logActivity({
       adminId: session.user?.id || 'unknown',

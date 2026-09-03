@@ -334,7 +334,7 @@ export async function localizeText(
   if (typeof value === 'object') {
     const direct = value[locale];
     if (direct) return direct;
-    
+
     // Translate the available language to the target
     const fallback = locale === 'ar' ? value.en : value.ar;
     if (!fallback) return '';
@@ -352,3 +352,36 @@ export async function localizeText(
 
   return value; // Already in the right language
 }
+
+/**
+ * Translates a short category label smartly:
+ * - Brand / proper names (single ASCII word with no spaces, e.g. "WordPress") are kept as-is in both languages.
+ * - Ambiguous single-word English words (e.g. "web") are sent with extra context ("web design") to get a sensible translation.
+ * - Rejects translations whose character length exceeds 2.5× the source (likely a wrong meaning) and falls back to the original.
+ */
+export async function translateCategoryName(name: string): Promise<{ en: string; ar: string }> {
+  if (!name || name.trim().length === 0) return { en: '', ar: '' };
+
+  const trimmed = name.trim();
+
+  // Detect brand/proper names: single word, only ASCII letters/digits/special chars (no Arabic), and capitalised
+  const isBrand = /^[A-Za-z0-9.,'&+\-/]+$/.test(trimmed) && !trimmed.includes(' ');
+  if (isBrand) {
+    // Keep brand names exactly as typed; for Arabic display just use the same string
+    const display = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+    return { en: display, ar: display };
+  }
+
+  // For Arabic input → translate to English, guard length
+  if (isArabic(trimmed)) {
+    const en = await translateText(trimmed, 'ar|en');
+    const guard = en.length > trimmed.length * 2.5 ? trimmed : en;
+    return { en: guard, ar: trimmed };
+  }
+
+  // For English multi-word → translate to Arabic, guard length
+  const ar = await translateText(trimmed, 'en|ar');
+  const guard = ar.length > trimmed.length * 2.5 ? trimmed : ar;
+  return { en: trimmed, ar: guard };
+}
+

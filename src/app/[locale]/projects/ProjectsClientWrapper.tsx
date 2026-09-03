@@ -21,6 +21,14 @@ const ProjectListClient = dynamic(() => import('./ProjectListClient'), {
   loading: () => <LoadingProjects />,
 });
 
-export default function ProjectsClientWrapper({ projects, featuredOnly }: { projects: ProjectRecord[]; featuredOnly?: boolean }) {
-  return <ProjectListClient projects={projects} featuredOnly={featuredOnly} />;
+export default function ProjectsClientWrapper({
+  projects,
+  featuredOnly,
+  validCategories,
+}: {
+  projects: ProjectRecord[];
+  featuredOnly?: boolean;
+  validCategories?: { name: string; label: string }[];
+}) {
+  return <ProjectListClient projects={projects} featuredOnly={featuredOnly} validCategories={validCategories} />;
 }

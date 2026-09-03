@@ -1,5 +1,6 @@
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
+import Category from '@/models/Category';
 import { getLocale, getTranslations } from 'next-intl/server';
 import ProjectsClientWrapper from '@/app/[locale]/projects/ProjectsClientWrapper';
 import type { ProjectRecord } from '@/app/[locale]/projects/ProjectListClient';
@@ -20,10 +21,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function WorkPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ featured?: string }>;
+  searchParams?: Promise<{ all?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const featuredOnly = resolvedSearchParams?.featured === 'true';
+  // Default to showing only featured projects, unless ?all=true is passed
+  const showAll = resolvedSearchParams?.all === 'true';
+  const featuredOnly = !showAll;
 
   const locale = await getLocale();
   let serializedProjects: ProjectRecord[] = [];
@@ -54,9 +57,21 @@ export default async function WorkPage({
     console.error('Failed to load projects for WorkPage:', error);
   }
 
+  // Fetch valid category names from the Category collection — localised for current page locale
+  let validCategories: { name: string; label: string }[] = [];
+  try {
+    const cats = await Category.find({}).select('name nameEn nameAr').sort({ name: 1 }).lean() as { name: string; nameEn?: string; nameAr?: string }[];
+    validCategories = cats.map((c) => ({
+      name: c.name,                                          // original (for matching)
+      label: locale === 'ar' ? (c.nameAr || c.name) : (c.nameEn || c.name), // localized (for display)
+    }));
+  } catch {
+    // non-fatal — filter just won't show
+  }
+
   return (
     <main className="min-h-screen bg-transparent">
-      <ProjectsClientWrapper projects={serializedProjects} featuredOnly={featuredOnly} />
+      <ProjectsClientWrapper projects={serializedProjects} featuredOnly={featuredOnly} validCategories={validCategories} />
     </main>
   );
 }

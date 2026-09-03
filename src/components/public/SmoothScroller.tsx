@@ -78,16 +78,28 @@ function ContentSizeSync() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = 0;
-        lenis.resize();
         ScrollTrigger.refresh();
+        lenis.resize();
       });
     };
 
     const ro = new ResizeObserver(scheduleResize);
     ro.observe(document.body);
 
+    // Force a final sync when all page resources (images, fonts) finish loading.
+    const onWindowLoad = () => {
+      ScrollTrigger.refresh();
+      lenis.resize();
+    };
+    if (document.readyState === 'complete') {
+      onWindowLoad();
+    } else {
+      window.addEventListener('load', onWindowLoad);
+    }
+
     return () => {
       ro.disconnect();
+      window.removeEventListener('load', onWindowLoad);
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
