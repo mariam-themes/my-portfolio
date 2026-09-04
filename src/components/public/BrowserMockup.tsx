@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 export default function BrowserMockup({ url, imageUrl, onInteraction }: { url?: string; imageUrl: string; onInteraction?: () => void }) {
   return (
     <section
@@ -35,12 +36,15 @@ export default function BrowserMockup({ url, imageUrl, onInteraction }: { url?: 
         aria-describedby="browser-preview-instructions"
         data-lenis-prevent
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={imageUrl}
           alt="Full Page Mockup"
-          loading="lazy"
+          width={1920}
+          height={10800}
+          quality={100}
+          unoptimized
           className="block h-auto w-full"
+          style={{ width: '100%', height: 'auto' }}
         />
       </div>
     </section>

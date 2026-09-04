@@ -56,7 +56,7 @@ export default async function WorkCaseStudyPage({ params }: PageProps) {
 
   const rawNextProject = await Project.findOne({ slug: { $ne: slug } })
     .sort({ year: -1, createdAt: -1 })
-    .select('title slug sector heroMediaUrl year')
+    .select('title slug sector heroMediaUrl year sourceLang translations description')
     .lean() as unknown as LocalizedProject | null;
 
   return (
