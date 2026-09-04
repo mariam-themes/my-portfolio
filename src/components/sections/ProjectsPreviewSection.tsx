@@ -213,7 +213,7 @@ export default function ProjectsPreviewSection() {
       {totalCount > 4 && (
         <div className="relative z-10 flex justify-center pb-12 md:pb-16 pt-4">
           <Link
-            href={{ pathname: '/work', query: { all: 'true' } }}
+            href="/work?all=true"
             className="group inline-flex items-center gap-3 rounded-full bg-[#951C30] px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:bg-[#b8223b] hover:shadow-rose-800/40 hover:-translate-y-0.5"
           >
             {t('seeAll')}

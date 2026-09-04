@@ -88,7 +88,7 @@ export function Hero({ project, reducedMotion }: { project: Project; reducedMoti
         {/* Title */}
         <h1
           data-hero-title
-          className="text-5xl sm:text-7xl md:text-[7.5rem] lg:text-[8.5rem] font-serif tracking-[-0.03em] will-change-[opacity,transform] leading-[0.88] mb-8"
+          className="text-4xl sm:text-5xl md:text-[4rem] lg:text-[5rem] xl:text-[5.5rem] font-serif tracking-[-0.03em] will-change-[opacity,transform] leading-[0.9] mb-8"
           style={{
             color: '#951C30',
             filter: 'drop-shadow(0 0 40px rgba(149,28,48,0.25))',

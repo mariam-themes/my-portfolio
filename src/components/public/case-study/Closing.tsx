@@ -43,34 +43,49 @@ export function ClosingSection({
   }, [reducedMotion, images, singleUrl]);
 
   if (images && images.length > 0) {
-    const [first, ...rest] = images;
+    const isTwo = images.length === 2;
+    const isOne = images.length === 1;
+    
     return (
-      <div ref={ref} className="space-y-4">
-        <div
-          data-closing-item
-          className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#1c060f] aspect-[21/9]"
-        >
-          <Media item={{ url: first, type: 'desktop' }} alt={`${title} — closing hero`} />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-          <div className="pointer-events-none absolute inset-0 rounded-2xl ring-inset ring-0 transition-all duration-500 group-hover:ring-1 group-hover:ring-[#951C30]/35" />
-        </div>
+      <div 
+        ref={ref} 
+        className={
+          isOne 
+            ? 'block' 
+            : isTwo 
+              ? 'grid grid-cols-1 md:grid-cols-2 gap-4' 
+              : 'grid grid-cols-1 md:grid-cols-3 gap-4 md:auto-rows-[300px] grid-flow-dense'
+        }
+      >
+        {images.map((url, i) => {
+          let spanClass = '';
+          if (isOne) {
+            spanClass = 'aspect-[21/9] w-full';
+          } else if (isTwo) {
+            spanClass = 'aspect-[16/10] w-full';
+          } else {
+            const cycle = i % 6;
+            if (cycle === 0) spanClass = 'md:col-span-2 md:row-span-2';
+            else if (cycle === 1) spanClass = 'md:col-span-1 md:row-span-1';
+            else if (cycle === 2) spanClass = 'md:col-span-1 md:row-span-1';
+            else if (cycle === 3) spanClass = 'md:col-span-1 md:row-span-2';
+            else if (cycle === 4) spanClass = 'md:col-span-2 md:row-span-1';
+            else if (cycle === 5) spanClass = 'md:col-span-3 md:row-span-1 aspect-[21/9]';
+          }
 
-        {rest.length > 0 && (
-          <div className={`grid gap-4 ${rest.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
-            {rest.map((url, i) => (
-              <div
-                key={i}
-                data-closing-item
-                data-parallax
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#1c060f] aspect-[16/10]"
-              >
-                <Media item={{ url, type: 'desktop' }} alt={`${title} — closing ${i + 2}`} />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                <div className="pointer-events-none absolute inset-0 rounded-2xl ring-inset ring-0 transition-all duration-500 group-hover:ring-1 group-hover:ring-[#951C30]/35" />
-              </div>
-            ))}
-          </div>
-        )}
+          return (
+            <div
+              key={i}
+              data-closing-item
+              data-parallax={!isOne}
+              className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-[#1c060f] ${spanClass} ${!isOne && !isTwo ? 'h-full w-full' : ''}`}
+            >
+              <Media item={{ url, type: 'desktop' }} alt={`${title} — closing ${i + 1}`} />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="pointer-events-none absolute inset-0 rounded-2xl ring-inset ring-0 transition-all duration-500 group-hover:ring-1 group-hover:ring-[#951C30]/35" />
+            </div>
+          );
+        })}
       </div>
     );
   }

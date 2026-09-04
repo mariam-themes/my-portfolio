@@ -18,10 +18,10 @@ export default function ImageUpload({
   value, 
   onChange, 
   folder = 'projects',
-  accept = "image/*,video/*"
+  accept = "image/*,video/mp4,video/webm,video/quicktime,.mp4,.mov,.webm"
 }: ImageUploadProps) {
   const t = useTranslations('Admin.upload');
-  const { uploadFile, state, progress, isCompressing, error, reset } = useCloudinaryUpload();
+  const { uploadFile, state, progress, isCompressing, error, reset, lastMediaType } = useCloudinaryUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -71,14 +71,25 @@ export default function ImageUpload({
       
       {value ? (
         <div className="relative rounded-xl overflow-hidden border border-rose-900/50 bg-[#1A050C] group">
-          {/* Determine if it's a video based on extension */}
-          {value.match(/\.(mp4|webm|mov)$/i) ? (
+          {/* Determine media type from upload state or fallback to extension */}
+          {(lastMediaType === 'video' || (!lastMediaType && value.match(/\.(mp4|webm|mov)$/i))) ? (
+            // Video
             <div className="w-full h-48 flex items-center justify-center bg-rose-950/20 text-rose-300">
               <span className="bg-rose-900/40 px-4 py-2 rounded-full border border-rose-500/30">
                 {t('videoReady')}
               </span>
             </div>
+          ) : (lastMediaType === 'gif' || (!lastMediaType && value.match(/\.gif$/i))) ? (
+            // GIF — show the actual animated image + a badge
+            <div className="relative w-full h-48">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={value} alt="Uploaded GIF" className="w-full h-full object-cover" />
+              <span className="absolute top-2 left-2 bg-rose-700/90 text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-rose-400/30">
+                GIF
+              </span>
+            </div>
           ) : (
+            // Static image
             <div className="relative w-full h-48">
               <Image src={value} alt="Uploaded media" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" unoptimized />
             </div>

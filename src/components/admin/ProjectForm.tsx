@@ -149,6 +149,52 @@ const GALLERY_TYPES = [
   { value: 'gif', icon: ImageIcon },
 ] as const;
 
+// ─── Chip Input (reusable) ────────────────────────────────────────────────
+const ChipInput = ({ value = [], onChange, label, placeholder, error }: { value: string[]; onChange: (val: string[]) => void; label: React.ReactNode; placeholder: string; error?: string }) => {
+  const [inputValue, setInputValue] = useState('');
+  const handleAdd = () => {
+    const val = inputValue.trim();
+    if (val) {
+      if (!value.includes(val)) {
+        onChange([...value, val]);
+        setInputValue('');
+      } else {
+        toast.error(`"${val}" is already added`, {
+          style: { background: '#4c0519', color: '#fda4af', border: '1px solid #9f1239' }
+        });
+      }
+    }
+  };
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-rose-200">{label}</label>
+      <div className="flex gap-2">
+        <input
+          type="text" value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAdd(); } }}
+          placeholder={placeholder}
+          className="flex-1 bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-rose-500 transition-colors"
+        />
+        <button type="button" onClick={handleAdd} className="bg-rose-900/50 hover:bg-rose-800 text-rose-200 px-4 py-2 rounded-lg transition-colors">
+          <Plus className="w-5 h-5" />
+        </button>
+      </div>
+      {error && <p className="text-red-400 text-xs">{error}</p>}
+      <div className="flex flex-wrap gap-2 mt-1">
+        {value.map((item: string) => (
+          <span key={item} className="flex items-center gap-1 bg-rose-900/30 text-rose-300 px-3 py-1 rounded-full text-sm border border-rose-800/50">
+            {item}
+            <button type="button" onClick={() => onChange(value.filter((i) => i !== item))} className="hover:text-red-400 transition-colors">
+              <X className="w-3 h-3" />
+            </button>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function ProjectForm({ initialData }: ProjectFormProps) {
   const router = useRouter();
   const t = useTranslations('Admin.projectForm');
@@ -356,48 +402,6 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
     }
   };
 
-  // ─── Chip Input (reusable) ────────────────────────────────────────────────
-  const ChipInput = ({ fieldName, label, placeholder }: { fieldName: any; label: React.ReactNode; placeholder: string }) => {
-    const [inputValue, setInputValue] = useState('');
-    const items: string[] = form.watch(fieldName) || [];
-    const handleAdd = () => {
-      if (inputValue.trim() && !items.includes(inputValue.trim())) {
-        form.setValue(fieldName, [...items, inputValue.trim()], { shouldValidate: true });
-        setInputValue('');
-      }
-    };
-    const errorPath = fieldName.split('.');
-    const error = errorPath.reduce((obj: any, key: any) => obj?.[key], form.formState.errors);
-    return (
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-rose-200">{label}</label>
-        <div className="flex gap-2">
-          <input
-            type="text" value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAdd(); } }}
-            placeholder={placeholder}
-            className="flex-1 bg-rose-950/20 border border-rose-900/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-rose-500 transition-colors"
-          />
-          <button type="button" onClick={handleAdd} className="bg-rose-900/50 hover:bg-rose-800 text-rose-200 px-4 py-2 rounded-lg transition-colors">
-            <Plus className="w-5 h-5" />
-          </button>
-        </div>
-        {error && <p className="text-red-400 text-xs">{error.message}</p>}
-        <div className="flex flex-wrap gap-2 mt-1">
-          {items.map((item: string) => (
-            <span key={item} className="flex items-center gap-1 bg-rose-900/30 text-rose-300 px-3 py-1 rounded-full text-sm border border-rose-800/50">
-              {item}
-              <button type="button" onClick={() => form.setValue(fieldName, items.filter((i) => i !== item), { shouldValidate: true })} className="hover:text-red-400 transition-colors">
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   // ─── Section Header ───────────────────────────────────────────────────────
   const SectionHeader = ({ title, subtitle }: { title: string; subtitle?: string }) => (
     <div className="flex items-center gap-3 mb-4">
@@ -483,10 +487,22 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           </div>
 
           {/* Services */}
-          <ChipInput fieldName="services" label={<>{t('services')} <span className="text-rose-500">*</span></>} placeholder={t('servicesPh')} />
+          <Controller
+            name="services"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <ChipInput value={field.value || []} onChange={field.onChange} label={<>{t('services')} <span className="text-rose-500">*</span></>} placeholder={t('servicesPh')} error={fieldState.error?.message} />
+            )}
+          />
 
           {/* Tools */}
-          <ChipInput fieldName="tools" label={<>{t('tools')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></>} placeholder={t('toolsPh')} />
+          <Controller
+            name="tools"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <ChipInput value={field.value || []} onChange={field.onChange} label={<>{t('tools')} <span className="text-rose-500/50 text-[10px] mx-1">{t('liveUrlOptional')}</span></>} placeholder={t('toolsPh')} error={fieldState.error?.message} />
+            )}
+          />
         </div>
 
         {/* Year & Live URL (not bilingual) */}
@@ -513,7 +529,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-rose-950/10 rounded-xl border border-rose-900/20">
           <div className="space-y-2">
             <Controller name="heroMediaUrl" control={form.control}
-              render={({ field }) => <ImageUpload label={<>{t('heroCover')} <span className="text-rose-500">*</span></>} value={field.value} onChange={field.onChange} folder="projects" />} />
+              render={({ field }) => <ImageUpload label={<>{t('heroCover')} <span className="text-rose-500">*</span></>} value={field.value} onChange={field.onChange} folder="projects" accept="image/*" />} />
             {form.formState.errors.heroMediaUrl && <p className="text-red-400 text-xs">{form.formState.errors.heroMediaUrl.message}</p>}
           </div>
           <div className="space-y-2">
@@ -630,10 +646,18 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       <div className="space-y-4">
         <SectionHeader title={t('visualDirection')} subtitle={t('visualDirectionSub')} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ChipInput fieldName="visualDirection.colors" label={t('vdColors')} placeholder={t('vdColorsPh')} />
-          <ChipInput fieldName="visualDirection.fonts" label={t('vdFonts')} placeholder={t('vdFontsPh')} />
-          <ChipInput fieldName="visualDirection.identity" label={t('vdIdentity')} placeholder={t('vdIdentityPh')} />
-          <ChipInput fieldName="visualDirection.imageStyle" label={t('vdImageStyle')} placeholder={t('vdImageStylePh')} />
+          <Controller name="visualDirection.colors" control={form.control} render={({ field, fieldState }) => (
+            <ChipInput value={field.value || []} onChange={field.onChange} label={t('vdColors')} placeholder={t('vdColorsPh')} error={fieldState.error?.message} />
+          )} />
+          <Controller name="visualDirection.fonts" control={form.control} render={({ field, fieldState }) => (
+            <ChipInput value={field.value || []} onChange={field.onChange} label={t('vdFonts')} placeholder={t('vdFontsPh')} error={fieldState.error?.message} />
+          )} />
+          <Controller name="visualDirection.identity" control={form.control} render={({ field, fieldState }) => (
+            <ChipInput value={field.value || []} onChange={field.onChange} label={t('vdIdentity')} placeholder={t('vdIdentityPh')} error={fieldState.error?.message} />
+          )} />
+          <Controller name="visualDirection.imageStyle" control={form.control} render={({ field, fieldState }) => (
+            <ChipInput value={field.value || []} onChange={field.onChange} label={t('vdImageStyle')} placeholder={t('vdImageStylePh')} error={fieldState.error?.message} />
+          )} />
         </div>
       </div>
 

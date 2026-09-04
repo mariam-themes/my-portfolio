@@ -84,6 +84,7 @@ export default function FeaturedProjectCard({
 
           <Link
             href={`/work/${project.slug as string}`}
+            onClick={() => { try { sessionStorage.setItem('caseStudyRef', '/'); } catch {} }}
             className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-white/70 transition-colors hover:text-white"
           >
             <span className="h-px w-6 bg-[#951C30] transition-all duration-300 group-hover:w-10" />
@@ -153,6 +154,7 @@ export default function FeaturedProjectCard({
 
         <Link
           href={`/work/${project.slug as string}`}
+          onClick={() => { try { sessionStorage.setItem('caseStudyRef', '/'); } catch {} }}
           className="mt-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-white/60 transition-colors hover:text-white"
         >
           <span className="h-px w-6 bg-[#951C30] transition-all duration-300 group-hover:w-10" />

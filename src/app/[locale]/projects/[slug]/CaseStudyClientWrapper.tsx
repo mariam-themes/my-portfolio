@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import type { ComponentProps } from 'react';
+import { useEffect } from 'react';
 
 const CaseStudyPresentation = dynamic(() => import('@/components/public/CaseStudyPresentation'), {
   ssr: false,
@@ -17,6 +18,23 @@ const CaseStudyPresentation = dynamic(() => import('@/components/public/CaseStud
 
 type CaseStudyPresentationProps = ComponentProps<typeof CaseStudyPresentation>;
 
+function ScrollToTop() {
+  useEffect(() => {
+    // Force scroll to top after the dynamic component fully mounts.
+    // This fixes the issue where the page loads scrolled to the footer.
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  return null;
+}
+
 export default function CaseStudyClientWrapper({ project, nextProject }: CaseStudyPresentationProps) {
-  return <CaseStudyPresentation project={project} nextProject={nextProject} />;
+  return (
+    <>
+      <ScrollToTop />
+      <CaseStudyPresentation project={project} nextProject={nextProject} />
+    </>
+  );
 }

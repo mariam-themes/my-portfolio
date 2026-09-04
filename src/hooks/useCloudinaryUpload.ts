@@ -14,11 +14,13 @@ export const useCloudinaryUpload = () => {
   const [state, setState] = useState<UploadState>('idle');
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
+  const [lastMediaType, setLastMediaType] = useState<'gif' | 'video' | 'image' | null>(null);
 
   const reset = useCallback(() => {
     setState('idle');
     setProgress(0);
     setError(null);
+    setLastMediaType(null);
   }, []);
 
   const uploadFile = async (
@@ -54,7 +56,7 @@ export const useCloudinaryUpload = () => {
       formData.append('resource_type', resourceType);
 
       // Upload with progress tracking via XMLHttpRequest
-      const uploadPromise = new Promise<{ success: boolean; data?: { secure_url: string }; error?: string }>(
+      const uploadPromise = new Promise<{ success: boolean; data?: { secure_url: string; mediaType?: 'gif' | 'video' | 'image' }; error?: string }>(
         (resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open('POST', '/api/upload', true);
@@ -109,11 +111,13 @@ export const useCloudinaryUpload = () => {
 
       setProgress(100);
       setState('success');
+      setLastMediaType(result.data.mediaType || null);
       return result.data.secure_url;
     } catch (err: any) {
       console.error('Upload Error:', err);
       setError(err.message || 'An unexpected error occurred during upload.');
       setState('error');
+      setLastMediaType(null);
       return null;
     }
   };
@@ -125,5 +129,6 @@ export const useCloudinaryUpload = () => {
     isCompressing: state === 'compressing',
     error,
     reset,
+    lastMediaType,
   };
 };

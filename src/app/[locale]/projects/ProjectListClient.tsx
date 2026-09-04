@@ -79,16 +79,19 @@ export default function ProjectListClient({ projects, featuredOnly = false, vali
   );
 
   const filteredProjects = useMemo(() => {
-    if (activeFilter === '') return projects;
+    // First, apply featuredOnly flag if set
+    const base = featuredOnly ? projects.filter((p) => p.isFeatured) : projects;
+
+    if (activeFilter === '') return base;
     const active = validCategories.find((c) => c.name === activeFilter);
-    if (!active) return projects;
+    if (!active) return base;
     const activeLower = active.name.trim().toLowerCase();
     const activeLabelLower = active.label.trim().toLowerCase();
-    return projects.filter((p) => {
+    return base.filter((p) => {
       const cat = (p.category || p.sector || '').trim().toLowerCase();
       return cat === activeLower || cat === activeLabelLower;
     });
-  }, [projects, activeFilter, validCategories]);
+  }, [projects, activeFilter, validCategories, featuredOnly]);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;

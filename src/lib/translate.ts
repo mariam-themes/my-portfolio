@@ -272,7 +272,6 @@ export async function buildProjectTranslations(input: {
   title?: string;
   description?: string;
   sector?: string;
-  platform?: string;
   category?: string;
   services?: string[];
   tools?: string[];
@@ -281,28 +280,82 @@ export async function buildProjectTranslations(input: {
 }): Promise<ProjectTranslationBuild> {
   const probe = (input.description || input.title || '').trim();
   const sourceLang: 'en' | 'ar' = isArabic(probe) ? 'ar' : 'en';
-  const target: 'en' | 'ar' = sourceLang === 'ar' ? 'en' : 'ar';
 
-  const [tTitle, tDesc, tSector, tCategory, tServices, tTools] = await Promise.all([
-    input.title ? translateTargetOf(input.title, target) : Promise.resolve(undefined),
-    input.description ? translateTargetOf(input.description, target) : Promise.resolve(undefined),
-    input.sector ? translateTargetOf(input.sector, target) : Promise.resolve(undefined),
-    input.category ? translateTargetOf(input.category, target) : Promise.resolve(undefined),
-    input.services?.length
-      ? Promise.all(input.services.filter(Boolean).map((s) => translateTargetOf(s, target)))
-      : Promise.resolve(undefined),
-    input.tools?.length
-      ? Promise.all(input.tools.filter(Boolean).map((s) => translateTargetOf(s, target)))
-      : Promise.resolve(undefined),
+  const enSet: ProjectTranslationSet = {};
+  const arSet: ProjectTranslationSet = {};
+
+  type StringField = { [K in keyof ProjectTranslationSet]-?: ProjectTranslationSet[K] extends string | undefined ? K : never }[keyof ProjectTranslationSet];
+  async function handleField(field: StringField, value: string | undefined, skipArTranslation: boolean = false) {
+    if (!value) return;
+    const isAr = isArabic(value);
+
+    // English translation: if source is Arabic, always store the English version
+    if (isAr) {
+      const tEn = await translateTargetOf(value, 'en');
+      enSet[field] = tEn || value; // fallback to original if API fails
+    }
+
+    // Arabic translation: if source is English
+    if (!isAr) {
+      if (skipArTranslation) {
+        // Keep the original English title in the Arabic slot too (user's request)
+        arSet[field] = value;
+      } else {
+        const tAr = await translateTargetOf(value, 'ar');
+        if (tAr && tAr !== value) arSet[field] = tAr;
+      }
+    }
+  }
+
+  async function handleArray(field: 'services' | 'tools', values: string[] | undefined) {
+    if (!values || !values.length) return;
+    const enArr: string[] = [];
+    const arArr: string[] = [];
+    let hasEnChange = false;
+    let hasArChange = false;
+
+    await Promise.all(
+      values.filter(Boolean).map(async (v) => {
+        const isAr = isArabic(v);
+        
+        let tEn = v;
+        if (isAr) {
+          const res = await translateTargetOf(v, 'en');
+          if (res && res !== v) {
+            tEn = res;
+            hasEnChange = true;
+          }
+        }
+        enArr.push(tEn);
+
+        let tAr = v;
+        if (!isAr) {
+          const res = await translateTargetOf(v, 'ar');
+          if (res && res !== v) {
+            tAr = res;
+            hasArChange = true;
+          }
+        }
+        arArr.push(tAr);
+      })
+    );
+
+    if (hasEnChange) enSet[field] = enArr;
+    if (hasArChange) arSet[field] = arArr;
+  }
+
+  await Promise.all([
+    handleField('title', input.title, true),
+    handleField('description', input.description),
+    handleField('sector', input.sector),
+    handleField('category', input.category),
+    handleArray('services', input.services),
+    handleArray('tools', input.tools),
   ]);
 
-  const set: ProjectTranslationSet = {};
-  if (tTitle) set.title = tTitle;
-  if (tDesc) set.description = tDesc;
-  if (tSector) set.sector = tSector;
-  if (tCategory) set.category = tCategory;
-  if (tServices) set.services = tServices.map((t, i) => t ?? input.services![i]) as string[];
-  if (tTools) set.tools = tTools.map((t, i) => t ?? input.tools![i]) as string[];
+  const translations: any = {};
+  if (Object.keys(enSet).length > 0) translations.en = enSet;
+  if (Object.keys(arSet).length > 0) translations.ar = arSet;
 
   const [metaTitle, metaDescription] = await Promise.all([
     completeLocalized(input.metaTitle),
@@ -311,7 +364,7 @@ export async function buildProjectTranslations(input: {
 
   return {
     sourceLang,
-    translations: Object.keys(set).length ? { [target]: set } : undefined,
+    translations: Object.keys(translations).length ? translations : undefined,
     metaTitle,
     metaDescription,
   };

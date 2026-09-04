@@ -273,7 +273,7 @@
       "liveUrlOptional": "(Optional)",
       "coverMedia": "Cover Media",
       "coverMediaSub": "Hero image/video + full-page scrollable mockup",
-      "heroCover": "Hero Cover (Image / Video)",
+      "heroCover": "Hero Cover",
       "fullPageMockup": "Full-Page Scrollable Mockup",
       "fullPageHint": "Used for the live scrollable preview when no live URL is available",
       "gallery": "Project Gallery",

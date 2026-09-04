@@ -42,10 +42,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
 
+    // Infer MIME type if missing or generic
+    let fileType = file.type;
+    if (!fileType || fileType === 'application/octet-stream') {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (ext === 'mp4') fileType = 'video/mp4';
+      else if (ext === 'webm') fileType = 'video/webm';
+      else if (ext === 'mov') fileType = 'video/quicktime';
+      else if (ext === 'avi') fileType = 'video/x-msvideo';
+      else if (ext === 'jpg' || ext === 'jpeg') fileType = 'image/jpeg';
+      else if (ext === 'png') fileType = 'image/png';
+      else if (ext === 'webp') fileType = 'image/webp';
+      else if (ext === 'gif') fileType = 'image/gif';
+      else if (ext === 'svg') fileType = 'image/svg+xml';
+    }
+
     // Validate file type
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    if (!ALLOWED_MIME_TYPES.includes(fileType)) {
       return NextResponse.json(
-        { success: false, error: `File type ${file.type} not allowed. Allowed: images (jpg, png, webp, gif, svg) and videos (mp4, webm, mov, avi).` },
+        { success: false, error: `File type ${fileType || 'unknown'} not allowed. Allowed: images (jpg, png, webp, gif, svg) and videos (mp4, webm, mov, avi).` },
         { status: 400 }
       );
     }
@@ -61,7 +76,7 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const resourceType = resourceTypeParam || getResourceType(file.type);
+    const resourceType = resourceTypeParam || getResourceType(fileType);
 
     const uploadResult: any = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
@@ -85,7 +100,7 @@ export async function POST(request: Request) {
       entityId: uploadResult.public_id,
       details: {
         filename: file.name,
-        mimeType: file.type,
+        mimeType: fileType,
         sizeBytes: file.size,
         folder,
         resourceType,
@@ -94,7 +109,13 @@ export async function POST(request: Request) {
       ip: extractIp(request),
     });
 
-    return NextResponse.json({ success: true, data: uploadResult }, { status: 200 });
+    // Determine human-readable media type for the client
+    const mediaType: 'gif' | 'video' | 'image' =
+      fileType === 'image/gif' ? 'gif'
+      : fileType.startsWith('video/') ? 'video'
+      : 'image';
+
+    return NextResponse.json({ success: true, data: { ...uploadResult, mediaType } }, { status: 200 });
 
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

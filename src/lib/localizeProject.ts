@@ -54,9 +54,6 @@ export function resolveText(
     return obj[locale as 'en' | 'ar'] || obj.en || '';
   }
   if (typeof value === 'string') {
-    // DO NOT translate title, platform, client, etc.
-    if (field === 'title' || field === 'platform') return value;
-
     if (locale === sourceLangOf(project)) return value;
     const translated = project.translations?.[locale as 'en' | 'ar'];
     const hit = translated?.[field];

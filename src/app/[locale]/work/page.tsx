@@ -33,11 +33,9 @@ export default async function WorkPage({
 
   try {
     await connectToDatabase();
-    const query = featuredOnly ? { isFeatured: true } : {};
-
-    // Oldest-first (ascending by year) so the list reads in date order.
-    const projects = await Project.find(query)
-      .sort({ year: 1, createdAt: 1 })
+    // Always show all projects on the /work page, newest-first.
+    const projects = await Project.find({})
+      .sort({ year: -1, createdAt: -1 })
       .select('title slug sector category heroMediaUrl year sourceLang translations isFeatured')
       .lean();
 

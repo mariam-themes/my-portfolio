@@ -2,12 +2,13 @@
 
 import { ReactLenis, useLenis } from 'lenis/react';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
+  window.history.scrollRestoration = 'manual';
 }
 
 // Resets scroll position to the top on every client-side navigation.
@@ -15,13 +16,12 @@ function ScrollReset() {
   const pathname = usePathname();
   const lenis = useLenis();
 
-  useEffect(() => {
-    if (!lenis) {
-      window.scrollTo(0, 0);
-      return;
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+    if (lenis) {
+      // Immediately jump to top on navigation.
+      lenis.scrollTo(0, { immediate: true, force: true });
     }
-    // Immediately jump to top on navigation.
-    lenis.scrollTo(0, { immediate: true, force: true });
   }, [pathname, lenis]);
 
   return null;

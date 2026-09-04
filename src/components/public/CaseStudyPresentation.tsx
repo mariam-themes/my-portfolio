@@ -320,7 +320,7 @@ export default function CaseStudyPresentation({ project, nextProject }: { projec
           onClick={() => backHref ? router.push(backHref as '/') : router.back()}
           className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[.22em] text-white/75 transition hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">{backHref === '/work' ? t('allProjects') : t('backToPortfolio')}</span>
+          <ArrowLeft className="h-4 w-4 rtl:rotate-180" /><span className="hidden sm:inline">{backHref === '/work' ? t('allProjects') : t('backToPortfolio')}</span>
         </button>
         <div className="flex items-center gap-5">
           {project.platform && <span className="hidden text-xs md:text-sm font-black uppercase tracking-[.15em] text-white/80 sm:inline">{project.platform}</span>}

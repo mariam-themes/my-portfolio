@@ -125,9 +125,9 @@ export function TransformSection({ before, title, reducedMotion }: { before: { b
         onClick={handleReplay}
         title={t('clickToReplay')}
       >
-        <Media item={{ url: before.after }} alt={`${title} — ${t('after')}`} />
+        <Media item={{ url: before.before }} alt={`${title} — ${t('before')}`} />
         <div data-transform-wipe className="absolute inset-0">
-          <Media item={{ url: before.before }} alt={`${title} — ${t('before')}`} />
+          <Media item={{ url: before.after }} alt={`${title} — ${t('after')}`} />
         </div>
         <div className="pointer-events-none absolute inset-y-0 left-1/2 z-10 hidden w-px -translate-x-1/2 bg-white/30 lg:block" />
 
