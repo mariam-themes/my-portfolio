@@ -16,13 +16,19 @@ const ALLOWED_MIME_TYPES = [
   'video/webm',
   'video/quicktime',
   'video/x-msvideo', // .avi
+  // Audio
+  'audio/mpeg', // .mp3
+  'audio/ogg',  // .ogg
+  'audio/wav',  // .wav
+  'audio/webm', // .weba
+  'audio/mp4', // .m4a
 ];
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
 function getResourceType(mimeType: string): 'image' | 'video' | 'raw' {
   if (mimeType.startsWith('image/')) return 'image';
-  if (mimeType.startsWith('video/')) return 'video';
+  if (mimeType.startsWith('video/') || mimeType.startsWith('audio/')) return 'video';
   return 'raw';
 }
 
@@ -55,12 +61,16 @@ export async function POST(request: Request) {
       else if (ext === 'webp') fileType = 'image/webp';
       else if (ext === 'gif') fileType = 'image/gif';
       else if (ext === 'svg') fileType = 'image/svg+xml';
+      else if (ext === 'mp3') fileType = 'audio/mpeg';
+      else if (ext === 'ogg') fileType = 'audio/ogg';
+      else if (ext === 'wav') fileType = 'audio/wav';
+      else if (ext === 'm4a') fileType = 'audio/mp4';
     }
 
     // Validate file type
     if (!ALLOWED_MIME_TYPES.includes(fileType)) {
       return NextResponse.json(
-        { success: false, error: `File type ${fileType || 'unknown'} not allowed. Allowed: images (jpg, png, webp, gif, svg) and videos (mp4, webm, mov, avi).` },
+        { success: false, error: `File type ${fileType || 'unknown'} not allowed. Allowed: images (jpg, png, webp, gif, svg), videos (mp4, webm, mov, avi), and audio (mp3, ogg, wav, m4a).` },
         { status: 400 }
       );
     }
@@ -110,9 +120,10 @@ export async function POST(request: Request) {
     });
 
     // Determine human-readable media type for the client
-    const mediaType: 'gif' | 'video' | 'image' =
+    const mediaType: 'gif' | 'video' | 'audio' | 'image' =
       fileType === 'image/gif' ? 'gif'
       : fileType.startsWith('video/') ? 'video'
+      : fileType.startsWith('audio/') ? 'audio'
       : 'image';
 
     return NextResponse.json({ success: true, data: { ...uploadResult, mediaType } }, { status: 200 });

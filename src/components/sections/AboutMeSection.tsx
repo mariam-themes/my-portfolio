@@ -33,7 +33,7 @@ export default function AboutMeSection() {
   const t = useTranslations('AboutMe');
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const [data, setData] = useState<IAboutMe | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -113,27 +113,27 @@ export default function AboutMeSection() {
     <section ref={sectionRef} className="py-16 md:py-24 lg:py-32 bg-transparent relative z-10 overflow-hidden">
       <div className="container mx-auto px-6 md:px-12 lg:px-20" ref={containerRef}>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
-          
+
           {/* Left Column: Photo & Details */}
           <div className="lg:col-span-5 space-y-10">
-{data.photo && (
-               <div className="relative group mx-auto w-full max-w-md lg:mx-0 lg:max-w-none rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border border-white/5 bg-rose-950/20">
-                <Image 
-                  src={data.photo} 
+            {data.photo && (
+              <div className="relative group mx-auto w-full max-w-md lg:mx-0 lg:max-w-none rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border border-white/5 bg-rose-950/20">
+                <Image
+                  src={data.photo}
                   alt="Portrait"
-                  fill 
+                  fill
                   className="object-cover transition-transform duration-1000 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
               </div>
-             )}
-            
+            )}
+
             {data.cvLink && (
               <div className="flex justify-start">
-                <a 
-                  href={data.cvLink} 
-                  target="_blank" 
+                <a
+                  href={data.cvLink}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-3 bg-gradient-to-r from-[#951C30] to-[#ad2240] hover:from-[#ad2240] hover:to-[#c6284a] text-white px-8 py-4 rounded-full font-semibold tracking-wide transition-all shadow-lg hover:shadow-[#951C30]/50 transform hover:-translate-y-1"
                 >
@@ -144,16 +144,16 @@ export default function AboutMeSection() {
             )}
           </div>
 
-           {/* Right Column: Bio, Skills & Experience */}
-           <div className="lg:col-span-7 lg:ps-10 space-y-10 lg:space-y-16">
-            
+          {/* Right Column: Bio, Skills & Experience */}
+          <div className="lg:col-span-7 lg:ps-10 space-y-10 lg:space-y-16">
+
             {/* Bio Section */}
             <div className="space-y-6">
               <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-[#951C30] mb-4">
                 <span className="w-12 h-[1px] bg-[#951C30]/50"></span>
                 {t('kicker')}
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-white">
                 {t('heading')}{' '}
                 <span className="italic text-[#951C30]">{t('headingAccent')}</span>
                 {t('headingSuffix') ? ` ${t('headingSuffix')}` : ''}
@@ -172,7 +172,7 @@ export default function AboutMeSection() {
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   {data.skills.map((skill, idx) => (
-                    <span 
+                    <span
                       key={idx}
                       className="px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-rose-200/90 text-sm font-medium tracking-wide hover:bg-white/10 hover:border-rose-400/50 transition-colors"
                     >
@@ -193,16 +193,16 @@ export default function AboutMeSection() {
                   {data.experience.map((exp, idx) => (
                     <div key={idx} className="relative exp-item group">
                       <span className="absolute -start-[31px] top-1.5 w-3 h-3 rounded-full bg-black border-2 border-[#951C30] group-hover:bg-[#951C30] transition-colors shadow-[0_0_10px_rgba(149,28,48,0)] group-hover:shadow-[0_0_10px_rgba(149,28,48,0.8)]" />
-                      
+
                       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
                         <h4 className="text-xl font-bold text-white group-hover:text-rose-200 transition-colors">{exp.role}</h4>
                         <span className="text-sm font-medium text-[#951C30]/80 mt-1 sm:mt-0 tracking-wider uppercase">
                           {exp.duration}
                         </span>
                       </div>
-                      
+
                       <div className="text-lg text-white/90 font-medium mb-3">{exp.company}</div>
-                      
+
                       {exp.description && (
                         <p className="text-white/60 font-light leading-relaxed text-sm md:text-base">
                           {exp.description}

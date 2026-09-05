@@ -12,6 +12,7 @@ interface DeleteItemButtonProps {
   successText: string;
   failedText: string;
   deleteText: string;
+  onSuccess?: () => void;
 }
 
 export default function DeleteItemButton({
@@ -21,6 +22,7 @@ export default function DeleteItemButton({
   successText,
   failedText,
   deleteText,
+  onSuccess,
 }: DeleteItemButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -42,7 +44,11 @@ export default function DeleteItemButton({
       }
 
       toast.success(successText);
-      router.refresh();
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.refresh();
+      }
     } catch (error: any) {
       toast.error(error.message);
     } finally {

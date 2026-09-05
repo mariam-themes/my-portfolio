@@ -59,7 +59,7 @@ export default function TestimonialsSection() {
       />
 
       <div className="container mx-auto px-6 md:px-12 lg:px-20 relative">
-        
+
         <div className="w-full mb-10 md:mb-16 lg:mb-20 text-start">
           <div className="flex items-center gap-4 text-xs tracking-[0.2em] uppercase text-accent mb-4">
             <span className="w-12 h-[1px] bg-accent/50"></span>
@@ -98,7 +98,7 @@ export default function TestimonialsSection() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {primary && (
                 <div
-                  key={String(primary._id ?? primary.clientName ?? 'primary')}
+                  key={primary._id}
                   className={`tcard-reveal ${rest.length === 0 ? 'lg:col-span-3' : 'lg:col-span-2'}`}
                 >
                   <TestimonialCard
@@ -113,8 +113,8 @@ export default function TestimonialsSection() {
                   />
                 </div>
               )}
-              {rest.map((t, i) => (
-                <div key={String(t._id ?? t.clientName ?? `test-${i}`)} className="tcard-reveal">
+              {rest.map((t) => (
+                <div key={t._id} className="tcard-reveal">
                   <TestimonialCard
                     clientName={t.clientName}
                     role={t.role}

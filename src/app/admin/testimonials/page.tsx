@@ -213,6 +213,7 @@ export default function AdminTestimonialsPage() {
                     successText="Testimonial deleted successfully"
                     failedText="Failed to delete testimonial"
                     deleteText="Delete"
+                    onSuccess={() => setTestimonials((prev) => prev.filter((t) => t._id !== testimonial._id))}
                   />
                 </div>
               </div>

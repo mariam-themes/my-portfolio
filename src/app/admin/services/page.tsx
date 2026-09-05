@@ -201,6 +201,7 @@ export default function ServicesPage() {
                       successText="Service deleted successfully"
                       failedText="Failed to delete service"
                       deleteText="Delete"
+                      onSuccess={() => setServices((prev) => prev.filter((s) => s._id !== service._id))}
                     />
                   </div>
                 </div>

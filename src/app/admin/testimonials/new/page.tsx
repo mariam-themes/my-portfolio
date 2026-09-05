@@ -182,7 +182,6 @@ export default function NewTestimonialPage() {
             className={fileClass}
           />
           {formData.audioUrl && <p className="text-sm text-emerald-400">{t('audioUploaded')}</p>}
-          <p className="text-xs text-rose-500/60">{t('audioHint')}</p>
         </div>
 
         <div className="flex justify-end pt-4 border-t border-rose-900/30">
