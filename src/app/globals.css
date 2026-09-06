@@ -804,12 +804,6 @@ body.no-pin .project__caption { grid-template-columns: 1fr; }
 body.no-pin .work__progress { display: none; }
 body.no-pin .work__hint { display: none; }
 
-/* Splash gate: when the pre-paint script detects the splash was already seen
-   this session (or noSplash=1), it adds `splash-prehidden` to <html> so the
-   splash is hidden BEFORE first paint — a refresh shows the Portfolio directly. */
-html.splash-prehidden [data-splash] {
-  display: none !important;
-}
 
 /* Autofill fix */
 input:-webkit-autofill,
