@@ -238,7 +238,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       after: z.string().min(1, t('errAfter')),
     })).default([]),
     closingImageUrl: z.string().optional().default(''),
-    closingImages: z.array(z.string().min(1)).default([]),
+    closingImages: z.array(z.object({ url: z.string().min(1) })).default([]),
     liveUrl: z.string().url(t('errUrl')).optional().or(z.literal('')),
     isFeatured: z.boolean().default(false),
     metaTitle: z
@@ -284,13 +284,14 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         gallery: [],
         beforeAfter: [],
         closingImageUrl: '',
-        closingImages: [],
         liveUrl: '',
         isFeatured: false,
         metaTitle: { en: '', ar: '' },
         metaDescription: { en: '', ar: '' },
       },
       ...(initialData || {}),
+      // Always convert closingImages to [{url}] objects for useFieldArray (overrides the spread above)
+      closingImages: (initialData?.closingImages ?? []).map((u: string) => ({ url: u })),
       visualDirection: { ...EMPTY_VD, ...(saved?.visualDirection || {}) },
       sectionOrder: saved?.sectionOrder?.length ? [...saved.sectionOrder] : [...DEFAULT_SECTION_ORDER],
     };
@@ -323,7 +324,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
     move: moveClosingImage,
   } = useFieldArray({
     control: form.control,
-    name: 'closingImages' as never,
+    name: 'closingImages',
   });
 
   // ─── Section order handlers ─────────────────────────────────────────────────
@@ -350,7 +351,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   const sectionDnD = useDndReorder(moveSectionByIndex);
 
   // ─── Submit ───────────────────────────────────────────────────────────────
-  const onSubmit = async (data: ProjectFormValues) => {
+  const onSubmit = async (data: z.output<typeof localizedSchema>) => {
     setIsLoading(true);
     try {
       const cleanLocalized = (value?: { en?: string; ar?: string }) => {
@@ -359,13 +360,15 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         if (value?.ar?.trim()) result.ar = value.ar.trim();
         return Object.keys(result).length > 0 ? result : undefined;
       };
-      type ProjectSubmitValues = Omit<ProjectFormValues, 'metaTitle' | 'metaDescription' | 'visualDirection' | 'sectionOrder'> & {
+      type ProjectSubmitValues = Omit<ProjectFormValues, 'metaTitle' | 'metaDescription' | 'visualDirection' | 'sectionOrder' | 'closingImages'> & {
         metaTitle?: { en?: string; ar?: string };
         metaDescription?: { en?: string; ar?: string };
         visualDirection?: { colors?: string[]; fonts?: string[]; identity?: string[]; imageStyle?: string[] };
         sectionOrder?: string[];
+        closingImages?: string[];
       };
-      const payload = { ...data, sectionOrder: form.getValues('sectionOrder') } as ProjectSubmitValues;
+      const closingImagesRaw = ((data as any).closingImages ?? []) as Array<{ url: string }>;
+      const payload = { ...data, sectionOrder: form.getValues('sectionOrder'), closingImages: closingImagesRaw.map((item) => item.url) } as ProjectSubmitValues;
       const metaTitle = cleanLocalized(data.metaTitle);
       const metaDescription = cleanLocalized(data.metaDescription);
       if (metaTitle) payload.metaTitle = metaTitle;
@@ -625,8 +628,8 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
                     <GripVertical className="w-5 h-5" />
                   </div>
                   <div className="flex-grow">
-                    <Controller name={`closingImages.${index}` as never} control={form.control}
-                      render={({ field }) => <ImageUpload label={t('closingImageLabel')} value={field.value as string} onChange={field.onChange} folder="projects" accept="image/*,video/*" />} />
+                    <Controller name={`closingImages.${index}.url`} control={form.control}
+                      render={({ field }) => <ImageUpload label={t('closingImageLabel')} value={field.value || ''} onChange={field.onChange} folder="projects" accept="image/*,video/*" />} />
                   </div>
                 </div>
                 <button type="button" onClick={() => removeClosingImage(index)} className="absolute -top-3 -right-3 p-1.5 bg-red-950/80 border border-red-900/50 rounded-full text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-all shadow-xl">
@@ -635,7 +638,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
               </div>
             ))}
           </div>
-          <button type="button" onClick={() => appendClosingImage('')}
+          <button type="button" onClick={() => appendClosingImage({ url: '' })}
             className="w-full py-4 border-2 border-dashed border-rose-900/50 hover:border-rose-500/50 rounded-xl text-rose-400 hover:text-rose-300 transition-colors flex flex-col items-center gap-2">
             <Plus className="w-6 h-6" /> <span className="font-medium text-sm">Add Closing Media</span>
           </button>

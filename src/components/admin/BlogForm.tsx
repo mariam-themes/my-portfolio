@@ -93,6 +93,12 @@ export default function BlogForm({ mode, blogId }: BlogFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent publishing if the slug contains Arabic characters
+    if (/[\u0600-\u06FF]/.test(formData.slug)) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -181,6 +187,9 @@ export default function BlogForm({ mode, blogId }: BlogFormProps) {
               placeholder={t('slugPh')}
               className={inputClass}
             />
+            {/[\u0600-\u06FF]/.test(formData.slug) && (
+              <p className="text-red-400 text-xs mt-1">الرابط (Slug) يجب أن يكون باللغة الإنجليزية فقط.</p>
+            )}
           </div>
         </div>
 

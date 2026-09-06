@@ -338,7 +338,8 @@
       "errHero": "Hero media is required",
       "errBefore": "Before image required",
       "errAfter": "After image required",
-      "errUrl": "Must be a valid URL"
+      "errUrl": "Must be a valid URL",
+      "formErrors": "Please fix the highlighted errors before publishing."
     },
     "deleteProject": {
       "confirm": "Are you sure you want to delete \"{title}\"? This cannot be undone.",
