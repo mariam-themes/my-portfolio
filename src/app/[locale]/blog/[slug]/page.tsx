@@ -160,12 +160,12 @@ export default async function BlogPostPage({ params }: PageProps) {
       {/* Hero Image */}
       {blog.coverImage && (
         <div className="container mx-auto px-6 lg:px-8 max-w-5xl -mt-8 md:-mt-12 relative z-20">
-          <div className="w-full aspect-[21/9] md:aspect-[2.5/1] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+        <div className="w-full rounded-2xl overflow-hidden shadow-2xl border border-white/10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={blog.coverImage}
               alt={blog.title}
-              className="w-full h-full object-cover"
+              className="w-full h-auto block"
             />
           </div>
         </div>
