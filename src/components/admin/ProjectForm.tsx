@@ -418,7 +418,14 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
   );
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit, (errors) => { toast.error(t('formErrors') || 'Please fix the errors in the form before publishing.'); console.error(errors); })} className="space-y-10 bg-black/40 p-6 md:p-8 rounded-2xl border border-rose-900/30 backdrop-blur-xl">
+    <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+      toast.error(t('formErrors') || 'Please fix the errors in the form before publishing.');
+      // Log validation errors in a readable format (avoids {} in Turbopack overlay)
+      const readable = Object.entries(errors).map(([field, err]: [string, any]) =>
+        `${field}: ${err?.message || err?.root?.message || JSON.stringify(err)}`
+      ).join(' | ');
+      console.warn('[Form validation failed]', readable || JSON.stringify(errors));
+    })} className="space-y-10 bg-black/40 p-6 md:p-8 rounded-2xl border border-rose-900/30 backdrop-blur-xl">
 
 
       {/* ══ SECTION 1: Basic Info ══ */}
@@ -756,6 +763,39 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           {t('featured')}
         </label>
       </div>
+
+      {/* ══ Validation Error Summary ══ */}
+      {Object.keys(form.formState.errors).length > 0 && (
+        <div className="rounded-xl border border-red-500/40 bg-red-950/30 p-4 space-y-2">
+          <p className="text-sm font-bold text-red-400 flex items-center gap-2">
+            ⚠️ {Object.keys(form.formState.errors).length} حقل يحتاج تصحيح:
+          </p>
+          <ul className="space-y-1">
+            {(Object.entries(form.formState.errors) as [string, any][]).map(([field, err]) => {
+              const labels: Record<string, string> = {
+                title: 'العنوان (Title)',
+                description: 'الوصف (Description)',
+                heroMediaUrl: 'صورة/فيديو الـ Hero',
+                services: 'الخدمات (Services)',
+                year: 'السنة (Year)',
+                liveUrl: 'رابط الموقع (Live URL)',
+                gallery: 'الغاليري',
+                beforeAfter: 'Before/After',
+                closingImages: 'Closing Images',
+              };
+              const msg = err?.message || err?.root?.message
+                || (Array.isArray(err) ? err.map((e: any) => e?.url?.message || e?.message).filter(Boolean).join(', ') : null)
+                || 'قيمة غير صحيحة';
+              return (
+                <li key={field} className="text-xs text-red-300 flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  <span><span className="font-semibold">{labels[field] || field}:</span> {msg}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       {/* ══ Submit ══ */}
       <div className="flex justify-end pt-6 border-t border-rose-900/30">

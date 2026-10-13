@@ -7,9 +7,11 @@ const handleI18nRouting = createMiddleware(routing);
 
 // Admin-only API paths. Public read/write endpoints (e.g. /api/inquiries for
 // the contact form, /api/projects for the public site) stay open.
+// Note: /api/upload is intentionally excluded here — the route handler
+// performs its own getToken() check. Including it here would cause the
+// middleware to read/consume the multipart body before the handler can.
 const ADMIN_API_PATHS = [
   '/api/admin',
-  '/api/upload',
 ];
 
 // Fully public API paths — always pass through with no auth check.
@@ -110,7 +112,6 @@ export const config = {
   matcher: [
     '/((?!api|login|_next|_vercel|.*\\..*).*)',
     '/api/admin/:path*',
-    '/api/upload',
     '/api/blogs/:path*',
     '/api/testimonials/:path*',
     '/api/section-layout/:path*',

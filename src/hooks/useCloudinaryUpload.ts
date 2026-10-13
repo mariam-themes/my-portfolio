@@ -112,6 +112,12 @@ export const useCloudinaryUpload = () => {
       setProgress(100);
       setState('success');
       setLastMediaType(result.data.mediaType || null);
+
+      // Notify the Cloudinary usage widget to refresh
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('cloudinary-upload-success'));
+      }
+
       return result.data.secure_url;
     } catch (err: any) {
       console.error('Upload Error:', err);

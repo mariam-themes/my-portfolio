@@ -4,6 +4,7 @@ import cloudinary from '@/lib/cloudinary';
 import { Readable } from 'stream';
 import { logActivity, extractIp } from '@/lib/activity-log';
 
+
 const ALLOWED_MIME_TYPES = [
   // Images
   'image/jpeg',
@@ -24,7 +25,7 @@ const ALLOWED_MIME_TYPES = [
   'audio/mp4', // .m4a
 ];
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 
 function getResourceType(mimeType: string): 'image' | 'video' | 'raw' {
   if (mimeType.startsWith('image/')) return 'image';
@@ -88,6 +89,26 @@ export async function POST(request: Request) {
 
     const resourceType = resourceTypeParam || getResourceType(fileType);
 
+    // ── Sanity-check Cloudinary credentials before attempting upload ──────────
+    const cloudName  = process.env.CLOUDINARY_CLOUD_NAME  || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const apiKey     = process.env.CLOUDINARY_API_KEY     || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+    const apiSecret  = process.env.CLOUDINARY_API_SECRET;
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      const missing = [
+        !cloudName  && 'CLOUDINARY_CLOUD_NAME',
+        !apiKey     && 'CLOUDINARY_API_KEY',
+        !apiSecret  && 'CLOUDINARY_API_SECRET',
+      ].filter(Boolean).join(', ');
+      console.error(`[upload] ❌ Missing Cloudinary env vars: ${missing}`);
+      return NextResponse.json(
+        { success: false, error: `Server misconfiguration: missing env vars (${missing}). Contact the admin.` },
+        { status: 500 }
+      );
+    }
+
+    console.log(`[upload] Uploading "${file.name}" (${(file.size / 1024 / 1024).toFixed(2)} MB) → folder="${folder}" resource_type="${resourceType}"`);
+
     const uploadResult: any = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -102,6 +123,7 @@ export async function POST(request: Request) {
 
       Readable.from(buffer).pipe(uploadStream);
     });
+
 
     await logActivity({
       adminId: token.id || 'unknown',
@@ -129,6 +151,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: { ...uploadResult, mediaType } }, { status: 200 });
 
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    // Log the full error in the terminal so you can diagnose without Cloudinary dashboard
+    console.error('[upload] ❌ Upload failed:', {
+      message:    error?.message,
+      http_code:  error?.http_code,
+      name:       error?.name,
+      error:      error?.error,
+    });
+
+    // Build a human-readable message based on the Cloudinary error code
+    let friendlyMessage = error?.message || 'Upload failed — unknown error';
+    const code = error?.http_code ?? error?.status;
+
+    if (code === 401)                              friendlyMessage = 'Cloudinary credentials are invalid. Check your API Key / Secret in .env';
+    else if (code === 420 || code === 429)         friendlyMessage = 'Cloudinary rate limit reached. Wait a few minutes and try again.';
+    else if (code === 400 && error?.message?.toLowerCase().includes('quota'))
+                                                   friendlyMessage = 'Cloudinary free-plan quota exceeded. Upgrade your plan or delete old files.';
+    else if (code === 400 && error?.message?.toLowerCase().includes('file size'))
+                                                   friendlyMessage = 'File is too large for your Cloudinary plan.';
+
+    return NextResponse.json({ success: false, error: friendlyMessage }, { status: 500 });
   }
 }

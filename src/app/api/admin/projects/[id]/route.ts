@@ -154,16 +154,32 @@ export async function DELETE(
       );
     }
 
-    // Attempt to delete associated files from Cloudinary
+    // Delete ALL associated media from Cloudinary to free up storage
     try {
-      if (deletedProject.heroMediaUrl) {
-        const publicId = extractPublicId(deletedProject.heroMediaUrl);
-        if (publicId) await cloudinary.uploader.destroy(publicId);
-      }
-      if (deletedProject.fullPageMockupUrl) {
-        const publicId = extractPublicId(deletedProject.fullPageMockupUrl);
-        if (publicId) await cloudinary.uploader.destroy(publicId);
-      }
+      const urlsToDelete: string[] = [
+        deletedProject.heroMediaUrl,
+        deletedProject.fullPageMockupUrl,
+        deletedProject.closingImageUrl,
+        // Gallery items
+        ...(deletedProject.gallery   ?? []).map((g: any) => g.url ?? g),
+        // Closing images
+        ...(deletedProject.closingImages ?? []).map((c: any) => c.url ?? c),
+        // Before/After pairs
+        ...(deletedProject.beforeAfter ?? []).flatMap((b: any) => [b.before, b.after]),
+      ].filter(Boolean) as string[];
+
+      await Promise.allSettled(
+        urlsToDelete.map(async (url) => {
+          const publicId = extractPublicId(url);
+          if (!publicId) return;
+          // Try as image first, then as video
+          const imgResult = await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+          if (imgResult.result !== 'ok') {
+            await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+          }
+        })
+      );
+      console.log(`[delete-project] Cleaned up ${urlsToDelete.length} Cloudinary asset(s) for project ${id}`);
     } catch (cleanupError) {
       console.error('Failed to clean up images from Cloudinary, continuing anyway:', cleanupError);
     }
