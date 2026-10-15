@@ -8,7 +8,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { getLocale } from 'next-intl/server';
 import Link from 'next/link';
-import CloudinaryUsageWidget from '@/components/admin/CloudinaryUsageWidget';
 
 export const dynamic = 'force-dynamic';
 
@@ -122,9 +121,6 @@ export default async function AdminDashboard() {
         ))}
       </div>
       
-      {/* Cloudinary Usage */}
-      <CloudinaryUsageWidget locale={locale} />
-
       {/* Main Content Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 

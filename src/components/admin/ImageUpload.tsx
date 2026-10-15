@@ -13,10 +13,10 @@ interface ImageUploadProps {
   accept?: string;
 }
 
-export default function ImageUpload({ 
-  label, 
-  value, 
-  onChange, 
+export default function ImageUpload({
+  label,
+  value,
+  onChange,
   folder = 'projects',
   accept = "image/*,video/mp4,video/webm,video/quicktime,.mp4,.mov,.webm"
 }: ImageUploadProps) {
@@ -68,7 +68,7 @@ export default function ImageUpload({
   return (
     <div className="flex flex-col space-y-3 w-full">
       <label className="text-sm font-medium text-rose-200">{label}</label>
-      
+
       {value ? (
         <div className="relative rounded-xl overflow-hidden border border-rose-900/50 bg-[#1A050C] group">
           {/* Determine media type from upload state or fallback to extension */}
@@ -94,7 +94,7 @@ export default function ImageUpload({
               <Image src={value} alt="Uploaded media" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" unoptimized />
             </div>
           )}
-          
+
           {/* Hover Overlay with Delete Button */}
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <button
@@ -108,7 +108,7 @@ export default function ImageUpload({
           </div>
         </div>
       ) : (
-        <div 
+        <div
           onClick={() => !isBusy && fileInputRef.current?.click()}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -127,7 +127,7 @@ export default function ImageUpload({
             className="hidden"
             disabled={isBusy}
           />
-          
+
           {isCompressing ? (
             <div className="flex flex-col items-center text-rose-300 animate-pulse">
               <Sparkles className="w-8 h-8 text-rose-400 mb-2 animate-spin" />
@@ -142,8 +142,8 @@ export default function ImageUpload({
                 <span>{progress}%</span>
               </div>
               <div className="w-full h-2 bg-rose-950/80 rounded-full overflow-hidden border border-rose-900/40">
-                <div 
-                  className="h-full bg-gradient-to-r from-rose-500 to-rose-400 transition-all duration-200 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.6)]" 
+                <div
+                  className="h-full bg-gradient-to-r from-rose-500 to-rose-400 transition-all duration-200 rounded-full shadow-[0_0_8px_rgba(244,63,94,0.6)]"
                   style={{ width: `${progress}%` }}
                 />
               </div>

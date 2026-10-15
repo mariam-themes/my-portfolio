@@ -215,7 +215,7 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
           );
         }
       })
-      .catch(() => {/* silently fail — form still usable */});
+      .catch(() => {/* silently fail — form still usable */ });
   }, []);
 
   const localizedSchema = z.object({
