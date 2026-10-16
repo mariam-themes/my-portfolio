@@ -3,41 +3,25 @@ import { getToken } from 'next-auth/jwt';
 import cloudinary from '@/lib/cloudinary';
 import { Readable } from 'stream';
 import { logActivity, extractIp } from '@/lib/activity-log';
-
-
-const ALLOWED_MIME_TYPES = [
-  // Images
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-  'image/svg+xml',
-  // Videos
-  'video/mp4',
-  'video/webm',
-  'video/quicktime',
-  'video/x-msvideo', // .avi
-  // Audio
-  'audio/mpeg', // .mp3
-  'audio/ogg',  // .ogg
-  'audio/wav',  // .wav
-  'audio/webm', // .weba
-  'audio/mp4', // .m4a
-];
-
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
-
-function getResourceType(mimeType: string): 'image' | 'video' | 'raw' {
-  if (mimeType.startsWith('image/')) return 'image';
-  if (mimeType.startsWith('video/') || mimeType.startsWith('audio/')) return 'video';
-  return 'raw';
-}
+import {
+  MAX_VIDEO_SIZE_BYTES,
+  MAX_IMAGE_SIZE_BYTES,
+  isAllowedMimeType,
+  isAllowedFolder,
+  inferMimeType,
+  getResourceType,
+  getHumanMediaType,
+} from '@/lib/upload-constants';
 
 export async function POST(request: Request) {
   try {
-    const token = await getToken({ req: request as any });
+    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (token.role && token.role !== 'admin') {
+      return NextResponse.json({ success: false, error: 'Forbidden: admin privilege required' }, { status: 403 });
     }
 
     const formData = await request.formData();
@@ -50,36 +34,31 @@ export async function POST(request: Request) {
     }
 
     // Infer MIME type if missing or generic
-    let fileType = file.type;
-    if (!fileType || fileType === 'application/octet-stream') {
-      const ext = file.name.split('.').pop()?.toLowerCase();
-      if (ext === 'mp4') fileType = 'video/mp4';
-      else if (ext === 'webm') fileType = 'video/webm';
-      else if (ext === 'mov') fileType = 'video/quicktime';
-      else if (ext === 'avi') fileType = 'video/x-msvideo';
-      else if (ext === 'jpg' || ext === 'jpeg') fileType = 'image/jpeg';
-      else if (ext === 'png') fileType = 'image/png';
-      else if (ext === 'webp') fileType = 'image/webp';
-      else if (ext === 'gif') fileType = 'image/gif';
-      else if (ext === 'svg') fileType = 'image/svg+xml';
-      else if (ext === 'mp3') fileType = 'audio/mpeg';
-      else if (ext === 'ogg') fileType = 'audio/ogg';
-      else if (ext === 'wav') fileType = 'audio/wav';
-      else if (ext === 'm4a') fileType = 'audio/mp4';
-    }
+    const fileType = inferMimeType(file.name, file.type);
 
     // Validate file type
-    if (!ALLOWED_MIME_TYPES.includes(fileType)) {
+    if (!isAllowedMimeType(fileType)) {
       return NextResponse.json(
-        { success: false, error: `File type ${fileType || 'unknown'} not allowed. Allowed: images (jpg, png, webp, gif, svg), videos (mp4, webm, mov, avi), and audio (mp3, ogg, wav, m4a).` },
+        { success: false, error: `File type ${fileType || 'unknown'} not allowed. Allowed: images, videos, and audio.` },
         { status: 400 }
       );
     }
 
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
+    // Validate folder
+    if (!isAllowedFolder(folder)) {
       return NextResponse.json(
-        { success: false, error: `File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)} MB limit.` },
+        { success: false, error: `Invalid folder "${folder}".` },
+        { status: 400 }
+      );
+    }
+
+    const resourceType = resourceTypeParam || getResourceType(fileType);
+    const maxSize = resourceType === 'video' ? MAX_VIDEO_SIZE_BYTES : MAX_IMAGE_SIZE_BYTES;
+
+    // Validate file size
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { success: false, error: `File size exceeds ${maxSize / (1024 * 1024)} MB limit.` },
         { status: 400 }
       );
     }
@@ -87,35 +66,33 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const resourceType = resourceTypeParam || getResourceType(fileType);
-
-    // ── Sanity-check Cloudinary credentials before attempting upload ──────────
-    const cloudName  = process.env.CLOUDINARY_CLOUD_NAME  || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const apiKey     = process.env.CLOUDINARY_API_KEY     || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-    const apiSecret  = process.env.CLOUDINARY_API_SECRET;
+    // ── Sanity-check Cloudinary credentials ──────────
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
     if (!cloudName || !apiKey || !apiSecret) {
-      const missing = [
-        !cloudName  && 'CLOUDINARY_CLOUD_NAME',
-        !apiKey     && 'CLOUDINARY_API_KEY',
-        !apiSecret  && 'CLOUDINARY_API_SECRET',
-      ].filter(Boolean).join(', ');
-      console.error(`[upload] ❌ Missing Cloudinary env vars: ${missing}`);
+      console.error('[upload] Missing Cloudinary environment variables');
       return NextResponse.json(
-        { success: false, error: `Server misconfiguration: missing env vars (${missing}). Contact the admin.` },
+        { success: false, error: 'Server misconfiguration: missing Cloudinary env vars.' },
         { status: 500 }
       );
     }
 
-    console.log(`[upload] Uploading "${file.name}" (${(file.size / 1024 / 1024).toFixed(2)} MB) → folder="${folder}" resource_type="${resourceType}"`);
+    console.log(`[upload fallback] Uploading "${file.name}" (${(file.size / 1024 / 1024).toFixed(2)} MB) → folder="${folder}" resource_type="${resourceType}"`);
+
+    const uploadFn = (file.size > 20 * 1024 * 1024 && cloudinary.uploader.upload_chunked_stream)
+      ? cloudinary.uploader.upload_chunked_stream.bind(cloudinary.uploader)
+      : cloudinary.uploader.upload_stream.bind(cloudinary.uploader);
 
     const uploadResult: any = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
+      const uploadStream = uploadFn(
         {
           folder,
           resource_type: resourceType,
+          chunk_size: 6000000,
         },
-        (error, result) => {
+        (error: any, result: any) => {
           if (error) reject(error);
           else resolve(result);
         }
@@ -124,9 +101,9 @@ export async function POST(request: Request) {
       Readable.from(buffer).pipe(uploadStream);
     });
 
-
+    const adminId = (token.id as string) || (token.sub as string) || (token.email as string) || 'admin';
     await logActivity({
-      adminId: token.id || 'unknown',
+      adminId,
       action: 'MEDIA_UPLOAD',
       entityType: 'media',
       entityId: uploadResult.public_id,
@@ -137,38 +114,24 @@ export async function POST(request: Request) {
         folder,
         resourceType,
         cloudinaryUrl: uploadResult.secure_url,
+        verified: true,
       },
       ip: extractIp(request),
     });
 
-    // Determine human-readable media type for the client
-    const mediaType: 'gif' | 'video' | 'audio' | 'image' =
-      fileType === 'image/gif' ? 'gif'
-      : fileType.startsWith('video/') ? 'video'
-      : fileType.startsWith('audio/') ? 'audio'
-      : 'image';
+    const mediaType = getHumanMediaType(fileType);
 
     return NextResponse.json({ success: true, data: { ...uploadResult, mediaType } }, { status: 200 });
 
   } catch (error: any) {
-    // Log the full error in the terminal so you can diagnose without Cloudinary dashboard
-    console.error('[upload] ❌ Upload failed:', {
-      message:    error?.message,
-      http_code:  error?.http_code,
-      name:       error?.name,
-      error:      error?.error,
-    });
-
-    // Build a human-readable message based on the Cloudinary error code
+    console.error('[upload] Upload failed:', error);
     let friendlyMessage = error?.message || 'Upload failed — unknown error';
     const code = error?.http_code ?? error?.status;
 
-    if (code === 401)                              friendlyMessage = 'Cloudinary credentials are invalid. Check your API Key / Secret in .env';
-    else if (code === 420 || code === 429)         friendlyMessage = 'Cloudinary rate limit reached. Wait a few minutes and try again.';
-    else if (code === 400 && error?.message?.toLowerCase().includes('quota'))
-                                                   friendlyMessage = 'Cloudinary free-plan quota exceeded. Upgrade your plan or delete old files.';
-    else if (code === 400 && error?.message?.toLowerCase().includes('file size'))
-                                                   friendlyMessage = 'File is too large for your Cloudinary plan.';
+    if (code === 401) friendlyMessage = 'Cloudinary credentials are invalid.';
+    else if (code === 420 || code === 429) friendlyMessage = 'Cloudinary rate limit reached.';
+    else if (code === 400 && error?.message?.toLowerCase().includes('quota')) friendlyMessage = 'Cloudinary monthly quota exceeded.';
+    else if (code === 400 && error?.message?.toLowerCase().includes('file size')) friendlyMessage = 'File is too large for your Cloudinary plan.';
 
     return NextResponse.json({ success: false, error: friendlyMessage }, { status: 500 });
   }

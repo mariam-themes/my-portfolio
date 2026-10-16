@@ -51,11 +51,12 @@ export const authOptions: NextAuthOptions = {
         const adminPassword = process.env.ADMIN_PASSWORD;
 
         if (!adminUsername || !adminPassword) {
-          throw new Error("Admin credentials not configured");
+          console.error('[AUTH] ADMIN_USERNAME or ADMIN_PASSWORD not set in environment variables');
+          throw new Error('Server configuration error. Contact the administrator.');
         }
 
         if (
-          username === adminUsername &&
+          username.toLowerCase() === adminUsername.toLowerCase() &&
           credentials.password === adminPassword
         ) {
           try {

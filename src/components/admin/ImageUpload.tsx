@@ -63,7 +63,7 @@ export default function ImageUpload({
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const isBusy = state === 'uploading' || state === 'compressing';
+  const isBusy = state === 'uploading' || state === 'compressing' || state === 'verifying';
 
   return (
     <div className="flex flex-col space-y-3 w-full">
@@ -134,11 +134,11 @@ export default function ImageUpload({
               <span className="text-sm font-medium">{t('optimizing') || 'Optimizing & compressing image...'}</span>
               <span className="text-xs text-rose-400/60 mt-1">Preparing high-speed upload...</span>
             </div>
-          ) : state === 'uploading' ? (
+          ) : (state === 'uploading' || state === 'verifying') ? (
             <div className="flex flex-col items-center w-full max-w-[220px] text-rose-400">
               <Loader2 className="w-8 h-8 animate-spin mb-2" />
               <div className="flex justify-between w-full text-xs font-semibold mb-1.5 text-rose-200">
-                <span>{t('uploading')}</span>
+                <span>{state === 'verifying' ? 'Verifying...' : t('uploading')}</span>
                 <span>{progress}%</span>
               </div>
               <div className="w-full h-2 bg-rose-950/80 rounded-full overflow-hidden border border-rose-900/40">
