@@ -29,6 +29,8 @@ export const ALLOWED_FOLDERS = [
   'portfolio_testimonials',
   'other-projects',
   'about',
+  'services',
+  'portfolio_about',
 ] as const;
 
 export type AllowedFolder = typeof ALLOWED_FOLDERS[number];
