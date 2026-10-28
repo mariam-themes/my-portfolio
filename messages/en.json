@@ -22,6 +22,7 @@
     "about": "ABOUT",
     "services": "SERVICES",
     "work": "WORK",
+    "marketplace": "FOR SALE",
     "blog": "BLOG",
     "contact": "CONTACT",
     "startProject": "START A PROJECT",
@@ -612,5 +613,40 @@
     "coreExpertise": "Core Expertise",
     "experience": "Experience",
     "downloadCv": "Download CV"
+  },
+  "VisualIdentitiesForSale": {
+    "kicker": "Available Now",
+    "title": "Visual Identities",
+    "titleAccent": "for Sale",
+    "subtitle": "Ready-made brand identity packages crafted with precision — yours to own.",
+    "viewAll": "Browse All Identities",
+    "buyNow": "Request to Purchase",
+    "price": "Price",
+    "currency": "SAR",
+    "noProjects": "No visual identities available for sale at the moment.",
+    "pageTitle": "Visual Identities for Sale",
+    "pageSubtitle": "Premium ready-made brand identity packages available for immediate purchase.",
+    "metaTitle": "Visual Identities for Sale | Mariam Aljumaiah",
+    "metaDescription": "Browse and purchase premium ready-made visual identity packages.",
+    "filterAll": "All",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "PurchaseModal": {
+    "title": "Request to Purchase",
+    "subtitle": "Fill in your details and I will get back to you within 24 hours.",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "messageLabel": "Message (optional)",
+    "messagePlaceholder": "Any questions or notes...",
+    "submit": "Send Purchase Request",
+    "submitting": "Sending...",
+    "success": "Request sent! I will contact you soon.",
+    "error": "Something went wrong. Please try again.",
+    "close": "Close",
+    "project": "Identity",
+    "priceLabel": "Price"
   }
 }

@@ -8,13 +8,20 @@ import { cn } from '@/lib/utils';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import Image from 'next/image';
 
-const NAV_LINKS = [
+interface NavItem {
+  key: string;
+  target?: string;
+  href?: string;
+}
+
+const NAV_LINKS: NavItem[] = [
   { key: 'home',         target: '#hero' },
   { key: 'work',         target: '#projectsPreview' },
-  { key: 'about',       target: '#about' },
-  { key: 'services',    target: '#services' },
-  { key: 'blog',        target: '#blog' },
-  { key: 'contact',     target: '#contact' },
+  { key: 'marketplace',  href: '/marketplace' },
+  { key: 'about',        target: '#about' },
+  { key: 'services',     target: '#services' },
+  { key: 'blog',         target: '#blog' },
+  { key: 'contact',      target: '#contact' },
 ];
 
 export default function Navbar() {
@@ -103,7 +110,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Desktop layout: 3-column grid (unchanged) */}
+        {/* Desktop layout: 3-column grid */}
         <div className="mx-auto hidden w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-6 lg:grid">
           <Link
             href="/"
@@ -125,18 +132,33 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav — centered */}
-          <nav className="hidden lg:flex items-center justify-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.key}
-                href={`/${link.target}`}
-                onClick={(e) => handleNavClick(e, link.target)}
-                className="group relative whitespace-nowrap text-[11px] rtl:text-[15px] font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
-              >
-                {t(link.key)}
-                <span className="absolute -bottom-1.5 start-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
-              </a>
-            ))}
+          <nav className="hidden lg:flex items-center justify-center gap-5 xl:gap-6">
+            {NAV_LINKS.map((link) => {
+              const label = t(link.key);
+              if (link.href) {
+                return (
+                  <Link
+                    key={link.key}
+                    href={link.href}
+                    className="group relative whitespace-nowrap text-[11px] rtl:text-[15px] font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
+                  >
+                    {label}
+                    <span className="absolute -bottom-1.5 start-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
+                  </Link>
+                );
+              }
+              return (
+                <a
+                  key={link.key}
+                  href={`/${link.target}`}
+                  onClick={(e) => handleNavClick(e, link.target!)}
+                  className="group relative whitespace-nowrap text-[11px] rtl:text-[15px] font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
+                >
+                  {label}
+                  <span className="absolute -bottom-1.5 start-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
+                </a>
+              );
+            })}
           </nav>
 
           {/* Actions */}
@@ -166,16 +188,31 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-[#0a0507] pt-24 lg:hidden">
           <nav className="flex flex-col items-center gap-8 p-6">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.key}
-                href={`/${link.target}`}
-                onClick={(e) => handleNavClick(e, link.target)}
-                className="text-sm rtl:text-lg font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
-              >
-                {t(link.key)}
-              </a>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const label = t(link.key);
+              if (link.href) {
+                return (
+                  <Link
+                    key={link.key}
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-sm rtl:text-lg font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
+                  >
+                    {label}
+                  </Link>
+                );
+              }
+              return (
+                <a
+                  key={link.key}
+                  href={`/${link.target}`}
+                  onClick={(e) => handleNavClick(e, link.target!)}
+                  className="text-sm rtl:text-lg font-bold uppercase tracking-[0.2em] rtl:tracking-normal text-rose-100/70 transition-colors hover:text-white"
+                >
+                  {label}
+                </a>
+              );
+            })}
             <Link
               href="/contact"
               onClick={() => setIsMobileMenuOpen(false)}

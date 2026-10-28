@@ -22,6 +22,7 @@
     "about": "نبذة",
     "services": "الخدمات",
     "work": "الأعمال",
+    "marketplace": "هويات للبيع",
     "blog": "المدونة",
     "contact": "تواصل",
     "startProject": "ابدأ مشروعك",
@@ -613,5 +614,40 @@
     "coreExpertise": "الخبرات الأساسية",
     "experience": "الخبرة العملية",
     "downloadCv": "تحميل السيرة الذاتية"
+  },
+  "VisualIdentitiesForSale": {
+    "kicker": "متاحة الآن",
+    "title": "هويات بصرية",
+    "titleAccent": "للبيع",
+    "subtitle": "هويات بصرية جاهزة مصممة بعناية فائقة — ملكك الآن.",
+    "viewAll": "تصفح كل الهويات",
+    "buyNow": "طلب الشراء",
+    "price": "السعر",
+    "currency": "ريال",
+    "noProjects": "لا توجد هويات بصرية متاحة للبيع حالياً.",
+    "pageTitle": "هويات بصرية للبيع",
+    "pageSubtitle": "باقات هويات بصرية جاهزة ومتاحة للشراء الفوري.",
+    "metaTitle": "هويات بصرية للبيع | مريم الجميعة",
+    "metaDescription": "تصفح واشتري باقات هويات بصرية جاهزة ومتميزة.",
+    "filterAll": "الكل",
+    "prev": "السابق",
+    "next": "التالي"
+  },
+  "PurchaseModal": {
+    "title": "طلب شراء",
+    "subtitle": "أدخل بياناتك وسأتواصل معك خلال 24 ساعة.",
+    "nameLabel": "الاسم الكامل",
+    "namePlaceholder": "اسمك",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "your@email.com",
+    "messageLabel": "رسالة (اختياري)",
+    "messagePlaceholder": "أي استفسارات أو ملاحظات...",
+    "submit": "إرسال طلب الشراء",
+    "submitting": "جارٍ الإرسال...",
+    "success": "تم إرسال الطلب! سأتواصل معك قريباً.",
+    "error": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "close": "إغلاق",
+    "project": "الهوية",
+    "priceLabel": "السعر"
   }
 }

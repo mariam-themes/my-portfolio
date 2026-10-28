@@ -1,14 +1,32 @@
 import "./globals.css";
 
 import type { Metadata } from 'next';
-import { Inter, El_Messiri, Playfair_Display } from 'next/font/google';
+import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
 
-const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
-const playfair = Playfair_Display({ variable: '--font-playfair', subsets: ['latin'] });
-const arabicFont = El_Messiri({
-  variable: '--font-arabic',
+const inter = Inter({
+  variable: '--font-inter',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  variable: '--font-playfair',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+const arabicHeadingFont = Alexandria({
+  variable: '--font-arabic-heading',
+  subsets: ['arabic'],
+  weight: ['400', '600', '700'],
+  display: 'swap',
+});
+
+const arabicBodyFont = IBM_Plex_Sans_Arabic({
+  variable: '--font-arabic-body',
   subsets: ['arabic'],
   weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -35,7 +53,7 @@ export default function RootLayout({
       lang="en"
       dir="ltr"
       data-scroll-behavior="smooth"
-      className={`${inter.variable} ${playfair.variable} ${arabicFont.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full" suppressHydrationWarning>
@@ -44,3 +62,4 @@ export default function RootLayout({
     </html>
   );
 }
+

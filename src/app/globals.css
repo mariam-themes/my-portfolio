@@ -62,12 +62,24 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 body {
-  background: linear-gradient(to bottom right, #21060e, #120407, #0d0507);
-  background-attachment: fixed;
+  background: #0a0507;
   color: var(--text-primary);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fixed gradient background as a separate composited layer.
+   Using a pseudo-element instead of background-attachment:fixed
+   prevents full-page repaints on every scroll tick (massive perf win). */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom right, #21060e, #120407, #0d0507);
+  pointer-events: none;
+  will-change: transform; /* promote to its own GPU layer */
 }
 
 h1, h2, h3, h4, h5, h6 {

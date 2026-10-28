@@ -22,6 +22,9 @@ export type Project = {
   liveUrl?: string;
   visualDirection?: VisualDirection;
   sectionOrder?: string[];
+  isForSale?: boolean;
+  price?: number;
+  currency?: string;
 };
 
 export type NextProject = {

@@ -12,73 +12,16 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const locale = url.searchParams.get('locale') || 'ar';
 
-    let doc = await AboutMe.findOne();
+    const doc = await AboutMe.findOne().lean();
     if (!doc) {
-      doc = await AboutMe.create({});
+      return NextResponse.json({ success: true, data: DEFAULT_ABOUT_ME });
     }
 
-    let hasChanged = false;
+    // Localize the returned values from cached translations
+    const returnedData = { ...DEFAULT_ABOUT_ME, ...doc };
 
-    // Determine the source language if not set
-    if (!doc.sourceLang) {
-      doc.sourceLang = isArabic(doc.bio || '') ? 'ar' : 'en';
-      hasChanged = true;
-    }
-
-    const target: 'en' | 'ar' = doc.sourceLang === 'ar' ? 'en' : 'ar';
-
-    // If translations for the target language are completely missing, pre-populate them
-    if (!doc.translations || !doc.translations[target]) {
-      const tBio = doc.bio ? await translateHtmlContent(doc.bio, target) : '';
-
-      const tSkills = [];
-      if (Array.isArray(doc.skills)) {
-        for (const skill of doc.skills) {
-          const translated = (await autoTranslate(skill))[target];
-          tSkills.push(translated);
-        }
-      }
-
-      const tExperience = [];
-      if (Array.isArray(doc.experience)) {
-        for (const exp of doc.experience) {
-          const tRole = exp.role ? (await autoTranslate(exp.role))[target] : '';
-          const tCompany = exp.company ? (await autoTranslate(exp.company))[target] : '';
-          const tDuration = exp.duration ? (await autoTranslate(exp.duration))[target] : '';
-          const tDesc = exp.description ? (await autoTranslate(exp.description))[target] : '';
-          tExperience.push({
-            role: tRole,
-            company: tCompany,
-            duration: tDuration,
-            description: tDesc,
-          });
-        }
-      }
-
-      const currentTranslations = doc.translations ? doc.toObject().translations : {};
-      doc.translations = {
-        ...currentTranslations,
-        [target]: {
-          bio: tBio,
-          skills: tSkills,
-          experience: tExperience,
-        }
-      };
-
-      hasChanged = true;
-    }
-
-    if (hasChanged) {
-      await doc.save();
-    }
-
-    const docObj = doc.toObject();
-
-    // Localize the returned values
-    const returnedData = { ...DEFAULT_ABOUT_ME, ...docObj };
-
-    const tSet = docObj.translations?.[locale as 'en' | 'ar'];
-    if (locale !== docObj.sourceLang && tSet) {
+    const tSet = (doc as any).translations?.[locale as 'en' | 'ar'];
+    if (locale !== (doc as any).sourceLang && tSet) {
       if (tSet.bio) returnedData.bio = tSet.bio;
       if (tSet.skills && tSet.skills.length > 0) returnedData.skills = tSet.skills;
       if (tSet.experience && tSet.experience.length > 0) returnedData.experience = tSet.experience;

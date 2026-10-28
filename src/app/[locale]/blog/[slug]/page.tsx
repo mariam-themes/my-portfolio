@@ -8,7 +8,6 @@ import { ArrowLeft } from 'lucide-react';
 import connectToDatabase from '@/lib/mongodb';
 import { Blog } from '@/models/Blog';
 import { slugify } from '@/lib/slugify';
-import { autoTranslate, isArabic, translateHtmlContent } from '@/lib/translate';
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;
@@ -36,40 +35,6 @@ async function getBlog(slug: string, locale: string) {
 
   const blog = await Blog.findOne(query).lean<any>();
   if (!blog) return null;
-
-  const sourceLang = blog.sourceLang || (isArabic(blog.title || '') ? 'ar' : 'en');
-  const target: 'en' | 'ar' = sourceLang === 'ar' ? 'en' : 'ar';
-  const existingContent = blog.translations?.[target]?.content;
-
-  // Needs translation if: no content saved, OR saved content is still in the source language
-  const contentIsWrongLang = existingContent
-    ? target === 'en' ? isArabic(existingContent) : !isArabic(existingContent)
-    : false;
-  const needsTranslation = !existingContent || contentIsWrongLang;
-
-  if (!blog.sourceLang || needsTranslation) {
-    const [tTitle, tExcerpt, tContent] = await Promise.all([
-      blog.title ? autoTranslate(blog.title).then((r) => r[target]) : Promise.resolve(''),
-      blog.excerpt ? autoTranslate(blog.excerpt).then((r) => r[target]) : Promise.resolve(''),
-      blog.content ? translateHtmlContent(blog.content, target) : Promise.resolve(''),
-    ]);
-
-    // Persist using $set so Mongoose strict mode doesn't block it
-    await Blog.findByIdAndUpdate(blog._id, {
-      $set: {
-        sourceLang,
-        [`translations.${target}.title`]: tTitle,
-        [`translations.${target}.excerpt`]: tExcerpt,
-        [`translations.${target}.content`]: tContent,
-      },
-    });
-
-    blog.sourceLang = sourceLang;
-    blog.translations = {
-      ...(blog.translations || {}),
-      [target]: { title: tTitle, excerpt: tExcerpt, content: tContent },
-    };
-  }
 
   return JSON.parse(JSON.stringify(localize(blog, locale)));
 }

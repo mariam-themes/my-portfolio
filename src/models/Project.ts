@@ -65,6 +65,10 @@ export interface IProject extends Document {
   closingImages?: string[];
   liveUrl?: string;
   isFeatured?: boolean;
+  isForSale?: boolean;
+  price?: number;
+  currency?: string;
+  saleOrder?: number;
   metaTitle?: ILocalizedText;
   metaDescription?: ILocalizedText;
   visualDirection?: IVisualDirection;
@@ -158,6 +162,10 @@ const ProjectSchema = new Schema<IProject>(
       ],
     },
     isFeatured: { type: Boolean, default: false },
+    isForSale: { type: Boolean, default: false },
+    price: { type: Number, default: undefined },
+    currency: { type: String, default: 'SAR' },
+    saleOrder: { type: Number, default: undefined },
     metaTitle: {
       type: new Schema<ILocalizedText>(
         {

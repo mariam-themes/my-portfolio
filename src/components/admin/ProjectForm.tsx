@@ -265,6 +265,9 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       .optional()
       .default(EMPTY_VD),
     sectionOrder: z.array(z.enum(['gallery', 'transform', 'visual', 'deliverables', 'tools', 'mockup', 'closing'])).default([]),
+    isForSale: z.boolean().default(false),
+    price: z.number().min(0).optional(),
+    currency: z.string().optional().default('SAR'),
   });
 
   const defaults = useMemo(() => {
@@ -294,6 +297,9 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
       closingImages: (initialData?.closingImages ?? []).map((u: string) => ({ url: u })),
       visualDirection: { ...EMPTY_VD, ...(saved?.visualDirection || {}) },
       sectionOrder: saved?.sectionOrder?.length ? [...saved.sectionOrder] : [...DEFAULT_SECTION_ORDER],
+      isForSale: initialData?.isForSale ?? false,
+      price: initialData?.price ?? undefined,
+      currency: initialData?.currency ?? 'SAR',
     };
   }, [initialData]);
 
@@ -762,6 +768,60 @@ export default function ProjectForm({ initialData }: ProjectFormProps) {
         <label htmlFor="isFeatured" className="text-sm font-medium text-rose-200 cursor-pointer select-none">
           {t('featured')}
         </label>
+      </div>
+
+      {/* ══ Sale Settings ══ */}
+      <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 space-y-4">
+        <h3 className="text-base font-semibold text-amber-300 flex items-center gap-2">
+          <span className="text-lg">🏷️</span>
+          إعدادات البيع — هويات بصرية للبيع
+        </h3>
+
+        {/* Toggle */}
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-amber-500/15 bg-black/20">
+          <input
+            type="checkbox"
+            id="isForSale"
+            {...form.register('isForSale')}
+            className="w-5 h-5 accent-amber-500 cursor-pointer"
+          />
+          <label htmlFor="isForSale" className="text-sm font-medium text-amber-200 cursor-pointer select-none">
+            معروض للبيع؟
+          </label>
+        </div>
+
+        {/* Price & currency — only show when isForSale is checked */}
+        {form.watch('isForSale') && (
+          <div className="flex items-end gap-3">
+            <div className="flex-1">
+              <label className="block text-xs font-semibold uppercase tracking-widest text-amber-300/70 mb-1.5">
+                السعر
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                placeholder="1500"
+                {...form.register('price', { valueAsNumber: true })}
+                className="w-full rounded-lg border border-amber-500/20 bg-black/30 px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-amber-400/50 focus:ring-1 focus:ring-amber-400/20 transition-colors"
+              />
+            </div>
+            <div className="w-28">
+              <label className="block text-xs font-semibold uppercase tracking-widest text-amber-300/70 mb-1.5">
+                العملة
+              </label>
+              <select
+                {...form.register('currency')}
+                className="w-full rounded-lg border border-amber-500/20 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-amber-400/50 transition-colors"
+              >
+                <option value="SAR">SAR ريال</option>
+                <option value="USD">USD دولار</option>
+                <option value="AED">AED درهم</option>
+                <option value="KWD">KWD دينار</option>
+              </select>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ══ Validation Error Summary ══ */}

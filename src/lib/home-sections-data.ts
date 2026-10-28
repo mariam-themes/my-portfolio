@@ -10,8 +10,9 @@ export const HOME_SECTIONS_DATA = [
   { id: 'services',         labelKey: 'services',         defaultVisible: true },
   { id: 'platforms',        labelKey: 'platforms',        defaultVisible: true },
   { id: 'featured-projects',labelKey: 'featuredProjects', defaultVisible: true },
+  { id: 'visual-identities-for-sale',  labelKey: 'visualIdentitiesForSale', defaultVisible: true },
   { id: 'other-projects',   labelKey: 'otherProjects',    defaultVisible: true },
-  { id: 'testimonials',     labelKey: 'testimonials',     defaultVisible: true },
-  { id: 'blog',             labelKey: 'blog',             defaultVisible: true },
-  { id: 'contact',          labelKey: 'contact',          defaultVisible: true },
+  { id: 'testimonials',               labelKey: 'testimonials',            defaultVisible: true },
+  { id: 'blog',                        labelKey: 'blog',                    defaultVisible: true },
+  { id: 'contact',                     labelKey: 'contact',                 defaultVisible: true },
 ] as const;

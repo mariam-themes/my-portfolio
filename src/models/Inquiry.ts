@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export type InquiryStatus = 'new' | 'contacted' | 'closed';
+export type InquiryType = 'contact' | 'purchase';
 
 export interface IInquiry extends Document {
   name: string;
@@ -11,6 +12,9 @@ export interface IInquiry extends Document {
   timeline?: string;
   message: string;
   status: InquiryStatus;
+  type?: InquiryType;
+  projectRef?: string;
+  projectPrice?: number;
   isRead: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -56,6 +60,18 @@ const InquirySchema: Schema = new Schema(
       type: String,
       enum: ['new', 'contacted', 'closed'],
       default: 'new',
+    },
+    type: {
+      type: String,
+      enum: ['contact', 'purchase'],
+      default: 'contact',
+    },
+    projectRef: {
+      type: String,
+      trim: true,
+    },
+    projectPrice: {
+      type: Number,
     },
     isRead: {
       type: Boolean,

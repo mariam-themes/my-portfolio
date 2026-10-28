@@ -4,7 +4,6 @@ import Header from '@/components/admin/Header';
 import ParticlesBackground from '@/components/admin/ParticlesBackground';
 import DashboardEntry from '@/components/admin/DashboardEntry';
 import { Toaster } from 'react-hot-toast';
-import { Inter, Playfair_Display, Alexandria, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import HtmlLangDir from '@/components/HtmlLangDir';
 import enMessages from '../../../messages/en.json';
 import arMessages from '../../../messages/ar.json';
@@ -16,28 +15,6 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: "Mariam's Dashboard",
 };
-
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-});
-
-const playfair = Playfair_Display({
-  variable: '--font-playfair',
-  subsets: ['latin'],
-});
-
-const arabicHeadingFont = Alexandria({
-  variable: '--font-arabic-heading',
-  subsets: ['arabic'],
-  weight: ['400', '500', '600', '700', '800'],
-});
-
-const arabicBodyFont = IBM_Plex_Sans_Arabic({
-  variable: '--font-arabic-body',
-  subsets: ['arabic'],
-  weight: ['300', '400', '500', '600', '700'],
-});
 
 export default async function AdminLayout({
   children,
@@ -53,7 +30,7 @@ export default async function AdminLayout({
 
   return (
     <AdminSessionProvider>
-    <div className={`min-h-full ${inter.variable} ${playfair.variable} ${arabicHeadingFont.variable} ${arabicBodyFont.variable} antialiased`}>
+    <div className="min-h-full antialiased">
       <NextIntlClientProvider locale={locale} messages={messages}>
         <HtmlLangDir locale={locale} />
         <DashboardEntry>

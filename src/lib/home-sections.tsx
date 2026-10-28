@@ -9,6 +9,7 @@ import OtherProjectsSection from '@/components/sections/OtherProjectsSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import BlogSection from '@/components/sections/BlogSection';
 import ContactSection from '@/components/sections/ContactSection';
+import VisualIdentitiesForSaleSection from '@/components/sections/VisualIdentitiesForSaleSection';
 
 export interface HomeSection {
   id: string;
@@ -54,6 +55,12 @@ export const HOME_SECTIONS: HomeSection[] = [
     id: 'featured-projects',
     labelKey: 'featuredProjects',
     component: FeaturedProjectsSection,
+    defaultVisible: true,
+  },
+  {
+    id: 'visual-identities-for-sale',
+    labelKey: 'visualIdentitiesForSale',
+    component: VisualIdentitiesForSaleSection,
     defaultVisible: true,
   },
   {

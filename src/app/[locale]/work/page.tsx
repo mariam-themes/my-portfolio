@@ -33,8 +33,8 @@ export default async function WorkPage({
 
   try {
     await connectToDatabase();
-    // Always show all projects on the /work page, newest-first.
-    const projects = await Project.find({})
+    // Always show all regular projects on the /work page, newest-first (exclude for-sale identities).
+    const projects = await Project.find({ isForSale: { $ne: true } })
       .sort({ year: -1, createdAt: -1 })
       .select('title slug sector category heroMediaUrl year sourceLang translations isFeatured')
       .lean();

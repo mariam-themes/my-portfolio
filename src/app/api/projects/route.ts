@@ -19,14 +19,27 @@ export async function GET(request: Request) {
     // Parse query params
     const { searchParams } = new URL(request.url);
     const featuredOnly = searchParams.get('featured') === 'true';
+    const forSaleOnly = searchParams.get('forSale') === 'true';
     const sortAsc = searchParams.get('sort') === 'asc';
 
-    // Build query — if ?featured=true only return isFeatured projects
-    const query = featuredOnly ? { isFeatured: true } : {};
+    // Build query
+    let query: Record<string, unknown> = {};
+    if (featuredOnly) query.isFeatured = true;
+    if (forSaleOnly) {
+      query.isForSale = true;
+    } else {
+      query.isForSale = { $ne: true };
+    }
 
-    // Fetch projects — default newest-first; ?sort=asc for oldest-first (date order)
+    // Fetch projects — for-sale uses saleOrder; default newest-first; ?sort=asc for oldest-first
+    const sortField = forSaleOnly
+      ? { saleOrder: 1, createdAt: -1 }
+      : sortAsc
+        ? { year: 1, createdAt: 1 }
+        : { year: -1, createdAt: -1 };
+
     const projects = await Project.find(query)
-      .sort(sortAsc ? { year: 1, createdAt: 1 } : { year: -1, createdAt: -1 })
+      .sort(sortField as any)
       .lean();
     
     // Use cached translations from database instead of calling external API on the fly

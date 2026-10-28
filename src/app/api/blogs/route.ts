@@ -21,35 +21,6 @@ function localizeBlogs(blogs: any[], locale: string) {
   });
 }
 
-async function ensureTranslations(blog: any) {
-  const sourceLang = blog.sourceLang || (isArabic(blog.title || '') ? 'ar' : 'en');
-  const target: 'en' | 'ar' = sourceLang === 'ar' ? 'en' : 'ar';
-  const existingTSet = blog.translations?.[target];
-
-  if (!blog.sourceLang || !existingTSet?.title) {
-    const [tTitle, tExcerpt] = await Promise.all([
-      blog.title ? autoTranslate(blog.title).then((r: any) => r[target]) : Promise.resolve(''),
-      blog.excerpt ? autoTranslate(blog.excerpt).then((r: any) => r[target]) : Promise.resolve(''),
-    ]);
-
-    await Blog.findByIdAndUpdate(blog._id, {
-      $set: {
-        sourceLang,
-        [`translations.${target}.title`]: tTitle,
-        [`translations.${target}.excerpt`]: tExcerpt,
-      },
-    });
-
-    blog.sourceLang = sourceLang;
-    blog.translations = {
-      ...(blog.translations || {}),
-      [target]: { title: tTitle, excerpt: tExcerpt },
-    };
-  }
-
-  return blog;
-}
-
 // ─── GET /api/blogs ──────────────────────────────────────────────────────────
 
 export async function GET(request: Request) {
@@ -65,12 +36,9 @@ export async function GET(request: Request) {
 
     const blogs = await Blog.find({}).sort({ createdAt: -1 }).lean<any[]>();
 
-    // Ensure translations exist (lazy, parallel)
-    const enriched = await Promise.all(blogs.map(ensureTranslations));
-
     return NextResponse.json({
       success: true,
-      data: localizeBlogs(enriched, locale),
+      data: localizeBlogs(blogs, locale),
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

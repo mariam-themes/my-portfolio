@@ -27,7 +27,9 @@ function ScrollReset() {
   return null;
 }
 
-// Wires the GSAP ticker to Lenis and keeps ScrollTrigger in sync.
+// Wires the GSAP ticker to Lenis exclusively.
+// ReactLenis is created with autoRaf:false so only GSAP drives the tick,
+// preventing the double-compute that caused scroll jank.
 function ScrollTriggerSync() {
   const lenis = useLenis();
 
@@ -41,7 +43,8 @@ function ScrollTriggerSync() {
     };
 
     gsap.ticker.add(ticker);
-    gsap.ticker.lagSmoothing(0);
+    // Keep lagSmoothing at default (500ms, 33ms) for GSAP's built-in jank handling.
+    // Setting it to 0 disabled compensation and made big frame spikes cause huge jumps.
 
     // Refresh once so trigger positions match the smoothed scroller.
     ScrollTrigger.refresh();
@@ -66,15 +69,14 @@ function ContentSizeSync() {
     if (!lenis) return;
 
     const scheduleResize = (entries: ResizeObserverEntry[]) => {
-      // entries[0] is document.body; use its reported height.
       const newHeight = entries[0]?.contentRect.height ?? 0;
-      // Guard: skip if the height hasn't meaningfully changed (prevents
-      // a feedback loop if ScrollTrigger.refresh() adds/removes pin spacers).
-      if (Math.abs(newHeight - prevHeightRef.current) < 1) return;
+      // Use a larger threshold (5px) to avoid unnecessary reflows from minor
+      // height changes (e.g. GSAP pin spacers being added/removed).
+      if (Math.abs(newHeight - prevHeightRef.current) < 5) return;
       prevHeightRef.current = newHeight;
 
-      // Debounce via rAF so multiple rapid resize notifications in the same
-      // frame collapse into a single lenis.resize() call.
+      // Debounce via rAF so multiple rapid resize notifications collapse
+      // into a single lenis.resize() call.
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = 0;
@@ -112,7 +114,9 @@ function ContentSizeSync() {
 
 export default function SmoothScroller({ children }: { children: React.ReactNode }) {
   return (
-    <ReactLenis root options={{ lerp: 0.1, smoothWheel: true, duration: 1.2 }}>
+    // autoRaf: false — GSAP ticker drives lenis exclusively (ScrollTriggerSync).
+    // If ReactLenis also runs its own RAF loop we get double-compute per frame.
+    <ReactLenis root options={{ lerp: 0.1, smoothWheel: true, duration: 1.2, autoRaf: false }}>
       <ScrollReset />
       <ScrollTriggerSync />
       <ContentSizeSync />
@@ -121,4 +125,4 @@ export default function SmoothScroller({ children }: { children: React.ReactNode
       </div>
     </ReactLenis>
   );
-}
+}

@@ -74,7 +74,7 @@ export default function HeroSection() {
       {/* Mouse-follow glow — only on desktop with fine pointer */}
       {hasPointer && (
         <motion.div
-          className="pointer-events-none absolute h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/35 blur-[180px] mix-blend-screen"
+          className="pointer-events-none absolute h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d36a86]/30 blur-[120px] mix-blend-screen transform-gpu will-change-transform"
           style={{ left: smoothX, top: smoothY, opacity: glowOpacity, zIndex: 4 }}
         />
       )}

@@ -37,41 +37,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ success: false, error: 'Blog not found' }, { status: 404 });
     }
 
-    const sourceLang = blog.sourceLang || (isArabic(blog.title || '') ? 'ar' : 'en');
-    const target: 'en' | 'ar' = sourceLang === 'ar' ? 'en' : 'ar';
-    const existingContent = blog.translations?.[target]?.content;
-
-    // Re-translate if content is missing OR still in the source language
-    const contentIsWrongLang = existingContent
-      ? target === 'en' ? isArabic(existingContent) : !isArabic(existingContent)
-      : false;
-    const needsTranslation = !existingContent || contentIsWrongLang;
-
-    if (!blog.sourceLang || needsTranslation) {
-      const [tTitle, tExcerpt, tContent] = await Promise.all([
-        blog.title ? autoTranslate(blog.title).then((r) => r[target]) : Promise.resolve(''),
-        blog.excerpt ? autoTranslate(blog.excerpt).then((r) => r[target]) : Promise.resolve(''),
-        blog.content ? translateHtmlContent(blog.content, target) : Promise.resolve(''),
-      ]);
-
-      // Use $set so Mongoose strict mode doesn't block nested-field writes
-      await Blog.findByIdAndUpdate(blog._id, {
-        $set: {
-          sourceLang,
-          [`translations.${target}.title`]: tTitle,
-          [`translations.${target}.excerpt`]: tExcerpt,
-          [`translations.${target}.content`]: tContent,
-        },
-      });
-
-      blog.sourceLang = sourceLang;
-      blog.translations = {
-        ...(blog.translations || {}),
-        [target]: { title: tTitle, excerpt: tExcerpt, content: tContent },
-      };
-    }
-
-    return NextResponse.json({ success: true, data: JSON.parse(JSON.stringify(localize(blog, locale))) });
+    const localized = localize(blog, locale);
+    return NextResponse.json({ success: true, data: JSON.parse(JSON.stringify(localized)) });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 400 });
   }
