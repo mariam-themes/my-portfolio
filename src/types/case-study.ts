@@ -33,4 +33,7 @@ export type NextProject = {
   sector?: string;
   heroMediaUrl?: string;
   year?: number;
+  isForSale?: boolean;
+  price?: number;
+  currency?: string;
 };

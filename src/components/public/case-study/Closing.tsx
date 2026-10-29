@@ -2,8 +2,8 @@ import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
-import { ArrowUpRight } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { ArrowUpRight, ShoppingBag } from 'lucide-react';
 import { NextProject } from '@/types/case-study';
 import { Media } from './Shared';
 
@@ -45,15 +45,15 @@ export function ClosingSection({
   if (images && images.length > 0) {
     const isTwo = images.length === 2;
     const isOne = images.length === 1;
-    
+
     return (
-      <div 
-        ref={ref} 
+      <div
+        ref={ref}
         className={
-          isOne 
-            ? 'block' 
-            : isTwo 
-              ? 'grid grid-cols-1 md:grid-cols-2 gap-4' 
+          isOne
+            ? 'block'
+            : isTwo
+              ? 'grid grid-cols-1 md:grid-cols-2 gap-4'
               : 'grid grid-cols-1 md:grid-cols-3 gap-4 md:auto-rows-[300px] grid-flow-dense'
         }
       >
@@ -112,6 +112,12 @@ export function ClosingSection({
 
 export function NextProjectTeaser({ next }: { next: NextProject }) {
   const t = useTranslations('CaseStudy');
+  const locale = useLocale();
+
+  const formattedPrice = next.price
+    ? new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US').format(next.price)
+    : '';
+
   return (
     <div className="group/teaser relative border-t border-white/5">
       <div className="absolute top-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-gradient-to-r from-[#951C30] via-[#c4243c] to-[#951C30] transition-transform duration-700 ease-out group-hover/teaser:scale-x-100" />
@@ -137,23 +143,39 @@ export function NextProjectTeaser({ next }: { next: NextProject }) {
         <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover/teaser:opacity-100 [background:radial-gradient(ellipse_60%_50%_at_50%_100%,rgba(149,28,48,0.18),transparent)]" />
 
         <div className="relative z-10">
-          <p className="mb-4 text-[9px] font-bold uppercase tracking-[.55em] text-[var(--accent)] opacity-60 transition-opacity duration-300 group-hover/teaser:opacity-100">
-            {t('nextProject')}
+          <p className="mb-4 text-[9px] sm:text-[10px] font-bold uppercase tracking-[.45em] rtl:tracking-normal text-[var(--accent)] opacity-80 transition-opacity duration-300 group-hover/teaser:opacity-100">
+            {next.isForSale
+              ? (locale === 'ar' ? 'الهوية التالية' : 'Next Identity')
+              : t('nextProject')}
           </p>
+
           <h3 className="text-3xl font-bold tracking-tight text-white transition-all duration-500 group-hover/teaser:-translate-y-1 group-hover/teaser:tracking-wide sm:text-5xl">
             {next.title}
           </h3>
-          {(next.sector || next.year) && (
-            <p className="mt-2 text-xs text-white/30 transition-colors duration-300 group-hover/teaser:text-white/55">
-              {[next.sector, next.year].filter(Boolean).join(' · ')}
-            </p>
+
+          {(next.sector || next.year || (next.isForSale && next.price)) && (
+            <div className="mt-3 flex items-center justify-center gap-3 text-xs text-white/40 transition-colors duration-300 group-hover/teaser:text-white/70">
+              {next.isForSale && next.price ? (
+                <span className="font-mono font-bold text-amber-300 bg-black/60 border border-amber-500/30 px-3 py-0.5 rounded-full shadow-sm">
+                  {formattedPrice} {next.currency || 'SAR'}
+                </span>
+              ) : null}
+              {[next.sector, next.year].filter(Boolean).map((item, idx) => (
+                <span key={idx}>
+                  {idx > 0 || (next.isForSale && next.price) ? '• ' : ''}{item}
+                </span>
+              ))}
+            </div>
           )}
-          <div className="mt-8 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.35em] text-white/40 transition-colors duration-300 group-hover/teaser:text-white">
+
+          <div className="mt-8 inline-flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-[.3em] rtl:tracking-normal text-white/50 transition-colors duration-300 group-hover/teaser:text-white">
             <span className="relative">
-              {t('viewCaseStudy')}
+              {next.isForSale
+                ? (locale === 'ar' ? 'عرض تفاصيل الهوية' : 'View Identity Details')
+                : t('viewCaseStudy')}
               <span className="absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-white transition-transform duration-500 group-hover/teaser:scale-x-100" />
             </span>
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/teaser:translate-x-0.5 group-hover/teaser:-translate-y-0.5" />
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover/teaser:translate-x-0.5 group-hover/teaser:-translate-y-0.5 rtl:-scale-x-100" />
           </div>
         </div>
       </Link>

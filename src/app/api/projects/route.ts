@@ -57,6 +57,9 @@ export async function GET(request: Request) {
         ...project,
         title: isTargetSource ? project.title : (trans.title || project.title),
         description: isTargetSource ? project.description : (trans.description || project.description),
+        category: isTargetSource ? project.category : (trans.category || project.category),
+        sector: isTargetSource ? project.sector : (trans.sector || project.sector),
+        rawCategory: project.category,
       };
     });
     
