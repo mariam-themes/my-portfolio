@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, ArrowUp, ArrowDown, Briefcase, Loader2 } from 'lucide-react';
+import { Plus, Edit2, ArrowUp, ArrowDown, Briefcase, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import ServiceForm from '@/components/admin/ServiceForm';
+import ServiceCategoriesManager from '@/components/admin/ServiceCategoriesManager';
 import DeleteItemButton from '@/components/admin/DeleteItemButton';
 
 export default function ServicesPage() {
@@ -15,7 +16,6 @@ export default function ServicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState<any | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-
 
   useEffect(() => {
     fetchData();
@@ -32,8 +32,6 @@ export default function ServicesPage() {
       if (servicesData.success) {
         setServices(servicesData.data);
       }
-
-
     } catch (err) {
       toast.error('Failed to load data');
     } finally {
@@ -79,8 +77,6 @@ export default function ServicesPage() {
     }
   };
 
-
-
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -90,7 +86,7 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-12">
+    <div className="max-w-6xl mx-auto space-y-10 pb-12">
       <div>
         <h1 className="text-3xl font-light text-white mb-2 font-serif flex items-center gap-3">
           <Briefcase className="text-rose-500" />
@@ -98,6 +94,9 @@ export default function ServicesPage() {
         </h1>
         <p className="text-rose-200/60">{t('subtitle')}</p>
       </div>
+
+      {/* Service Categories Manager */}
+      <ServiceCategoriesManager />
 
       {/* Services List */}
       <section className="space-y-6">
@@ -170,10 +169,15 @@ export default function ServicesPage() {
                       </button>
                     </div>
                     <div>
-                      <h4 className="text-lg font-medium text-rose-100 flex items-center gap-2">
+                      <h4 className="text-lg font-medium text-white flex items-center gap-2 flex-wrap">
                         {service.title} 
-                        {service.translations?.en?.title && (
-                          <span className="text-[10px] px-2 py-0.5 bg-rose-900/50 rounded-full text-rose-300">
+                        {service.category && (
+                          <span className="text-[11px] px-2.5 py-0.5 bg-rose-950/80 border border-rose-800/40 rounded-full text-rose-300 font-normal">
+                            {service.category}
+                          </span>
+                        )}
+                        {service.translations?.en?.title && service.translations.en.title !== service.title && (
+                          <span className="text-[10px] px-2 py-0.5 bg-rose-900/40 rounded-full text-rose-300/80">
                             {service.translations.en.title}
                           </span>
                         )}
@@ -183,7 +187,7 @@ export default function ServicesPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     {service.image && (
-                      <div className="w-16 h-12 rounded-lg overflow-hidden border border-rose-900/30 mr-4">
+                      <div className="w-14 h-14 rounded-xl overflow-hidden border border-rose-900/40 shrink-0 mx-2 shadow-md">
                         <img src={service.image} alt={service.title} className="w-full h-full object-cover" />
                       </div>
                     )}
@@ -210,9 +214,6 @@ export default function ServicesPage() {
           </div>
         )}
       </section>
-
-
-
     </div>
   );
 }

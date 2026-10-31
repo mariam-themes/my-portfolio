@@ -62,7 +62,7 @@ function ScrollTriggerSync() {
 // mounting after Lenis has already booted, and re-syncs Lenis + ScrollTrigger.
 function ContentSizeSync() {
   const lenis = useLenis();
-  const rafRef = useRef<number>(0);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | 0>(0);
   const prevHeightRef = useRef<number>(0);
 
   useEffect(() => {
@@ -75,14 +75,14 @@ function ContentSizeSync() {
       if (Math.abs(newHeight - prevHeightRef.current) < 5) return;
       prevHeightRef.current = newHeight;
 
-      // Debounce via rAF so multiple rapid resize notifications collapse
-      // into a single lenis.resize() call.
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = 0;
+      // Trailing debounce: accordion/image height tweens fire ResizeObserver
+      // every frame; refreshing Lenis/ScrollTrigger mid-tween causes mobile shake.
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        timeoutRef.current = 0;
         ScrollTrigger.refresh();
         lenis.resize();
-      });
+      }, 160);
     };
 
     const ro = new ResizeObserver(scheduleResize);
@@ -102,9 +102,9 @@ function ContentSizeSync() {
     return () => {
       ro.disconnect();
       window.removeEventListener('load', onWindowLoad);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = 0;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = 0;
       }
     };
   }, [lenis]);

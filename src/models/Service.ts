@@ -6,6 +6,7 @@ export interface IService extends Document {
   image: string;
   tags: string[];
   order: number;
+  category?: string;
   sourceLang?: 'en' | 'ar';
   translations?: {
     en?: {
@@ -34,6 +35,11 @@ const ServiceSchema = new Schema<IService>(
     image: {
       type: String,
       required: [true, 'Service image is required'],
+    },
+    category: {
+      type: String,
+      trim: true,
+      default: '',
     },
     tags: {
       type: [String],

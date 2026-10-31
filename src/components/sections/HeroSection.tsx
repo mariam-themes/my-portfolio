@@ -54,11 +54,11 @@ export default function HeroSection() {
 
       // Entrance animation for each line
       const tl = gsap.timeline({ delay: 0.15 });
-      tl.from('.hero-kicker',  { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' })
+      tl.from('.hero-kicker', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' })
         .from('.hero-name-line', { y: 60, opacity: 0, duration: 1, stagger: 0.12, ease: 'power4.out' }, '-=0.4')
-        .from('.hero-subtitle',  { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
-        .from('.hero-ctas',      { y: 16, opacity: 0, duration: 0.7, ease: 'power3.out' }, '-=0.5')
-        .from('.hero-scroll',    { y: 10, opacity: 0, duration: 0.6, ease: 'power3.out' }, '-=0.3');
+        .from('.hero-subtitle', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+        .from('.hero-ctas', { y: 16, opacity: 0, duration: 0.7, ease: 'power3.out' }, '-=0.5')
+        .from('.hero-scroll', { y: 10, opacity: 0, duration: 0.6, ease: 'power3.out' }, '-=0.3');
     },
     { scope: heroRef }
   );
@@ -99,7 +99,8 @@ export default function HeroSection() {
         {/* Giant display name */}
         <div
           aria-hidden
-          className="text-center select-none"
+          // className="text-center select-none"
+          className="text-center select-none space-y-6"
         >
           <div className={`hero-name-line font-serif tracking-[-0.03em] ${locale === 'ar' ? 'text-[clamp(2.8rem,13vw,11rem)] font-bold leading-[0.85]' : 'text-[clamp(2.6rem,12vw,10.5rem)] font-semibold leading-[0.88]'} text-[#f5f2f3]`}>
             {t('nameTop')}

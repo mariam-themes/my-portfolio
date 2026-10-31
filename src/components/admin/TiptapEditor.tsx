@@ -3,9 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
-import Underline from '@tiptap/extension-underline';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
@@ -95,10 +93,11 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
   const linkRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
-      StarterKit,
-      Underline,
-      Link.configure({ openOnClick: false, autolink: true }),
+      StarterKit.configure({
+        link: { openOnClick: false, autolink: true },
+      }),
       Image,
       TextStyle,
       Color,

@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ChevronDown, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { COUNTRY_CODES } from '@/lib/country-codes';
 
 const SERVICE_OPTIONS = [
   { value: 'Branding & Identity', labelKey: 'serviceBranding' },
@@ -89,15 +90,16 @@ const inputError = 'border-red-400/60 focus:border-red-400';
 export default function ContactForm() {
   const t = useTranslations('Contact');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [countryCode, setCountryCode] = useState('+966');
 
   const contactSchema = z
     .object({
       name: z.string().trim().min(1, t('nameError')),
       email: z.string().trim().regex(EMAIL_REGEX, t('emailInvalid')),
-      phone: z.string().trim().optional(),
+      phone: z.string().trim().min(5, t('phoneError')),
       service: z.string().trim().min(1, t('serviceError')),
       serviceOther: z.string().trim().optional(),
-      budget: z.string().trim().optional(),
+      budget: z.string().trim().min(1, t('budgetError')),
       timeline: z.string().trim().optional(),
       message: z.string().trim().min(10, t('messageShort')),
     })
@@ -148,9 +150,9 @@ export default function ContactForm() {
           body: JSON.stringify({
             name: values.name,
             email: values.email,
-            phone: values.phone || undefined,
+            phone: values.phone ? (values.phone.trim().startsWith('+') ? values.phone.trim() : `${countryCode} ${values.phone.trim()}`) : undefined,
             service,
-            budget: values.budget || undefined,
+            budget: values.budget,
             timeline: values.timeline || undefined,
             message: values.message,
           }),
@@ -233,14 +235,29 @@ export default function ContactForm() {
           />
         </FieldWrap>
 
-        <FieldWrap id="phone" label={t('phoneLabel')} optional>
-          <input
-            id="phone"
-            type="tel"
-            placeholder={t('phonePlaceholder')}
-            className={cn(inputBase, inputNormal)}
-            {...register('phone')}
-          />
+        <FieldWrap id="phone" label={t('phoneLabel')} error={errors.phone?.message}>
+          <div className="flex items-center gap-2">
+            <select
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              className="bg-transparent border-0 border-b border-rose-100/30 text-xs sm:text-sm text-rose-50 py-3 outline-none focus:border-[#951C30] cursor-pointer shrink-0"
+              dir="ltr"
+            >
+              {COUNTRY_CODES.map((c) => (
+                <option key={`${c.code}-${c.nameEn}`} value={c.code} className="bg-[#160308] text-rose-50">
+                  {c.flag} {c.code}
+                </option>
+              ))}
+            </select>
+            <input
+              id="phone"
+              type="tel"
+              placeholder={t('phonePlaceholder')}
+              className={cn(inputBase, errors.phone ? inputError : inputNormal, 'flex-1')}
+              dir="ltr"
+              {...register('phone')}
+            />
+          </div>
         </FieldWrap>
       </div>
 
@@ -301,12 +318,12 @@ export default function ContactForm() {
 
       {/* Budget · Timeline */}
       <div className="grid gap-10 sm:grid-cols-2">
-        <FieldWrap id="budget" label={t('budgetLabel')} optional>
+        <FieldWrap id="budget" label={t('budgetLabel')} error={errors.budget?.message}>
           <input
             id="budget"
             type="text"
             placeholder={t('budgetPlaceholder')}
-            className={cn(inputBase, inputNormal)}
+            className={cn(inputBase, errors.budget ? inputError : inputNormal)}
             {...register('budget')}
           />
         </FieldWrap>

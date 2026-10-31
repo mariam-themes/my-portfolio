@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Loader2, Trash2, Mail, Phone, Briefcase, Wallet, Clock, CheckCircle2, Inbox } from 'lucide-react';
+import { Loader2, Trash2, Mail, Phone, MessageCircle, Briefcase, Wallet, Clock, CheckCircle2, Inbox } from 'lucide-react';
+import { getWhatsAppUrl } from '@/lib/country-codes';
 import toast from 'react-hot-toast';
 
 export type InquiryStatus = 'new' | 'contacted' | 'closed';
@@ -177,13 +178,21 @@ export default function InquiriesClient({
                 </div>
 
                 {inquiry.phone && (
-                  <a
-                    href={`tel:${inquiry.phone}`}
-                    className="inline-flex items-center gap-1.5 text-sm text-rose-200/70 hover:text-rose-200 transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    {inquiry.phone}
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={getWhatsAppUrl(inquiry.phone)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-emerald-400 hover:text-emerald-300 font-medium transition-all bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-lg group shadow-sm"
+                      title="محادثة واتساب / Open WhatsApp Chat"
+                    >
+                      <MessageCircle className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                      <span dir="ltr">{inquiry.phone}</span>
+                      <span className="text-[10px] text-emerald-300/80 font-normal">
+                        (واتساب)
+                      </span>
+                    </a>
+                  </div>
                 )}
 
                 <div className="flex flex-wrap gap-2 text-xs">

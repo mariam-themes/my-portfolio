@@ -76,22 +76,26 @@ export default function AboutMeSection() {
         }
       );
 
-      // Staggered reveal for experience items
-      gsap.fromTo(
-        '.exp-item',
-        { opacity: 0, x: -30 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '.exp-list',
-            start: 'top 85%',
-          },
-        }
-      );
+      // Staggered reveal for experience items (skip if the list is empty / not in the DOM)
+      const expItems = gsap.utils.toArray<HTMLElement>('.exp-item');
+      const expList = sectionRef.current?.querySelector('.exp-list');
+      if (expItems.length && expList) {
+        gsap.fromTo(
+          expItems,
+          { opacity: 0, x: -30 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: expList,
+              start: 'top 85%',
+            },
+          }
+        );
+      }
     }, sectionRef);
 
     return () => ctx.revert();

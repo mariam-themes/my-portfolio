@@ -1,7 +1,9 @@
 {
   "Services": {
     "title": "SERVICES",
-    "description": "Five disciplines, one continuous system — from the first mark to the shipped storefront."
+    "description": "Five disciplines, one continuous system — from the first mark to the shipped storefront.",
+    "viewAll": "View All Services",
+    "allServices": "All Services"
   },
   "Footer": {
     "tagline": "Bespoke digital experiences for luxury brands.",
@@ -80,8 +82,8 @@
     "namePlaceholder": "Your full name",
     "emailLabel": "Email",
     "emailPlaceholder": "you@example.com",
-    "phoneLabel": "Phone (optional)",
-    "phonePlaceholder": "+1 (555) 000-0000",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "50 000 0000",
     "serviceLabel": "Service",
     "servicePlaceholder": "Select a service",
     "serviceBranding": "Branding & Identity",
@@ -92,7 +94,7 @@
     "serviceOtherLabel": "Service details",
     "serviceOtherPlaceholder": "What kind of service do you need?",
     "serviceOtherShort": "Please describe the service (at least 2 characters).",
-    "budgetLabel": "Budget (optional)",
+    "budgetLabel": "Expected Budget",
     "budgetPlaceholder": "Enter your budget",
     "budgetOption1": "Under 500 SAR",
     "budgetOption2": "500 – 1000 SAR",
@@ -118,7 +120,9 @@
     "successMessage": "Thanks — I'll get back to you very soon.",
     "errorTitle": "Something went wrong.",
     "errorMessage": "Your request couldn't be sent. Please try again later.",
-    "sendAnother": "Send another request"
+    "sendAnother": "Send another request",
+    "phoneError": "Please enter your phone number.",
+    "budgetError": "Please enter your project budget."
   },
   "CaseStudy": {
     "visualDirection": "Visual Direction",
@@ -495,15 +499,12 @@
       "saved": "Homepage layout saved!",
       "failed": "Failed to save layout",
       "hero": "Hero / 3D Intro",
-      "work": "Work / Portfolio Showcase",
+      "work": "Selected Work",
       "about": "About Me",
       "services": "Services",
-      "platforms": "Platforms & Tools",
-      "featuredProjects": "Featured Projects",
-      "projectsPreview": "Projects Preview",
-      "work": "Selected Work",
       "platforms": "Tools & Platforms",
       "featuredProjects": "Featured Projects",
+      "projectsPreview": "Projects Preview",
       "otherProjects": "Other Projects",
       "testimonials": "Testimonials",
       "blog": "Blog / Journal",
@@ -647,6 +648,9 @@
     "error": "Something went wrong. Please try again.",
     "close": "Close",
     "project": "Identity",
-    "priceLabel": "Price"
+    "priceLabel": "Price",
+    "phoneLabel": "Phone Number (WhatsApp)",
+    "phonePlaceholder": "50 000 0000",
+    "phoneError": "Please enter your phone number."
   }
 }

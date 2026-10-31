@@ -304,6 +304,8 @@ export default function MarketplaceClient({
                       fill
                       className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      priority={i === 0}
+                      loading={i === 0 ? 'eager' : 'lazy'}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/30 font-light">

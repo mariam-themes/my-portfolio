@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { COUNTRY_CODES } from '@/lib/country-codes';
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -28,6 +29,8 @@ export default function PurchaseModal({
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+966');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const nameRef = useRef<HTMLInputElement>(null);
@@ -52,7 +55,7 @@ export default function PurchaseModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
+    if (!name.trim() || !email.trim() || !phone.trim()) return;
     setStatus('submitting');
 
     try {
@@ -62,6 +65,7 @@ export default function PurchaseModal({
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
+          phone: phone.trim().startsWith('+') ? phone.trim() : `${countryCode} ${phone.trim()}`,
           service: `${t('project')}: ${projectTitle}`,
           message: message.trim() || `Purchase request for: ${projectTitle}`,
           type: 'purchase',
@@ -84,6 +88,8 @@ export default function PurchaseModal({
     setTimeout(() => {
       setName('');
       setEmail('');
+      setPhone('');
+      setCountryCode('+966');
       setMessage('');
       setStatus('idle');
     }, 300);
@@ -229,6 +235,38 @@ export default function PurchaseModal({
                       />
                     </div>
 
+                    {/* Phone Number with Country Code Dropdown */}
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-widest text-white/50 mb-1.5">
+                        {t('phoneLabel')} <span className="text-[#951C30]">*</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={countryCode}
+                          onChange={(e) => setCountryCode(e.target.value)}
+                          disabled={status === 'submitting'}
+                          className="rounded-lg border border-rose-900/30 bg-[#0d0508] px-3 py-2.5 text-xs sm:text-sm text-white outline-none focus:border-[#951C30]/60 focus:ring-1 focus:ring-[#951C30]/30 transition-colors disabled:opacity-50 cursor-pointer shrink-0"
+                          dir="ltr"
+                        >
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={`${c.code}-${c.nameEn}`} value={c.code} className="bg-[#0d0508] text-white">
+                              {c.flag} {c.code}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder={t('phonePlaceholder')}
+                          required
+                          disabled={status === 'submitting'}
+                          className="flex-1 rounded-lg border border-rose-900/30 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-white/25 outline-none focus:border-[#951C30]/60 focus:ring-1 focus:ring-[#951C30]/30 transition-colors disabled:opacity-50"
+                          dir="ltr"
+                        />
+                      </div>
+                    </div>
+
                     {/* Message */}
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-widest text-white/50 mb-1.5">
@@ -247,7 +285,7 @@ export default function PurchaseModal({
                     {/* Submit */}
                     <button
                       type="submit"
-                      disabled={status === 'submitting' || !name.trim() || !email.trim()}
+                      disabled={status === 'submitting' || !name.trim() || !email.trim() || !phone.trim()}
                       className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#951C30] to-[#7a1628] px-6 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-lg shadow-rose-900/30 transition-all duration-300 hover:from-[#b8223b] hover:to-[#951C30] hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                     >
                       {status === 'submitting' ? (

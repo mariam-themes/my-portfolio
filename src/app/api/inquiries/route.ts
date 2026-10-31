@@ -47,6 +47,9 @@ export async function POST(request: Request) {
       budget: typeof body.budget === 'string' ? body.budget.trim() : undefined,
       timeline: typeof body.timeline === 'string' ? body.timeline.trim() : undefined,
       message: typeof body.message === 'string' ? body.message.trim() : '',
+      type: body.type === 'purchase' ? 'purchase' : 'contact',
+      projectRef: typeof body.projectRef === 'string' ? body.projectRef.trim() : undefined,
+      projectPrice: typeof body.projectPrice === 'number' ? body.projectPrice : undefined,
     });
 
     await sendNewInquiryNotification(inquiry);

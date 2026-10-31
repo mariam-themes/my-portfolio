@@ -1,7 +1,9 @@
 {
   "Services": {
     "title": "الخدمات",
-    "description": "خمس تخصصات، نظام متصل واحد — من أول رسمة حتى إطلاق متجرك الإلكتروني بالكامل."
+    "description": "خمس تخصصات، نظام متصل واحد — من أول رسمة حتى إطلاق متجرك الإلكتروني بالكامل.",
+    "viewAll": "عرض جميع الخدمات",
+    "allServices": "جميع الخدمات"
   },
   "Footer": {
     "tagline": "تجارب رقمية مخصصة للعلامات التجارية الفاخرة.",
@@ -80,8 +82,8 @@
     "namePlaceholder": "اسمك الكامل",
     "emailLabel": "البريد الإلكتروني",
     "emailPlaceholder": "you@example.com",
-    "phoneLabel": "الهاتف (اختياري)",
-    "phonePlaceholder": "+1 (555) 000-0000",
+    "phoneLabel": "رقم الهاتف",
+    "phonePlaceholder": "50 000 0000",
     "serviceLabel": "الخدمة",
     "servicePlaceholder": "اختر خدمة",
     "serviceBranding": "الهوية البصرية والعلامة",
@@ -92,7 +94,7 @@
     "serviceOtherLabel": "تفاصيل الخدمة",
     "serviceOtherPlaceholder": "ما نوع الخدمة التي تحتاجها؟",
     "serviceOtherShort": "من فضلك اكتب وصف الخدمة (حرفان على الأقل).",
-    "budgetLabel": "الميزانية (اختياري)",
+    "budgetLabel": "الميزانية المتوقعة",
     "budgetPlaceholder": "أدخل ميزانيتك",
     "budgetOption1": "أقل من 500 ريال",
     "budgetOption2": "500 – 1000 ريال",
@@ -118,7 +120,9 @@
     "successMessage": "شكرًا — سأرد عليك قريبًا جدًا.",
     "errorTitle": "حدث خطأ ما.",
     "errorMessage": "تعذر إرسال طلبك. من فضلك حاول مرة أخرى لاحقًا.",
-    "sendAnother": "إرسال طلب آخر"
+    "sendAnother": "إرسال طلب آخر",
+    "phoneError": "من فضلك أدخل رقم هاتفك.",
+    "budgetError": "من فضلك أدخل ميزانية المشروع."
   },
   "CaseStudy": {
     "visualDirection": "التوجه البصري",
@@ -495,15 +499,12 @@
       "saved": "تم حفظ تخطيط الصفحة الرئيسية!",
       "failed": "فشل حفظ التخطيط",
       "hero": "الترويسة / مقدمة ثلاثية الأبعاد",
-      "work": "الأعمال / معرض البورتفوليو",
+      "work": "الأعمال المختارة",
       "about": "نبذة عني",
       "services": "الخدمات",
-      "platforms": "المنصات والأدوات",
-      "featuredProjects": "المشاريع المميزة",
-      "projectsPreview": "معرض المشاريع",
-      "work": "الأعمال المختارة",
       "platforms": "أدوات ومنصات",
       "featuredProjects": "مشاريع مميزة",
+      "projectsPreview": "معرض المشاريع",
       "otherProjects": "مشاريع أخرى",
       "testimonials": "الشهادات",
       "blog": "المدونة",
@@ -648,6 +649,9 @@
     "error": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     "close": "إغلاق",
     "project": "الهوية",
-    "priceLabel": "السعر"
+    "priceLabel": "السعر",
+    "phoneLabel": "رقم الهاتف (واتساب)",
+    "phonePlaceholder": "50 000 0000",
+    "phoneError": "يرجى إدخال رقم الهاتف"
   }
 }

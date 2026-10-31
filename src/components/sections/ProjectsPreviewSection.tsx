@@ -193,6 +193,7 @@ export default function ProjectsPreviewSection() {
                   locale={locale}
                   t={t}
                   onOpen={openProject}
+                  isLCP={i === 0}
                 />
               );
             })}
@@ -225,7 +226,7 @@ export default function ProjectsPreviewSection() {
   );
 }
 
-const ProjectCard = memo(function ProjectCard({ project, index, total, locale, t, onOpen }: { project: LocalizedProject; index: number; total: number; locale: string; t: (key: string) => string; onOpen: (slug: string) => void }) {
+const ProjectCard = memo(function ProjectCard({ project, index, total, locale, t, onOpen, isLCP }: { project: LocalizedProject; index: number; total: number; locale: string; t: (key: string) => string; onOpen: (slug: string) => void; isLCP?: boolean }) {
   const title = resolveText(project.title, project, 'title', locale);
   const category = resolveText(project.category, project, 'category', locale);
   const sector = resolveText(project.sector, project, 'sector', locale);
@@ -247,7 +248,7 @@ const ProjectCard = memo(function ProjectCard({ project, index, total, locale, t
 
       <figure data-project-visual className="project__visual">
         {project.heroMediaUrl ? (
-          <Image src={project.heroMediaUrl as string} alt={title} fill sizes="56vw" className="project__image" />
+          <Image src={project.heroMediaUrl as string} alt={title} fill sizes="56vw" className="project__image" priority={isLCP} loading={isLCP ? 'eager' : 'lazy'} />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-white/20">{t('noImage')}</div>
         )}

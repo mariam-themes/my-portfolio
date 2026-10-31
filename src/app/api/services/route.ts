@@ -2,12 +2,20 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Service from '@/models/Service';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await connectToDatabase();
     
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    
+    const query: any = {};
+    if (category && category.trim()) {
+      query.category = category.trim();
+    }
+
     // Sort by order ascending
-    const services = await Service.find({}).sort({ order: 1, createdAt: -1 });
+    const services = await Service.find(query).sort({ order: 1, createdAt: -1 });
     
     return NextResponse.json({ success: true, data: services }, { status: 200 });
   } catch (error: any) {
