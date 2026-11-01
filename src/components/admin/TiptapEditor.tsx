@@ -141,7 +141,7 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     ? '3'
     : 'paragraph';
 
-  function setHeading(value: string) {
+  const setHeading = (value: string) => {
     if (value === 'paragraph') {
       editor.chain().focus().setParagraph().run();
     } else {
@@ -151,9 +151,9 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
         .toggleHeading({ level: Number(value) as 1 | 2 | 3 })
         .run();
     }
-  }
+  };
 
-  function applyLink() {
+  const applyLink = () => {
     const url = linkValue.trim();
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
@@ -167,7 +167,7 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     }
     setLinkOpen(false);
     setLinkValue('');
-  }
+  };
 
   return (
     <div className="border border-slate-300 dark:border-slate-700 rounded-md overflow-hidden bg-white dark:bg-slate-900">
