@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -72,6 +72,88 @@ export function CSSKeyframes() {
 
 const VideoLightbox = dynamic(() => import('./VideoLightbox'), { ssr: false });
 
+const videoTimeMemory = new Map<string, number>();
+
+function getSavedVideoTime(url: string): number {
+  if (videoTimeMemory.has(url)) {
+    return videoTimeMemory.get(url) || 0;
+  }
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = sessionStorage.getItem(`vid_time_${url}`);
+      if (stored) {
+        const parsed = parseFloat(stored);
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    } catch {}
+  }
+  return 0;
+}
+
+function saveVideoTime(url: string, time: number) {
+  if (!url || isNaN(time) || time < 0) return;
+  videoTimeMemory.set(url, time);
+  if (typeof window !== 'undefined') {
+    try {
+      sessionStorage.setItem(`vid_time_${url}`, time.toString());
+    } catch {}
+  }
+}
+
+function PersistentVideo({ url, alt }: { url: string; alt: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid || !url) return;
+
+    const saved = getSavedVideoTime(url);
+    if (saved > 0 && Math.abs(vid.currentTime - saved) > 0.3) {
+      try {
+        vid.currentTime = saved;
+      } catch {}
+    }
+
+    return () => {
+      if (vid && url) {
+        saveVideoTime(url, vid.currentTime);
+      }
+    };
+  }, [url]);
+
+  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const vid = e.currentTarget;
+    const saved = getSavedVideoTime(url);
+    if (saved > 0 && Math.abs(vid.currentTime - saved) > 0.3) {
+      try {
+        vid.currentTime = saved;
+      } catch {}
+    }
+  };
+
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    saveVideoTime(url, e.currentTarget.currentTime);
+  };
+
+  return (
+    <video
+      ref={videoRef}
+      src={url}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      onLoadedMetadata={handleLoadedMetadata}
+      onTimeUpdate={handleTimeUpdate}
+      controlsList="nodownload"
+      onContextMenu={(e) => e.preventDefault()}
+      className="h-full w-full object-cover"
+      aria-label={alt}
+    />
+  );
+}
+
 export function Media({ item, alt, priority = false }: { item?: Partial<GalleryItem>; alt: string; priority?: boolean }) {
   const [showLightbox, setShowLightbox] = useState(false);
 
@@ -94,7 +176,7 @@ export function Media({ item, alt, priority = false }: { item?: Partial<GalleryI
             setShowLightbox(true);
           }}
         >
-          <video src={item.url} autoPlay loop muted playsInline controlsList="nodownload" onContextMenu={(e) => e.preventDefault()} className="h-full w-full object-cover" aria-label={alt} />
+          <PersistentVideo url={item.url} alt={alt} />
           {showGifBadge && (
             <span className="absolute top-2 left-2 bg-black/60 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-white/20 pointer-events-none z-10">
               GIF

@@ -9,40 +9,40 @@ import { ArrowUpRight, Calendar, User, Tag, Monitor } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const getGridClasses = (type: string | undefined, totalItems: number) => {
+  const t = (type || '').toLowerCase();
+  
+  // 1 item: Center it and constrain width so it doesn't stretch massively
+  if (totalItems === 1) {
+    if (t === 'mobile' || t === 'mopail') return 'col-span-1 md:row-span-2 w-full max-w-sm mx-auto';
+    return 'col-span-1 md:row-span-2 w-full max-w-5xl mx-auto';
+  }
+  
+  // 2 items: Side by side, center and constrain mobile so it looks elegant
+  if (totalItems === 2) {
+    if (t === 'mobile' || t === 'mopail') return 'col-span-1 md:row-span-2 w-full max-w-sm mx-auto';
+    return 'col-span-1 md:row-span-2 w-full';
+  }
+
+  // Default Masonry for 3+ items
+  if (t === 'mobile' || t === 'mopail') return 'col-span-1 md:col-span-1 md:row-span-2';
+  if (t === 'desktop') return 'col-span-1 md:col-span-2 md:row-span-2';
+  if (t === 'mockup' || t === 'mocup') return 'col-span-1 md:col-span-2 md:row-span-1';
+  if (t === 'video' || t === 'vidio') return 'col-span-1 md:col-span-2 md:row-span-2';
+  return 'col-span-1 md:col-span-1 md:row-span-1';
+};
+
+const GalleryFrame = ({ item, index, projectTitle, totalItems }: { item: GalleryItem; index: number; projectTitle: string; totalItems: number }) => (
+  <figure
+    className={`relative overflow-hidden rounded-xl border border-[#951C30]/20 bg-[#1c060f] group transition-all duration-500 hover:border-[#951C30]/60 hover:shadow-[0_0_0_1px_rgba(149,28,48,0.3),0_8px_40px_rgba(149,28,48,0.15)] hover:-translate-y-1 hover:scale-[1.01] [&>img]:transition-transform [&>img]:duration-700 hover:[&>img]:scale-105 [&>video]:transition-transform [&>video]:duration-700 hover:[&>video]:scale-105 ${getGridClasses(item.type, totalItems)}`}
+  >
+    <Media item={item} alt={`${projectTitle} frame ${index + 1}`} />
+    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+  </figure>
+);
+
 export function GallerySection({ items, projectTitle }: { items: GalleryItem[]; projectTitle: string }) {
   if (!items.length) return null;
-
-  const getGridClasses = (type?: string) => {
-    const t = (type || '').toLowerCase();
-    
-    // 1 item: Center it and constrain width so it doesn't stretch massively
-    if (items.length === 1) {
-      if (t === 'mobile' || t === 'mopail') return 'col-span-1 md:row-span-2 w-full max-w-sm mx-auto';
-      return 'col-span-1 md:row-span-2 w-full max-w-5xl mx-auto';
-    }
-    
-    // 2 items: Side by side, center and constrain mobile so it looks elegant
-    if (items.length === 2) {
-      if (t === 'mobile' || t === 'mopail') return 'col-span-1 md:row-span-2 w-full max-w-sm mx-auto';
-      return 'col-span-1 md:row-span-2 w-full';
-    }
-
-    // Default Masonry for 3+ items
-    if (t === 'mobile' || t === 'mopail') return 'col-span-1 md:col-span-1 md:row-span-2';
-    if (t === 'desktop') return 'col-span-1 md:col-span-2 md:row-span-2';
-    if (t === 'mockup' || t === 'mocup') return 'col-span-1 md:col-span-2 md:row-span-1';
-    if (t === 'video' || t === 'vidio') return 'col-span-1 md:col-span-2 md:row-span-2';
-    return 'col-span-1 md:col-span-1 md:row-span-1';
-  };
-
-  const Frame = ({ item, index }: { item: GalleryItem; index: number }) => (
-    <figure
-      className={`relative overflow-hidden rounded-xl border border-[#951C30]/20 bg-[#1c060f] group transition-all duration-500 hover:border-[#951C30]/60 hover:shadow-[0_0_0_1px_rgba(149,28,48,0.3),0_8px_40px_rgba(149,28,48,0.15)] hover:-translate-y-1 hover:scale-[1.01] [&>img]:transition-transform [&>img]:duration-700 hover:[&>img]:scale-105 [&>video]:transition-transform [&>video]:duration-700 hover:[&>video]:scale-105 ${getGridClasses(item.type)}`}
-    >
-      <Media item={item} alt={`${projectTitle} frame ${index + 1}`} />
-      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-    </figure>
-  );
 
   // Dynamically adjust grid columns based on number of items
   let gridContainerClass = "grid grid-cols-1 auto-rows-[250px] gap-4 md:gap-5 grid-flow-dense";
@@ -53,7 +53,15 @@ export function GallerySection({ items, projectTitle }: { items: GalleryItem[]; 
 
   return (
     <div className={gridContainerClass}>
-      {items.map((item, i) => <Frame key={`${item.url}-${i}`} item={item} index={i} />)}
+      {items.map((item, i) => (
+        <GalleryFrame
+          key={`${item.url}-${i}`}
+          item={item}
+          index={i}
+          projectTitle={projectTitle}
+          totalItems={items.length}
+        />
+      ))}
     </div>
   );
 }

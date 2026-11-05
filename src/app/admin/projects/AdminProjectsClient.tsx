@@ -21,6 +21,8 @@ interface AdminProject {
   price?: number;
   currency?: string;
   saleOrder?: number;
+  order?: number;
+  createdAt?: string;
 }
 
 export default function AdminProjectsClient() {
@@ -30,6 +32,7 @@ export default function AdminProjectsClient() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [originalOrder, setOriginalOrder] = useState<string[]>([]);
+  const [originalAllOrder, setOriginalAllOrder] = useState<string[]>([]);
 
   useEffect(() => {
     fetchProjects();
@@ -49,7 +52,16 @@ export default function AdminProjectsClient() {
         sector: typeof p.sector === 'object' ? p.sector?.en || '' : p.sector,
       }));
 
-      setAllProjects(all);
+      // Sort allProjects by order if set
+      const sortedAll = [...all].sort((a, b) => {
+        if (a.order != null && b.order != null) return a.order - b.order;
+        if (a.order != null) return -1;
+        if (b.order != null) return 1;
+        return (new Date(b.createdAt || 0).getTime() || 0) - (new Date(a.createdAt || 0).getTime() || 0);
+      });
+
+      setAllProjects(sortedAll);
+      setOriginalAllOrder(sortedAll.map((p) => p._id));
 
       const forSale = [...all]
         .filter((p) => p.isForSale)
@@ -70,33 +82,61 @@ export default function AdminProjectsClient() {
   };
 
   const handleMove = (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= saleProjects.length) return;
+    if (tab === 'forSale') {
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= saleProjects.length) return;
 
-    setSaleProjects((prev) => {
-      const copy = [...prev];
-      const temp = copy[index];
-      copy[index] = copy[targetIndex];
-      copy[targetIndex] = temp;
-      return copy;
-    });
+      setSaleProjects((prev) => {
+        const copy = [...prev];
+        const temp = copy[index];
+        copy[index] = copy[targetIndex];
+        copy[targetIndex] = temp;
+        return copy;
+      });
+    } else {
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= allProjects.length) return;
+
+      setAllProjects((prev) => {
+        const copy = [...prev];
+        const temp = copy[index];
+        copy[index] = copy[targetIndex];
+        copy[targetIndex] = temp;
+        return copy;
+      });
+    }
   };
 
-  const hasOrderChanged =
+  const hasSaleOrderChanged =
     JSON.stringify(saleProjects.map((p) => p._id)) !== JSON.stringify(originalOrder);
+
+  const hasAllOrderChanged =
+    JSON.stringify(allProjects.map((p) => p._id)) !== JSON.stringify(originalAllOrder);
 
   const handleSaveOrder = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/projects/reorder', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderedIds: saleProjects.map((p) => p._id) }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error();
-      setOriginalOrder(saleProjects.map((p) => p._id));
-      toast.success('Order saved!');
+      if (tab === 'forSale') {
+        const res = await fetch('/api/admin/projects/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds: saleProjects.map((p) => p._id) }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error();
+        setOriginalOrder(saleProjects.map((p) => p._id));
+        toast.success('Order saved!');
+      } else {
+        const res = await fetch('/api/admin/projects/reorder-all', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds: allProjects.map((p) => p._id) }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error();
+        setOriginalAllOrder(allProjects.map((p) => p._id));
+        toast.success('Projects order saved!');
+      }
     } catch {
       toast.error('Failed to save order');
     } finally {
@@ -158,8 +198,8 @@ export default function AdminProjectsClient() {
         </button>
       </div>
 
-      {/* Save order button (only in forSale tab) */}
-      {tab === 'forSale' && hasOrderChanged && (
+      {/* Save order button for forSale tab */}
+      {tab === 'forSale' && hasSaleOrderChanged && (
         <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
           <span className="text-sm text-amber-300 flex-1">
             You have unsaved order changes.
@@ -168,6 +208,32 @@ export default function AdminProjectsClient() {
             onClick={handleSaveOrder}
             disabled={saving}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-amber-950 font-semibold text-sm transition-colors disabled:opacity-60"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save Order
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Save order button for all projects tab */}
+      {tab === 'all' && hasAllOrderChanged && (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30">
+          <span className="text-sm text-rose-200 flex-1">
+            You have unsaved project order changes.
+          </span>
+          <button
+            onClick={handleSaveOrder}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm transition-colors disabled:opacity-60 shadow-lg shadow-rose-900/40"
           >
             {saving ? (
               <>
@@ -240,12 +306,10 @@ export default function AdminProjectsClient() {
                   )}
                 </div>
 
-                {/* Order number for forSale tab */}
-                {tab === 'forSale' && (
-                  <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 border border-white/10 flex items-center justify-center text-[11px] font-bold text-white/80">
-                    {i + 1}
-                  </div>
-                )}
+                {/* Order number */}
+                <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 border border-white/10 flex items-center justify-center text-[11px] font-bold text-white/80">
+                  {i + 1}
+                </div>
               </div>
 
               {/* Content */}
@@ -274,36 +338,34 @@ export default function AdminProjectsClient() {
                     <Edit2 className="w-4 h-4 mr-1.5" /> Edit
                   </Link>
 
-                  {/* Reorder arrows (forSale tab only) */}
-                  {tab === 'forSale' && (
-                    <div className="flex items-center gap-1 bg-black/30 rounded-lg border border-white/10 px-1.5 py-1">
-                      <button
-                        disabled={i === 0}
-                        onClick={() => handleMove(i, 'up')}
-                        title="Move up"
-                        className={`p-1 rounded transition-colors ${
-                          i === 0
-                            ? 'text-white/15 cursor-not-allowed'
-                            : 'text-white/60 hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="text-[10px] text-white/30 px-0.5">ترتيب</span>
-                      <button
-                        disabled={i === saleProjects.length - 1}
-                        onClick={() => handleMove(i, 'down')}
-                        title="Move down"
-                        className={`p-1 rounded transition-colors ${
-                          i === saleProjects.length - 1
-                            ? 'text-white/15 cursor-not-allowed'
-                            : 'text-white/60 hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
+                  {/* Reorder arrows */}
+                  <div className="flex items-center gap-1 bg-black/30 rounded-lg border border-white/10 px-1.5 py-1">
+                    <button
+                      disabled={i === 0}
+                      onClick={() => handleMove(i, 'up')}
+                      title="Move up"
+                      className={`p-1 rounded transition-colors ${
+                        i === 0
+                          ? 'text-white/15 cursor-not-allowed'
+                          : 'text-white/60 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[10px] text-white/30 px-0.5">ترتيب</span>
+                    <button
+                      disabled={i === displayProjects.length - 1}
+                      onClick={() => handleMove(i, 'down')}
+                      title="Move down"
+                      className={`p-1 rounded transition-colors ${
+                        i === displayProjects.length - 1
+                          ? 'text-white/15 cursor-not-allowed'
+                          : 'text-white/60 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
 
                   <DeleteProjectButton projectId={project._id.toString()} title={project.title} />
                 </div>

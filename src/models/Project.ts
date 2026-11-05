@@ -69,6 +69,7 @@ export interface IProject extends Document {
   price?: number;
   currency?: string;
   saleOrder?: number;
+  order?: number;
   metaTitle?: ILocalizedText;
   metaDescription?: ILocalizedText;
   visualDirection?: IVisualDirection;
@@ -166,6 +167,7 @@ const ProjectSchema = new Schema<IProject>(
     price: { type: Number, default: undefined },
     currency: { type: String, default: 'SAR' },
     saleOrder: { type: Number, default: undefined },
+    order: { type: Number, default: undefined },
     metaTitle: {
       type: new Schema<ILocalizedText>(
         {

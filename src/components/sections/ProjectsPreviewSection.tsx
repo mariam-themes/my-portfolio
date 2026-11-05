@@ -9,7 +9,7 @@ import { useReducedMotion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link, useRouter } from '@/i18n/navigation';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDown } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -175,6 +175,13 @@ export default function ProjectsPreviewSection() {
                     <span className="relative">{clickPart}</span>
                   </span>
                 )}
+                <div className="relative inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#951C30]/25 border border-[#951C30]/60 shadow-[0_0_20px_rgba(149,28,48,0.7)] text-rose-200 text-xs font-semibold animate-bounce cursor-default select-none">
+                  <span className="absolute -inset-1 rounded-full bg-[#951C30]/40 blur-md animate-pulse" />
+                  <ArrowDown className="relative w-3.5 h-3.5 text-rose-300" />
+                  <span className="relative text-[11px] font-bold tracking-wider">
+                    {isRtl ? 'انزل لأسفل' : 'Scroll down'}
+                  </span>
+                </div>
               </div>
             );
           })()}

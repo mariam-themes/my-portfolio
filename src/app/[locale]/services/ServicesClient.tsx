@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { ArrowUpRight, Sparkles, Layers, ArrowLeft } from 'lucide-react';
+import { ArrowUpRight, Sparkles, Layers, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatPortfolioNumber } from '@/lib/formatters';
 
 export interface LocalizedServiceItem {
@@ -26,6 +26,14 @@ export default function ServicesClient({ services, categories }: ServicesClientP
   const locale = useLocale();
   const isAr = locale === 'ar';
   const [activeFilter, setActiveFilter] = useState<string>('');
+  const [expandedCardIds, setExpandedCardIds] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (id: string) => {
+    setExpandedCardIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   // Filter services by active category
   const filteredServices = useMemo(() => {
@@ -229,9 +237,42 @@ export default function ServicesClient({ services, categories }: ServicesClientP
                         {service.title}
                       </h3>
 
-                      <p className="text-rose-100/70 text-sm leading-relaxed font-light mb-6 line-clamp-3">
-                        {service.description}
-                      </p>
+                      {(() => {
+                        const cardId = String(service._id || index);
+                        const isExpanded = !!expandedCardIds[cardId];
+                        const isLongDescription = (service.description || '').length > 95;
+
+                        return (
+                          <div className="mb-4">
+                            <p
+                              className={`text-rose-100/70 text-sm leading-relaxed font-light transition-all duration-300 ${
+                                isExpanded ? '' : 'line-clamp-3'
+                              }`}
+                            >
+                              {service.description}
+                            </p>
+
+                            {isLongDescription && (
+                              <button
+                                type="button"
+                                onClick={() => toggleExpand(cardId)}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#ff4d6d] hover:text-white transition-colors mt-2 cursor-pointer select-none group/more"
+                              >
+                                <span>
+                                  {isExpanded
+                                    ? (isAr ? 'عرض أقل' : 'Show less')
+                                    : (isAr ? 'عرض المزيد' : 'Show more')}
+                                </span>
+                                <ChevronDown
+                                  className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                                    isExpanded ? 'rotate-180' : 'group-hover/more:translate-y-0.5'
+                                  }`}
+                                />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* Tags */}
                       {service.tags && service.tags.length > 0 && (

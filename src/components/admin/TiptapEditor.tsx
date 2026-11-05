@@ -142,6 +142,7 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
     : 'paragraph';
 
   const setHeading = (value: string) => {
+    if (!editor) return;
     if (value === 'paragraph') {
       editor.chain().focus().setParagraph().run();
     } else {
@@ -154,6 +155,7 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
   };
 
   const applyLink = () => {
+    if (!editor) return;
     const url = linkValue.trim();
     if (url === '') {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();

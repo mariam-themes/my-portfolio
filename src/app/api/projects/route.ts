@@ -31,16 +31,27 @@ export async function GET(request: Request) {
       query.isForSale = { $ne: true };
     }
 
-    // Fetch projects — for-sale uses saleOrder; default newest-first; ?sort=asc for oldest-first
-    const sortField = forSaleOnly
-      ? { saleOrder: 1, createdAt: -1 }
-      : sortAsc
-        ? { year: 1, createdAt: 1 }
-        : { year: -1, createdAt: -1 };
+    // Fetch projects — for-sale uses saleOrder; all projects prioritize custom order
+    const projects = await Project.find(query).lean();
 
-    const projects = await Project.find(query)
-      .sort(sortField as any)
-      .lean();
+    if (forSaleOnly) {
+      projects.sort((a: any, b: any) => {
+        if (a.saleOrder != null && b.saleOrder != null) return a.saleOrder - b.saleOrder;
+        if (a.saleOrder != null) return -1;
+        if (b.saleOrder != null) return 1;
+        return (new Date(b.createdAt).getTime() || 0) - (new Date(a.createdAt).getTime() || 0);
+      });
+    } else if (sortAsc) {
+      projects.sort((a: any, b: any) => (a.year || 0) - (b.year || 0));
+    } else {
+      projects.sort((a: any, b: any) => {
+        if (a.order != null && b.order != null) return a.order - b.order;
+        if (a.order != null) return -1;
+        if (b.order != null) return 1;
+        if (b.year !== a.year) return (b.year || 0) - (a.year || 0);
+        return (new Date(b.createdAt).getTime() || 0) - (new Date(a.createdAt).getTime() || 0);
+      });
+    }
     
     // Use cached translations from database instead of calling external API on the fly
     const localizedProjects = projects.map((project) => {
