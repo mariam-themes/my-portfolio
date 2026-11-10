@@ -7,18 +7,8 @@ import FooterLocaleSwitcher from '@/components/public/FooterLocaleSwitcher';
 import FooterClient from '@/components/public/FooterClient';
 import { ArrowUpRight } from 'lucide-react';
 
-const NAV_LINKS = [
-  { key: 'home', href: '/' },
-  { key: 'services', href: '/#services' },
-  { key: 'work', href: '/work' },
-  { key: 'marketplace', href: '/marketplace' },
-  { key: 'blog', href: '/blog' },
-  { key: 'contact', href: '/contact' },
-];
-
 export default async function Footer() {
   const t = await getTranslations('Footer');
-  const tn = await getTranslations('Navbar');
   const settings = await getGlobalSettings();
   const locale = await getLocale();
 
@@ -106,28 +96,73 @@ export default async function Footer() {
           </div>
 
           {/* Right: Links Grid */}
-          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-12 footer-reveal">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 lg:gap-12 footer-reveal">
             
-            {/* Navigate */}
+            {/* Accreditations & Verifications */}
             <div className="space-y-6">
               <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">
-                {t('navigate')}
+                {t('accreditations')}
               </h4>
-              <ul className="space-y-3">
-                {NAV_LINKS.map((l) => (
-                  <li key={l.key}>
-                    <Link
-                      href={l.href}
-                      className="group inline-flex text-sm md:text-base text-white/60 transition-colors hover:text-white"
-                    >
-                      <span className="relative">
-                        {tn(l.key)}
-                        <span className="absolute -bottom-1 start-0 h-[2px] w-0 bg-[#951C30] transition-all duration-300 group-hover:w-full" />
+
+              <div className="space-y-6">
+                {/* 1. المركز السعودي للأعمال */}
+                <div className="space-y-3">
+                  <a
+                    href="https://eauthenticate.saudibusiness.gov.sa/inquiry"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={isAr ? 'التحقق من المركز السعودي للأعمال' : 'Verify with Saudi Business Center'}
+                    className="group/sbc inline-block transition-transform duration-300 hover:scale-105 focus:outline-none"
+                  >
+                    <div className="relative h-12 w-12 flex-shrink-0">
+                      <Image
+                        src="/images/sbc-logo.png"
+                        alt={isAr ? 'شعار المركز السعودي للأعمال' : 'Saudi Business Center Logo'}
+                        width={48}
+                        height={48}
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                  </a>
+
+                  <div className="space-y-1.5">
+                    <p className="text-xs md:text-sm font-medium text-white/90 leading-snug">
+                      {t('sbcTitle')}
+                    </p>
+                    <div className="flex items-center gap-1.5 text-xs text-white/50 flex-wrap">
+                      <span>{t('sbcNumber')}:</span>
+                      <span className="font-mono text-xs font-semibold text-white/90 select-all tracking-wider bg-white/[0.04] px-2 py-0.5 rounded border border-white/10 hover:border-[#951C30]/50 transition-colors">
+                        0000342157
                       </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. وثيقة العمل الحر */}
+                <div className="space-y-3 border-t border-white/5 pt-5">
+                  <div className="relative h-9 w-24 flex-shrink-0">
+                    <Image
+                      src="/images/freelance-logo-white.png"
+                      alt={isAr ? 'شعار وثيقة العمل الحر' : 'Freelance Work Logo'}
+                      width={96}
+                      height={36}
+                      className="h-full w-full object-contain rtl:object-right ltr:object-left"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <p className="text-xs md:text-sm font-medium text-white/90 leading-snug">
+                      {t('freelanceTitle')}
+                    </p>
+                    <div className="flex items-center gap-1.5 text-xs text-white/50 flex-wrap">
+                      <span>{t('freelanceNumber')}:</span>
+                      <span className="font-mono text-xs font-semibold text-white/90 select-all tracking-wider bg-white/[0.04] px-2 py-0.5 rounded border border-white/10 hover:border-[#951C30]/50 transition-colors">
+                        FL-659361155
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Connect */}
@@ -172,7 +207,7 @@ export default async function Footer() {
 
             {/* Useful Links */}
             {usefulLinks.length > 0 && (
-              <div className="col-span-2 sm:col-span-1 space-y-6">
+              <div className="col-span-1 sm:col-span-2 md:col-span-1 space-y-6">
                 <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">
                   {t('usefulLinks')}
                 </h4>

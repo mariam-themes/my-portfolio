@@ -12,7 +12,12 @@
     "connect": "Connect",
     "noSocials": "No social links configured.",
     "usefulLinks": "Useful Links",
-    "designedBy": "Designed with precision."
+    "designedBy": "Designed with precision.",
+    "accreditations": "Official Accreditations",
+    "sbcTitle": "Verified by Saudi Business Center",
+    "sbcNumber": "Verification No.",
+    "freelanceTitle": "Freelance Work Certificate",
+    "freelanceNumber": "Certificate No."
   },
   "OtherProjects": {
     "kicker": "Portfolio",
@@ -508,7 +513,8 @@
       "otherProjects": "Other Projects",
       "testimonials": "Testimonials",
       "blog": "Blog / Journal",
-      "contact": "Contact Section"
+      "contact": "Contact Section",
+      "visualIdentitiesForSale": "Visual Identities For Sale"
     },
     "servicesPage": {
       "title": "Services Manager",

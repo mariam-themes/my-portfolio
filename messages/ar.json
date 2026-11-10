@@ -12,7 +12,12 @@
     "connect": "تواصل",
     "noSocials": "لا توجد روابط تواصل.",
     "usefulLinks": "روابط هامة",
-    "designedBy": "صُمم بكل دقة."
+    "designedBy": "صُمم بكل دقة.",
+    "accreditations": "الاعتمادات الرسمية",
+    "sbcTitle": "موثقون من قبل المركز السعودي للأعمال",
+    "sbcNumber": "رقم التوثيق",
+    "freelanceTitle": "وثيقة العمل الحر",
+    "freelanceNumber": "رقم الوثيقة"
   },
   "OtherProjects": {
     "kicker": "معرض الأعمال",
@@ -508,7 +513,8 @@
       "otherProjects": "مشاريع أخرى",
       "testimonials": "الشهادات",
       "blog": "المدونة",
-      "contact": "قسم التواصل"
+      "contact": "قسم التواصل",
+      "visualIdentitiesForSale": "الهويات البصرية للبيع"
     },
     "servicesPage": {
       "title": "إدارة الخدمات",

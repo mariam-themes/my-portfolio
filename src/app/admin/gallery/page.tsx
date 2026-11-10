@@ -7,19 +7,37 @@ import {
   Trash2, 
   UploadCloud, 
   Sparkles, 
-  ArrowLeft, 
-  ArrowRight, 
   Maximize2, 
   X, 
   Save, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  GripVertical
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { compressImageFile } from '@/lib/imageCompression';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface UploadItem {
   id: string;
@@ -30,20 +48,136 @@ interface UploadItem {
   error?: string;
 }
 
+interface GalleryItem {
+  id: string;
+  url: string;
+}
+
+interface SortableGalleryItemProps {
+  id: string;
+  url: string;
+  index: number;
+  onPreview: (url: string) => void;
+  onDelete: (index: number) => void;
+  t: any;
+}
+
+function SortableGalleryItem({
+  id,
+  url,
+  index,
+  onPreview,
+  onDelete,
+  t,
+}: SortableGalleryItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`group relative rounded-xl overflow-hidden border bg-[#1A050C] aspect-[4/3] shadow-md transition-all duration-300 ${
+        isDragging
+          ? 'opacity-30 border-dashed border-rose-500 scale-[0.98]'
+          : 'border-rose-900/50 hover:shadow-rose-950/50 hover:border-rose-500/50'
+      }`}
+    >
+      <Image
+        src={url}
+        alt={`Gallery item ${index + 1}`}
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+        unoptimized
+      />
+
+      {/* Order Badge with Drag Handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-white/90 cursor-grab active:cursor-grabbing hover:border-rose-500/60 hover:text-white transition-colors touch-none"
+        title="اضغط واسحب لتغيير الترتيب"
+      >
+        <GripVertical className="w-3 h-3 text-rose-400" />
+        <span>#{index + 1}</span>
+      </div>
+
+      {/* Actions Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2.5">
+        <div className="flex justify-end gap-1.5">
+          <button
+            type="button"
+            onClick={() => onPreview(url)}
+            className="p-1.5 bg-black/60 hover:bg-rose-600 text-white rounded-lg transition-colors"
+            title={t('preview')}
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(index)}
+            className="p-1.5 bg-red-950/80 hover:bg-red-600 text-red-300 hover:text-white rounded-lg transition-colors"
+            title="Delete"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Drag Handle Button (replacing old arrows) */}
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="flex items-center justify-center gap-1.5 bg-black/75 hover:bg-rose-950/80 backdrop-blur-md rounded-lg py-1.5 px-3 border border-white/10 hover:border-rose-500/50 text-xs text-white/80 hover:text-white cursor-grab active:cursor-grabbing transition-all select-none touch-none"
+          title="اضغط واسحب لتغيير الترتيب"
+        >
+          <GripVertical className="w-3.5 h-3.5 text-rose-400" />
+          <span className="text-[11px] font-medium">سحب للترتيب</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function GalleryPage() {
   const t = useTranslations('Admin.galleryPage');
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isLoading, setIsLoading] = useState(true);
-  const [images, setImages] = useState<string[]>([]);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [initialImages, setInitialImages] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadQueue, setUploadQueue] = useState<UploadItem[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [activeSortId, setActiveSortId] = useState<string | null>(null);
 
-  const hasUnsavedChanges = JSON.stringify(images) !== JSON.stringify(initialImages);
+  const currentUrls = galleryItems.map((g) => g.url);
+  const hasUnsavedChanges = JSON.stringify(currentUrls) !== JSON.stringify(initialImages);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     fetchData();
@@ -57,8 +191,12 @@ export default function GalleryPage() {
       
       if (sectionsData.success) {
         const opSection = sectionsData.data.find((s: any) => s.id === 'other-projects');
-        const galleryList = opSection && opSection.content?.gallery ? opSection.content.gallery : [];
-        setImages(galleryList);
+        const galleryList: string[] = opSection && opSection.content?.gallery ? opSection.content.gallery : [];
+        const items: GalleryItem[] = galleryList.map((url, i) => ({
+          id: `item-${i}-${url.slice(-15).replace(/[^a-zA-Z0-9]/g, '')}`,
+          url,
+        }));
+        setGalleryItems(items);
         setInitialImages(galleryList);
       }
     } catch (err) {
@@ -70,14 +208,12 @@ export default function GalleryPage() {
 
   const uploadSingleFile = async (file: File, itemId: string): Promise<string | null> => {
     try {
-      // 1. Compressing stage
       setUploadQueue((prev) =>
         prev.map((item) => (item.id === itemId ? { ...item, status: 'compressing' } : item))
       );
 
       const compressedFile = await compressImageFile(file);
 
-      // 2. Uploading stage with real-time progress
       setUploadQueue((prev) =>
         prev.map((item) => (item.id === itemId ? { ...item, status: 'uploading', progress: 0 } : item))
       );
@@ -148,7 +284,6 @@ export default function GalleryPage() {
     const fileArray = Array.from(files).filter((file) => file.type.startsWith('image/'));
     if (fileArray.length === 0) return;
 
-    // Create queue items with local object URLs for instant previews
     const newQueueItems: UploadItem[] = fileArray.map((file) => ({
       id: Math.random().toString(36).substring(2, 9),
       name: file.name,
@@ -159,7 +294,6 @@ export default function GalleryPage() {
 
     setUploadQueue((prev) => [...prev, ...newQueueItems]);
 
-    // Process all files concurrently
     const uploadPromises = fileArray.map((file, idx) => {
       const queueItem = newQueueItems[idx];
       return uploadSingleFile(file, queueItem.id);
@@ -169,7 +303,11 @@ export default function GalleryPage() {
     const successfulUrls = results.filter((url): url is string => Boolean(url));
 
     if (successfulUrls.length > 0) {
-      setImages((prev) => [...prev, ...successfulUrls]);
+      const newItems: GalleryItem[] = successfulUrls.map((url, i) => ({
+        id: `item-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 5)}`,
+        url,
+      }));
+      setGalleryItems((prev) => [...prev, ...newItems]);
       toast.success(
         successfulUrls.length === 1
           ? 'Image uploaded successfully!'
@@ -177,7 +315,6 @@ export default function GalleryPage() {
       );
     }
 
-    // Clean up queue after a short delay
     setTimeout(() => {
       setUploadQueue((prev) => prev.filter((item) => item.status !== 'success'));
     }, 2000);
@@ -202,35 +339,22 @@ export default function GalleryPage() {
   };
 
   const handleDeleteImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleMoveImage = (index: number, direction: 'left' | 'right') => {
-    const targetIndex = direction === 'left' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= images.length) return;
-
-    setImages((prev) => {
-      const copy = [...prev];
-      const temp = copy[index];
-      copy[index] = copy[targetIndex];
-      copy[targetIndex] = temp;
-      return copy;
-    });
+    setGalleryItems((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleClearAll = () => {
-    if (images.length === 0) return;
+    if (galleryItems.length === 0) return;
     if (window.confirm(t('confirmClear') || 'Are you sure you want to remove all gallery images?')) {
-      setImages([]);
+      setGalleryItems([]);
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (itemsToSave?: GalleryItem[]) => {
+    const items = itemsToSave || galleryItems;
+    const urls = items.map((g) => g.url);
+
     setIsSaving(true);
     try {
-      // Fetch the current full layout so we can send all sections back
-      // (with only other-projects.content updated) — this keeps every
-      // other section's visibility and content intact.
       const sectionsRes = await fetch('/api/admin/section-layout');
       if (!sectionsRes.ok) throw new Error('Failed to fetch layout');
       const sectionsData = await sectionsRes.json();
@@ -238,7 +362,7 @@ export default function GalleryPage() {
 
       const payload = (sectionsData.data as Array<{ id: string; isVisible: boolean; content?: unknown }>).map((s) => {
         if (s.id === 'other-projects') {
-          return { id: s.id, isVisible: s.isVisible, content: { gallery: images } };
+          return { id: s.id, isVisible: s.isVisible, content: { gallery: urls } };
         }
         return { id: s.id, isVisible: s.isVisible, content: s.content ?? null };
       });
@@ -252,7 +376,7 @@ export default function GalleryPage() {
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || 'Failed to save');
 
-      setInitialImages([...images]);
+      setInitialImages([...urls]);
       toast.success(t('allUploaded') || 'Gallery updated successfully!');
       router.refresh();
     } catch (err: any) {
@@ -261,6 +385,61 @@ export default function GalleryPage() {
       setIsSaving(false);
     }
   };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveSortId(String(event.active.id));
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveSortId(null);
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = galleryItems.findIndex((item) => item.id === active.id);
+    const newIndex = galleryItems.findIndex((item) => item.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const previousItems = [...galleryItems];
+    const reordered = arrayMove(galleryItems, oldIndex, newIndex);
+    setGalleryItems(reordered);
+
+    // Auto-save immediately to MongoDB
+    setIsSaving(true);
+    try {
+      const sectionsRes = await fetch('/api/admin/section-layout');
+      if (!sectionsRes.ok) throw new Error();
+      const sectionsData = await sectionsRes.json();
+      if (!sectionsData.success) throw new Error();
+
+      const urls = reordered.map((g) => g.url);
+      const payload = (sectionsData.data as Array<{ id: string; isVisible: boolean; content?: unknown }>).map((s) => {
+        if (s.id === 'other-projects') {
+          return { id: s.id, isVisible: s.isVisible, content: { gallery: urls } };
+        }
+        return { id: s.id, isVisible: s.isVisible, content: s.content ?? null };
+      });
+
+      const response = await fetch('/api/admin/section-layout', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sections: payload }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error();
+
+      setInitialImages([...urls]);
+      toast.success('تم تحديث وحفظ ترتيب المعرض بنجاح!');
+      router.refresh();
+    } catch {
+      setGalleryItems(previousItems);
+      toast.error('فشل حفظ ترتيب المعرض');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const activeItem = activeSortId ? galleryItems.find((g) => g.id === activeSortId) : null;
 
   if (isLoading) {
     return (
@@ -281,7 +460,7 @@ export default function GalleryPage() {
             </div>
             {t('title')}
           </h1>
-          <p className="text-rose-200/60 text-sm">{t('subtitle')}</p>
+          <p className="text-rose-200/60 text-sm">{t('subtitle')} (اسحب وأفلت لإعادة الترتيب)</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -291,7 +470,7 @@ export default function GalleryPage() {
               {t('unsavedChanges')}
             </span>
           )}
-          {images.length > 0 && (
+          {galleryItems.length > 0 && (
             <button
               onClick={handleClearAll}
               className="px-3.5 py-2 rounded-lg text-xs font-medium text-rose-300/70 hover:text-red-400 hover:bg-red-950/30 border border-transparent hover:border-red-900/40 transition-colors"
@@ -300,7 +479,7 @@ export default function GalleryPage() {
             </button>
           )}
           <button
-            onClick={handleSave}
+            onClick={() => handleSave()}
             disabled={isSaving || !hasUnsavedChanges}
             className={`
               flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg text-sm
@@ -350,32 +529,28 @@ export default function GalleryPage() {
           className="hidden"
         />
 
-        <div className="flex flex-col items-center justify-center space-y-3 pointer-events-none">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-600/20 to-rose-900/20 border border-rose-500/30 flex items-center justify-center group-hover:scale-110 group-hover:border-rose-500/60 transition-all duration-300">
-            <UploadCloud className="w-8 h-8 text-rose-400 group-hover:text-rose-300 transition-colors" />
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="p-4 rounded-full bg-rose-500/10 text-rose-400 group-hover:scale-110 group-hover:bg-rose-500/20 transition-all duration-300">
+            <UploadCloud className="w-8 h-8" />
           </div>
           <div>
-            <p className="text-base font-medium text-rose-100 mb-1">
-              {t('dragDropMultiple')}
-            </p>
-            <p className="text-xs text-rose-400/60 flex items-center justify-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-rose-400" />
-              {t('supportsMultiple')}
+            <h3 className="text-base font-medium text-white mb-1">
+              اسحب الصور وأفلتها هنا، أو اضغط للاختيار
+            </h3>
+            <p className="text-xs text-rose-200/50">
+              يتم ضغط الصور تلقائياً قبل الرفع لتسريع تحميل الموقع
             </p>
           </div>
         </div>
       </div>
 
-      {/* Active Upload Queue / Progress Cards */}
+      {/* Upload Progress Queue */}
       {uploadQueue.length > 0 && (
-        <div className="space-y-3 bg-[#17050C]/90 p-5 rounded-2xl border border-rose-900/40">
-          <div className="flex items-center justify-between text-xs font-medium text-rose-300">
-            <span className="flex items-center gap-2">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-400" />
-              {t('uploadingCount', { count: uploadQueue.length })}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="bg-[#120408]/60 p-5 rounded-2xl border border-rose-900/30 backdrop-blur-xl space-y-3">
+          <h3 className="text-xs font-semibold text-rose-200 uppercase tracking-wider">
+            قائمة الرفع والضغط ({uploadQueue.length})
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {uploadQueue.map((item) => (
               <div
                 key={item.id}
@@ -422,89 +597,68 @@ export default function GalleryPage() {
         </div>
       )}
 
-      {/* Gallery Grid */}
+      {/* Gallery Grid with Drag and Drop */}
       <div className="bg-[#120408]/60 p-6 rounded-2xl border border-rose-900/30 backdrop-blur-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-rose-100 flex items-center gap-2">
             <span>{t('images')}</span>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-950/80 border border-rose-900/50 text-rose-300">
-              {images.length}
+              {galleryItems.length}
             </span>
           </h2>
+          {isSaving && (
+            <div className="flex items-center gap-2 text-xs text-rose-300 animate-pulse">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>جارٍ حفظ الترتيب...</span>
+            </div>
+          )}
         </div>
 
-        {images.length === 0 ? (
+        {galleryItems.length === 0 ? (
           <div className="text-center py-12 text-rose-400/50 text-sm">
             لا توجد صور في المعرض حالياً. اسحب أو اختر صوراً لإضافتها.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {images.map((url, i) => (
-              <div
-                key={`${url}-${i}`}
-                className="group relative rounded-xl overflow-hidden border border-rose-900/50 bg-[#1A050C] aspect-[4/3] shadow-md hover:shadow-rose-950/50 hover:border-rose-500/50 transition-all duration-300"
-              >
-                <Image
-                  src={url}
-                  alt={`Gallery item ${i + 1}`}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  unoptimized
-                />
-
-                {/* Badges / Order */}
-                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-white/90">
-                  #{i + 1}
-                </div>
-
-                {/* Actions Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2.5">
-                  <div className="flex justify-end gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewImage(url)}
-                      className="p-1.5 bg-black/60 hover:bg-rose-600 text-white rounded-lg transition-colors"
-                      title={t('preview')}
-                    >
-                      <Maximize2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteImage(i)}
-                      className="p-1.5 bg-red-950/80 hover:bg-red-600 text-red-300 hover:text-white rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Move Left / Right Controls */}
-                  <div className="flex items-center justify-between bg-black/70 backdrop-blur-md rounded-lg p-1 border border-white/10 text-xs">
-                    <button
-                      type="button"
-                      disabled={i === 0}
-                      onClick={() => handleMoveImage(i, 'left')}
-                      className={`p-1 rounded ${i === 0 ? 'text-white/20 cursor-not-allowed' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
-                      title={t('moveLeft')}
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-[10px] text-white/60">ترتيب</span>
-                    <button
-                      type="button"
-                      disabled={i === images.length - 1}
-                      onClick={() => handleMoveImage(i, 'right')}
-                      className={`p-1 rounded ${i === images.length - 1 ? 'text-white/20 cursor-not-allowed' : 'text-white/80 hover:text-white hover:bg-white/10'}`}
-                      title={t('moveRight')}
-                    >
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={galleryItems.map((g) => g.id)}
+              strategy={rectSortingStrategy}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {galleryItems.map((item, i) => (
+                  <SortableGalleryItem
+                    key={item.id}
+                    id={item.id}
+                    url={item.url}
+                    index={i}
+                    onPreview={(url) => setPreviewImage(url)}
+                    onDelete={handleDeleteImage}
+                    t={t}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+
+            <DragOverlay adjustScale={false}>
+              {activeItem ? (
+                <div className="relative rounded-xl overflow-hidden border-2 border-rose-500 bg-[#1A050C] aspect-[4/3] shadow-2xl shadow-rose-900/60 ring-4 ring-rose-500/20 scale-105 cursor-grabbing pointer-events-none opacity-95">
+                  <Image
+                    src={activeItem.url}
+                    alt="Dragging gallery item"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-black/20" />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         )}
       </div>
 
@@ -524,7 +678,7 @@ export default function GalleryPage() {
             <div className="relative w-full h-full">
               <Image
                 src={previewImage}
-                alt="Preview"
+                alt="Enlarged view"
                 fill
                 className="object-contain"
                 unoptimized

@@ -3,6 +3,7 @@ import ScrollMotionWrapper from '@/components/public/ScrollMotionWrapper';
 import connectToDatabase from '@/lib/mongodb';
 import GlobalSettings, { DEFAULT_GLOBAL_SETTINGS } from '@/models/GlobalSettings';
 import { Metadata } from 'next';
+import SBCSeal from '@/components/public/SBCSeal';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +54,7 @@ export default async function Home() {
           })
         )}
       </ScrollMotionWrapper>
+      <SBCSeal />
     </main>
   );
 }

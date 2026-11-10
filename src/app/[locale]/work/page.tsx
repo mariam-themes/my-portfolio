@@ -34,10 +34,17 @@ export default async function WorkPage({
   try {
     await connectToDatabase();
     // Always show all regular projects on the /work page, newest-first (exclude for-sale identities).
-    const projects = await Project.find({ isForSale: { $ne: true } })
-      .sort({ year: -1, createdAt: -1 })
-      .select('title slug sector category heroMediaUrl year sourceLang translations isFeatured')
+    const rawProjects = await Project.find({ isForSale: { $ne: true } })
+      .select('title slug sector category heroMediaUrl year sourceLang translations isFeatured order createdAt')
       .lean();
+
+    const projects = [...rawProjects].sort((a: any, b: any) => {
+      if (a.order != null && b.order != null) return a.order - b.order;
+      if (a.order != null) return -1;
+      if (b.order != null) return 1;
+      if (b.year !== a.year) return (b.year || 0) - (a.year || 0);
+      return (new Date(b.createdAt || 0).getTime() || 0) - (new Date(a.createdAt || 0).getTime() || 0);
+    });
 
     serializedProjects = (
       JSON.parse(JSON.stringify(projects)) as LocalizedProject[]
